@@ -1,80 +1,83 @@
 #include <stdio.h>
 
-struct foo {
-	int value;
-};
+typedef struct {
+	void (*test_case)(void);
+} rk_test_case_t;
 
 /* Implementation Details                                                     */
 /* -------------------------------------------------------------------------- */
 
 #if defined(_MSC_VER)
-__pragma(section("bar$a", read));
-__pragma(section("bar$b", read));
-__pragma(section("bar$c", read));
-__declspec(allocate("bar$a")) extern const struct foo* const bar_begin = NULL;
-__declspec(allocate("bar$c")) extern const struct foo* const bar_end = NULL;
+__pragma(section("rk_testcases$begin", read));
+__pragma(section("rk_testcases$case", read));
+__pragma(section("rk_testcases$end", read));
+__declspec(allocate("rk_testcases$begin")) extern const rk_test_case_t* const rk_testcases_begin = NULL;
+__declspec(allocate("rk_testcases$end")) extern const rk_test_case_t* const rk_testcases_end = NULL;
 
 #define DEFINE_SECTION \
-	__declspec(allocate("bar$b"))
+	__declspec(allocate("rk_testcases$case"))
 #elif defined(__APPLE__)
-extern const struct foo* const
-	__start_bar __asm("section$start$__DATA$bar");
-extern const struct foo* const
-	__stop_bar __asm("section$end$__DATA$bar");
+extern const rk_test_case_t* const
+	__start_rk_testcases __asm("section$start$__DATA$rk_testcases");
+extern const rk_test_case_t* const
+	__stop_rk_testcases __asm("section$end$__DATA$rk_testcases");
 
 #define DEFINE_SECTION \
-	__attribute__((used, section("__DATA,bar")))
+	__attribute__((used, section("__DATA,rk_testcases")))
 
 DEFINE_SECTION
-extern const struct foo* const dummy = NULL;
+extern const rk_test_case_t* const dummy = NULL;
 #elif defined(__unix__)
-extern const struct foo* const __start_bar;
-extern const struct foo* const __stop_bar;
+extern const rk_test_case_t* const __start_rk_testcases;
+extern const rk_test_case_t* const __stop_rk_testcases;
 
 #define DEFINE_SECTION \
-	__attribute__((used, section("bar")))
+	__attribute__((used, section("rk_testcases")))
 
 DEFINE_SECTION
-extern const struct foo* const dummy = NULL;
+extern const rk_test_case_t* const dummy = NULL;
 #endif
 
 /* Public API                                                                 */
 /* -------------------------------------------------------------------------- */
 
 #if defined(_MSC_VER)
-#define SECTION_BEGIN \
-	(&bar_begin + 1)
-#define SECTION_END \
-	(&bar_end)
+#define TESTS_BEGIN \
+	(&rk_testcases_begin + 1)
+#define TESTS_END \
+	(&rk_testcases_end)
 #elif defined(__unix__) || defined(__APPLE__)
-#define SECTION_BEGIN \
-	(&__start_bar)
-#define SECTION_END \
-	(&__stop_bar)
+#define TESTS_BEGIN \
+	(&__start_rk_testcases)
+#define TESTS_END \
+	(&__stop_rk_testcases)
 #endif
 
-#define REGISTER_FOO(id, value) \
-	static const struct foo id = { value }; \
-	DEFINE_SECTION \
-	extern const struct foo* const id##_ptr = &id;
+#define TEST(name)                                         \
+	void rk_test__##name(void);                            \
+	static const rk_test_case_t name = {                   \
+		.test_case = &rk_test__##name                      \
+	};                                                     \
+	DEFINE_SECTION                                         \
+	extern const rk_test_case_t* const name##_ptr = &name; \
+	void rk_test__##name(void)
 
 /* Usage                                                                      */
 /* -------------------------------------------------------------------------- */
 
-REGISTER_FOO(b, 234);
-REGISTER_FOO(a, 123);
-REGISTER_FOO(c, 345);
+TEST(hello_world) {
+	printf("Hello World!\n");
+}
 
-int main(void) {
-	printf("Hello world\n");
-
-	const struct foo* const* it;
-
-	for (it = SECTION_BEGIN; it < SECTION_END; ++it) {
+void run_tests() {
+	for (const rk_test_case_t* const* it = TESTS_BEGIN; it < TESTS_END; it++) {
 		if (*it) {
-			printf("%d\n", (*it)->value);
+			(*it)->test_case();
 		}
 	}
+}
 
+int main(void) {
+	run_tests();
 	return 0;
 }

@@ -4,7 +4,7 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveBitFields: false
 AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: false
-AlignEscapedNewlines: DontAlign
+AlignEscapedNewlines: Right
 AlignOperands: false
 AlignTrailingComments: false
 AllowAllArgumentsOnNextLine: false
