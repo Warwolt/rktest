@@ -8,18 +8,19 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
+# Test Library
 add_library(${PROJECT_NAME}
+    src/rktest_main.c
     src/rktest.c
 )
 
-add_executable(run_tests
-    src/main.c
+target_include_directories(${PROJECT_NAME} PUBLIC
+    include
 )
 
-target_include_directories(run_tests PUBLIC
-    src
-)
-
-target_link_libraries(run_tests PUBLIC
-    ${PROJECT_NAME}
-)
+# Samples
+add_executable(sample1
+    samples/sample1_factorial.c
+    samples/sample1_factorial_tests.c)
+target_include_directories(sample1 PUBLIC include)
+target_link_libraries(sample1 PUBLIC ${PROJECT_NAME})

@@ -19,4 +19,9 @@ typedef struct {
 	__pragma(data_seg(pop));                                                                                                   \
 	void SUITE##_##NAME##_impl(void)
 
+#define EXPECT_EQ(lhs, rhs)
+#define EXPECT_GT(lhs, rhs)
+#define EXPECT_TRUE(lhs)
+#define EXPECT_FALSE(lhs)
+
 int rktest_main(void);
