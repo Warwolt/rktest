@@ -2,5 +2,5 @@
 
 A small test library for C programs, written to closely mimick [Google Test](https://github.com/google/googletest). This is intended as a library that is lightweight and easy to integrate into a C project to add testing capabilities.
 
-R2K Test has the following features:
+RK Test has the following features:
 - Self registering tests
