@@ -26,7 +26,7 @@ TEST(is_prime_test, negative) {
 	EXPECT_FALSE(is_prime(INT_MIN));
 }
 
-TEST(is_prime_test, Trivial) {
+TEST(is_prime_test, trivial) {
 	EXPECT_FALSE(is_prime(0));
 	EXPECT_FALSE(is_prime(1));
 	EXPECT_TRUE(is_prime(2));

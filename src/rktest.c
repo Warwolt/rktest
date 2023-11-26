@@ -36,18 +36,28 @@ __declspec(allocate("rktestdata$begin")) const rktest_test_t* const init_data_be
 __declspec(allocate("rktestdata$end")) const rktest_test_t* const init_data_end = NULL;
 
 static void run_test(const rktest_test_t* test) {
-	printf("[%s.%s]\n", test->suite, test->name);
+	printf("[ RUN      ] %s.%s \n", test->suite, test->name);
 	if (test->func) {
 		test->func();
 	}
+	printf("[       OK ] %s.%s \n", test->suite, test->name);
 }
 
 int rktest_main(void) {
+	printf("[==========] Running tests.\n");
+	printf("[----------] Global test environment set-up.\n");
+
+	int num_tests = 0;
 	for (const rktest_test_t* const* it = (&init_data_begin + 1); it != &init_data_end; it++) {
 		if (*it) {
+			num_tests++;
 			run_test(*it);
 		}
 	}
+
+	printf("\n");
+	printf("[----------] Global test environment tear-down.\n");
+	printf("[==========] %d tests from 1 test suite ran.\n", num_tests);
 
 	return 0;
 }
