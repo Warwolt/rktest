@@ -1,6 +1,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifndef RKTEST_H
+#define RKTEST_H
+
 // RKTest is a small unit test library for C99 heavily based on Google Test.
 
 /* Public API -------------------------------------------------------------------------------------*/
@@ -56,3 +59,5 @@ inline bool _rktest_colors_enabled(void);
 	printf("%s", _RKTEST_COLOR_YELLOW); \
 	printf(__VA_ARGS__);                \
 	printf("%s", _RKTEST_COLOR_RESET)
+
+#endif /* RKTEST_H */
