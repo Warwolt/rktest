@@ -76,7 +76,7 @@ static void init_test_runner(void) {
 #endif // WIN32
 }
 
-static void _run_test(const _rktest_test_t* test) {
+static void run_test(const _rktest_test_t* test) {
 	_rktest_printf_green("[ RUN      ] ");
 	printf("%s.%s \n", test->suite, test->name);
 	if (test->func) {
@@ -84,6 +84,17 @@ static void _run_test(const _rktest_test_t* test) {
 	}
 	_rktest_printf_green("[       OK ] ");
 	printf("%s.%s \n", test->suite, test->name);
+}
+
+static int run_all_tests() {
+	int num_tests = 0;
+	for (const _rktest_test_t* const* it = (&init_data_begin + 1); it != &init_data_end; it++) {
+		if (*it) {
+			num_tests++;
+			run_test(*it);
+		}
+	}
+	return num_tests;
 }
 
 int rktest_main(void) {
@@ -94,13 +105,7 @@ int rktest_main(void) {
 	_rktest_printf_green("[----------] ");
 	printf("Global test environment set-up.\n");
 
-	int num_tests = 0;
-	for (const _rktest_test_t* const* it = (&init_data_begin + 1); it != &init_data_end; it++) {
-		if (*it) {
-			num_tests++;
-			_run_test(*it);
-		}
-	}
+	const int num_tests = run_all_tests();
 
 	printf("\n");
 	_rktest_printf_green("[----------] ");
