@@ -4,9 +4,9 @@
 #include <limits.h>
 
 TEST(factorial_test, factorial_of_negative_numbers_is_one) {
-	EXPECT_EQ(factorial(-5), 1);
+	EXPECT_EQ(factorial(-5), 0);
 	EXPECT_EQ(factorial(-1), 1);
-	EXPECT_GT(factorial(-10), 0);
+	EXPECT_GT(factorial(-10), 1);
 }
 
 TEST(factorial_test, factorial_of_zero_is_one) {

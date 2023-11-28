@@ -22,11 +22,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #ifndef RKTEST_H
 #define RKTEST_H
 
-// RKTest is a small unit test library for C99 with an interface heavily based on Google Test.
+// RK Test is a small unit test library for C99 with an interface heavily based
+// on Google Test, featuring self registering tests.
 
 /* Config variables --------------------------------------------------------- */
 // Define these variables before including rktest.h to configure the max number
@@ -41,41 +43,142 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /* Public API --------------------------------------------------------------- */
-#define TEST(SUITE, NAME)                                                                                                        \
-	__pragma(data_seg(push));                                                                                                    \
-	__pragma(section("rktest$data", read));                                                                                      \
-	void SUITE##_##NAME##_impl(void);                                                                                            \
-	const rktest_macro_data_t SUITE##_##NAME##_meta = {                                                                          \
-		.test_name = #NAME,                                                                                                      \
-		.suite_name = #SUITE,                                                                                                    \
-		.func = &SUITE##_##NAME##_impl                                                                                           \
-	};                                                                                                                           \
-	__declspec(allocate("rktest$data")) const rktest_macro_data_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta; \
-	__pragma(data_seg(pop));                                                                                                     \
-	void SUITE##_##NAME##_impl(void)
-
-#define EXPECT_EQ(lhs, rhs)
-#define EXPECT_GT(lhs, rhs)
-#define EXPECT_TRUE(lhs)
-#define EXPECT_FALSE(lhs)
-
 int rktest_main(void);
 
-/* Test runner internals ---------------------------------------------------- */
-/**
- * Collects all the information from a TEST() macro
- *
- * Instances of the struct are stored locally in the unit test files. Pointers
- * to instances of this struct are collected and stored in the `rktest$data`
- * memory section.
- */
-typedef struct {
-	const char* test_name;
-	const char* suite_name;
-	void (*func)(void);
-} rktest_macro_data_t;
+#define TEST(SUITE, NAME)                                                                                                  \
+	void SUITE##_##NAME##_impl(void);                                                                                      \
+	const rktest_test_t SUITE##_##NAME##_meta = {                                                                          \
+		.test_name = #NAME,                                                                                                \
+		.suite_name = #SUITE,                                                                                              \
+		.func = &SUITE##_##NAME##_impl                                                                                     \
+	};                                                                                                                     \
+	__pragma(data_seg(push));                                                                                              \
+	__pragma(section("rktest$data", read));                                                                                \
+	__declspec(allocate("rktest$data")) const rktest_test_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta; \
+	__pragma(data_seg(pop));                                                                                               \
+	void SUITE##_##NAME##_impl(void)
 
-inline bool rktest_colors_enabled(void);
+// TODO:
+// [x] EXPECT_*
+// [x] EXPECT_LONG*
+//
+// [ ] EXPECT_STREQ
+// [ ] EXPECT_STRNE
+// [ ] EXPECT_STRCASEEQ
+// [ ] EXPECT_STRCASENE
+//
+// [ ] EXPECT_FLOAT_EQ
+// [ ] EXPECT_DOUBLE_EQ
+// [ ] EXPECT_NEAR
+
+#define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, "")
+
+#define EXPECT_TRUE_INFO(expr, ...) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_FALSE_INFO(lhs, ...) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define EXPECT_EQ(lhs, rhs) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_NE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_GT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_GE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_EXPECT, "")
+
+#define EXPECT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+/* Long checks */
+#define EXPECT_LONG_EQ(lhs, rhs) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_NE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_LT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_LE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_GT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_GE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_EXPECT, "")
+
+#define EXPECT_LONG_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LONG_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LONG_LT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LONG_LE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LONG_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+// TODO add all ASSERT_* macros
+#define ASSERT_EQ(lhs, rhs) RKTEST_CHECK_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, "")
+
+/* Test runner internals ---------------------------------------------------- */
+/* Test registration */
+// Collects all the information from a TEST() macro
+//
+// Instances of the struct are stored locally in the unit test files. Pointers
+// to instances of this struct are collected and stored in the `rktest$data`
+// memory section.
+typedef struct {
+	const char* suite_name;
+	const char* test_name;
+	void (*func)(void);
+} rktest_test_t;
+
+/* Assertions */
+#define RKTEST_CHECK_EXPECT false
+#define RKTEST_CHECK_ASSERT true
+
+void rktest_fail_current_test(void);
+
+#define RKTEST_CHECK_BOOL(expr, expected, is_assert, ...)                        \
+	do {                                                                         \
+		const bool actual = expr;                                                \
+		if (actual != expected) {                                                \
+			printf("%s(%d): error: Value of: %s:\n", __FILE__, __LINE__, #expr); \
+			printf("  Actual: %s\n", actual ? "true" : "false");                 \
+			printf("Expected: %s\n", expected ? "true" : "false");               \
+			printf(__VA_ARGS__);                                                 \
+			printf("\n");                                                        \
+			rktest_fail_current_test();                                          \
+			if (is_assert) {                                                     \
+				return;                                                          \
+			}                                                                    \
+		}                                                                        \
+	} while (0)
+
+#define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)                                   \
+	do {                                                                                       \
+		const type lhs_val = lhs;                                                              \
+		const type rhs_val = rhs;                                                              \
+		if (lhs_val != rhs_val) {                                                              \
+			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
+			printf("  %s\n", #lhs);                                                            \
+			printf("    Which is: " fmt "\n", lhs_val);                                        \
+			printf("  %s\n", #rhs);                                                            \
+			printf(__VA_ARGS__);                                                               \
+			printf("\n");                                                                      \
+			rktest_fail_current_test();                                                        \
+			if (is_assert) {                                                                   \
+				return;                                                                        \
+			}                                                                                  \
+		}                                                                                      \
+	} while (0)
+
+#define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                               \
+	do {                                                                                                                                        \
+		const type lhs_val = lhs;                                                                                                               \
+		const type rhs_val = rhs;                                                                                                               \
+		if (!(lhs_val op rhs_val)) {                                                                                                            \
+			printf("%s(%d): error: Expected (%s) %s (%s), actual " fmt " vs " fmt "\n", __FILE__, __LINE__, #lhs, #op, #rhs, lhs_val, rhs_val); \
+			printf(__VA_ARGS__);                                                                                                                \
+			printf("\n");                                                                                                                       \
+			rktest_fail_current_test();                                                                                                         \
+			if (is_assert) {                                                                                                                    \
+				return;                                                                                                                         \
+			}                                                                                                                                   \
+		}                                                                                                                                       \
+	} while (0)
+
+/* Logging */
+bool rktest_colors_enabled(void);
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
@@ -97,8 +200,12 @@ inline bool rktest_colors_enabled(void);
 	printf(__VA_ARGS__);               \
 	printf("%s", RKTEST_COLOR_RESET)
 
-#define rktest_printf_test_step(prefix_str, ...) \
-	rktest_printf_green(prefix_str);             \
+#define rktest_log_info(prefix_str, ...) \
+	rktest_printf_green(prefix_str);     \
+	printf(__VA_ARGS__);
+
+#define rktest_log_error(prefix_str, ...) \
+	rktest_printf_red(prefix_str);        \
 	printf(__VA_ARGS__);
 
 #endif /* RKTEST_H */
