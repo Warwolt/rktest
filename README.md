@@ -8,7 +8,7 @@ RK Test has the following features:
 
 ## See also
 
-Here's a list of other unit tests built on similar techniques:
+Here's a list of other unit test frameworks built on similar techniques:
 
 - [Google Test](https://github.com/google/googletest)
 - [Criterion](https://github.com/Snaipe/Criterion/)
