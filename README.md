@@ -4,3 +4,4 @@ A small test library for C programs, written to closely mimick [Google Test](htt
 
 RK Test has the following features:
 - Self registering tests
+- Google Test style test reporting and asserts
