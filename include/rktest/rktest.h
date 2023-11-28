@@ -33,11 +33,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // of supported test suites and max number of unit tests per suite.
 
 #ifndef RKTEST_MAX_NUM_TEST_SUITES
-#define RKTEST_MAX_NUM_TEST_SUITES 512
+#define RKTEST_MAX_NUM_TEST_SUITES ((size_t)64)
 #endif
 
 #ifndef RKTEST_MAX_NUM_TESTS_PER_SUITE
-#define RKTEST_MAX_NUM_TESTS_PER_SUITE 64
+#define RKTEST_MAX_NUM_TESTS_PER_SUITE ((size_t)64)
 #endif
 
 /* Public API --------------------------------------------------------------- */

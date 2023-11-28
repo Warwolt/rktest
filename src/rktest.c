@@ -118,30 +118,43 @@ static rktest_suite_t* find_suite(rktest_suite_t* suites, size_t num_suites, con
 static size_t register_tests(rktest_suite_t* suites) {
 	size_t num_suites = 0;
 	for (const rktest_macro_data_t* const* it = (&test_data_begin + 1); it != &test_data_end; it++) {
-		if (*it) {
-			if (num_suites == RKTEST_MAX_NUM_TEST_SUITES) {
-				fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES. See `Config variables` section of rktest.h\n");
-				exit(1);
-			}
+		if (!*it) {
+			continue;
+		}
 
-			const rktest_macro_data_t* const data = *it;
-			rktest_suite_t* suite = find_suite(suites, num_suites, data->suite_name);
-			if (!suite) {
-				// add new suite
-				suite = &suites[num_suites++];
-				*suite = (rktest_suite_t) {
-					.name = data->suite_name,
-					.num_tests = 0,
-					.tests = { 0 },
-				};
-			}
-			// add test to suite
-			rktest_test_t* test = &suite->tests[suite->num_tests++];
-			*test = (rktest_test_t) {
-				.name = data->test_name,
-				.func = data->func,
+		if (num_suites == RKTEST_MAX_NUM_TEST_SUITES) {
+			fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES (%zu)."
+							"See the `Config variables` section of rktest.h\n",
+					RKTEST_MAX_NUM_TEST_SUITES);
+			exit(1);
+		}
+
+		const rktest_macro_data_t* const data = *it;
+		rktest_suite_t* suite = find_suite(suites, num_suites, data->suite_name);
+		if (!suite) {
+			// add new suite
+			suite = &suites[num_suites++];
+			*suite = (rktest_suite_t) {
+				.name = data->suite_name,
+				.num_tests = 0,
+				.tests = { 0 },
 			};
 		}
+
+		if (suite->num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
+			fprintf(stderr, "Error: number of tests in suite %s is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu)."
+							"See the `Config variables` section of rktest.h\n",
+					suite->name,
+					RKTEST_MAX_NUM_TESTS_PER_SUITE);
+			exit(1);
+		}
+
+		// add test to suite
+		rktest_test_t* test = &suite->tests[suite->num_tests++];
+		*test = (rktest_test_t) {
+			.name = data->test_name,
+			.func = data->func,
+		};
 	}
 	return num_suites;
 }
@@ -168,6 +181,8 @@ static size_t run_all_tests(rktest_suite_t* suites, size_t num_suites) {
 int rktest_main(void) {
 	initialize();
 
+	rktest_printf_test_step("[==========] ", "Running tests.\n");
+
 	rktest_suite_t* test_suites = malloc(RKTEST_MAX_NUM_TEST_SUITES * sizeof(rktest_suite_t));
 	if (!test_suites) {
 		fprintf(stderr, "Error: could not allocate space for test data");
@@ -175,7 +190,6 @@ int rktest_main(void) {
 
 	const size_t num_test_suites = register_tests(test_suites);
 
-	rktest_printf_test_step("[==========] ", "Running tests.\n");
 	rktest_printf_test_step("[----------] ", "Global test environment set-up.\n");
 
 	const size_t num_tests = run_all_tests(test_suites, num_test_suites);
