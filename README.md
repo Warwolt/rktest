@@ -4,3 +4,12 @@ A small test library for C programs, written to closely mimick [Google Test](htt
 
 RK Test has the following features:
 - Self registering tests
+- Google Test style test reporting and asserts
+
+## See also
+
+Here's a list of other unit test frameworks built on similar techniques:
+
+- [Google Test](https://github.com/google/googletest)
+- [Criterion](https://github.com/Snaipe/Criterion/)
+- [Rexo](https://github.com/christophercrouzet/rexo/)
