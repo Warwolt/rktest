@@ -275,13 +275,13 @@ int rktest_main(void) {
 	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (xx ms total)\n", env->total_num_tests, env->num_test_suites);
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
-	const bool tests_passed = report->num_failed_tests == 0;
-	if (!tests_passed) {
+	const bool tests_failed = report->num_failed_tests > 0;
+	if (tests_failed) {
 		print_failed_tests(report);
 	}
 
 	free(report);
 	free(env);
 
-	return tests_passed;
+	return tests_failed;
 }
