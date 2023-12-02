@@ -166,20 +166,21 @@ typedef struct {
 
 void rktest_fail_current_test(void);
 
-#define RKTEST_CHECK_BOOL(expr, expected, is_assert, ...)                        \
-	do {                                                                         \
-		const bool actual = expr;                                                \
-		if (actual != expected) {                                                \
-			printf("%s(%d): error: Value of: %s:\n", __FILE__, __LINE__, #expr); \
-			printf("  Actual: %s\n", actual ? "true" : "false");                 \
-			printf("Expected: %s\n", expected ? "true" : "false");               \
-			printf(__VA_ARGS__);                                                 \
-			printf("\n");                                                        \
-			rktest_fail_current_test();                                          \
-			if (is_assert) {                                                     \
-				return;                                                          \
-			}                                                                    \
-		}                                                                        \
+#define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
+	do {                                                                           \
+		const bool actual_val = actual;                                            \
+		const bool expected_val = expected;                                        \
+		if (actual_val != expected_val) {                                          \
+			printf("%s(%d): error: Value of: %s:\n", __FILE__, __LINE__, #actual); \
+			printf("  Actual: %s\n", actual_val ? "true" : "false");               \
+			printf("Expected: %s\n", expected_val ? "true" : "false");             \
+			printf(__VA_ARGS__);                                                   \
+			printf("\n");                                                          \
+			rktest_fail_current_test();                                            \
+			if (is_assert) {                                                       \
+				return;                                                            \
+			}                                                                      \
+		}                                                                          \
 	} while (0)
 
 #define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)                                   \
