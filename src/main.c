@@ -61,9 +61,9 @@ const test_data_t* const dummy = NULL;
 	(&rktest_end)
 #elif defined(__unix__) || defined(__APPLE__)
 #define TEST_DATA_BEGIN \
-	(&__start_rktest)
+	(&__begin_rktest)
 #define TEST_DATA_END \
-	(&__stop_rktest)
+	(&__end_rktest)
 #endif
 
 #define TEST(SUITE, NAME)                                                   \
