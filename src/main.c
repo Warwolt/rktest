@@ -18,12 +18,11 @@ struct foo {
 /* -------------------------------------------------------------------------- */
 
 #if defined(_MSC_VER)
-__pragma(section("bar$a", read))
-	__pragma(section("bar$b", read))
-		__pragma(section("bar$c", read))
+__pragma(section("bar$a", read));
+__pragma(section("bar$b", read));
+__pragma(section("bar$c", read));
 
-			__declspec(allocate("bar$a")) extern const struct foo* const bar_begin = NULL;
-
+__declspec(allocate("bar$a")) extern const struct foo* const bar_begin = NULL;
 __declspec(allocate("bar$c")) extern const struct foo* const bar_end = NULL;
 
 #define DEFINE_SECTION \
