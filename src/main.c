@@ -38,7 +38,7 @@ extern const struct foo* const
 	__attribute__((used, section("__DATA,bar")))
 
 DEFINE_SECTION
-extern const struct foo* const dummy = NULL;
+const struct foo* const dummy = NULL;
 #elif defined(__unix__)
 extern const struct foo* const __start_bar;
 extern const struct foo* const __stop_bar;
@@ -47,7 +47,7 @@ extern const struct foo* const __stop_bar;
 	__attribute__((used, section("bar")))
 
 DEFINE_SECTION
-extern const struct foo* const dummy = NULL;
+const struct foo* const dummy = NULL;
 #endif
 
 /* Public API                                                                 */
@@ -68,7 +68,7 @@ extern const struct foo* const dummy = NULL;
 #define REGISTER_FOO(id, value)             \
 	static const struct foo id = { value }; \
 	DEFINE_SECTION                          \
-	extern const struct foo* const id##_ptr = &id;
+	extern const struct foo* const id##_ptr = &id
 
 /* Usage                                                                      */
 /* -------------------------------------------------------------------------- */
