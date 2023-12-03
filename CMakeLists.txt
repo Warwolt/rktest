@@ -13,6 +13,7 @@ endif()
 add_executable(tests
     src/main.c
     src/test.c
+    src/test2.c
 )
 
 # Test Library
