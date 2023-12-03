@@ -17,5 +17,8 @@ jobs:
       - name: Build Project
         run: cmake --build build
 
+      - name: debug
+        run: tree
+
       - name: Test Project
         run: ./build/Debug/tests --rktest-color=no
