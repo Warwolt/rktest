@@ -1,0 +1,19 @@
+name: Build & Test
+on:
+  push:
+jobs:
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Configure Project
+        uses: threeal/cmake-action@v1.3.0
+
+      - name: Build Project
+        run: cmake --build build
+
+      - name: Test Project
+        run: ./build/Debug/tests
