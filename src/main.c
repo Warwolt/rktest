@@ -68,7 +68,7 @@ const struct foo* const dummy = NULL;
 #define REGISTER_FOO(id, value)             \
 	static const struct foo id = { value }; \
 	DEFINE_SECTION                          \
-	extern const struct foo* const id##_ptr = &id
+	const struct foo* const id##_ptr = &id
 
 /* Usage                                                                      */
 /* -------------------------------------------------------------------------- */
