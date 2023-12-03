@@ -2,11 +2,23 @@ name: build
 on:
   push:
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Configure Project
+        uses: threeal/cmake-action@v1.3.0
+
+      - name: Build Project
+        run: cmake --build build
+
+      - name: Test Project
+        run: ./build/Debug/tests --rktest-color=no
+
+  build-linux:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -21,4 +33,4 @@ jobs:
         run: tree
 
       - name: Test Project
-        run: ./build/Debug/tests --rktest-color=no
+        run: ./build/tests --rktest-color=no
