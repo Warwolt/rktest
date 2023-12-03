@@ -8,6 +8,11 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
+check_c_compiler_flag(-Wno-error=missing-braces MISSING_BRACES_WARNING)
+if (MISSING_BRACES_WARNING)
+    target_compile_options(target_name PRIVATE -Wno-error=missing-braces)
+endif (MISSING_BRACES_WARNING)
+
 # Test Library
 add_library(${PROJECT_NAME}
     src/rktest_main.c
