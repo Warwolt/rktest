@@ -6,7 +6,7 @@ include(CheckCCompilerFlag)
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-error=missing-braces)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
 # Test Library

@@ -30,6 +30,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 #endif
 
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wmissing-braces"
+#endif
+
 /* RK Test runner internals ------------------------------------------------- */
 #define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
 
