@@ -10,9 +10,10 @@
 
 /* Predicate checks */
 // TEST(expect_int, expect_true) {
+
 void expect_int_expect_true_impl(void);
-const rktest_test_t expect_int_expect_true_meta = { .suite_name = "expect_int", .test_name = "expect_true", .func = &expect_int_expect_true_impl };
-__attribute__((used, section("rktest")));
+const rktest_test_t expect_int_expect_true_data = { .suite_name = "expect_int", .test_name = "expect_true", .func = &expect_int_expect_true_impl };
+__attribute__((used, section("rktest"))) const rktest_test_t* const expect_int_expect_true_data_ptr = &expect_int_expect_true_data;
 void expect_int_expect_true_impl(void) {
 	// EXPECT_TRUE(int_sum1 == 3);
 	// EXPECT_TRUE_INFO(int_sum2 == 7, "int_sum2 = %d", int_sum2);

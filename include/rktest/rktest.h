@@ -47,12 +47,12 @@ int rktest_main(int argc, const char* argv[]);
 
 #define TEST(SUITE, NAME)                                                                                                 \
 	void SUITE##_##NAME##_impl(void);                                                                                     \
-	const rktest_test_t SUITE##_##NAME##_meta = {                                                                         \
+	const rktest_test_t SUITE##_##NAME##_data = {                                                                         \
 		.suite_name = #SUITE,                                                                                             \
 		.test_name = #NAME,                                                                                               \
 		.func = &SUITE##_##NAME##_impl                                                                                    \
 	};                                                                                                                    \
-	RKTEST_ALLOCATE_IN_MEMORY_SECTION(const rktest_test_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta); \
+	RKTEST_ALLOCATE_IN_MEMORY_SECTION(const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data); \
 	void SUITE##_##NAME##_impl(void)
 
 // TODO:
@@ -149,7 +149,7 @@ int rktest_main(int argc, const char* argv[]);
 	__pragma(data_seg(pop))
 #elif __unix__
 #define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
-	__attribute__((used, section("rktest")))
+	__attribute__((used, section("rktest"))) declaration
 #else
 #error Trying to compile RK Test on an unsupported platform.
 #endif
