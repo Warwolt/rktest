@@ -26,18 +26,6 @@ __attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 #define TEST_DATA_END (&__stop_rktest)
 #endif
 
-TEST(hello, alice) {
-	printf("Hello Alice\n");
-}
-
-TEST(hello, bob) {
-	printf("Hello Bob\n");
-}
-
-TEST(hello, charlie) {
-	printf("Hello Charlie\n");
-}
-
 int main(void) {
 	for (const test_data_t* const* it = TEST_DATA_BEGIN; it < TEST_DATA_END; ++it) {
 		if (*it) {

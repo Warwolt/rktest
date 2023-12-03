@@ -12,6 +12,7 @@ endif()
 # DEBUGGING
 add_executable(tests
     src/main.c
+    src/test.c
 )
 
 # Test Library
