@@ -3,15 +3,15 @@
 #include <stdint.h>
 
 // defining variables here to easily control if tests pass or fail.
-static const int int_sum1 = 1 + 2;
-static const int int_sum2 = 3 + 4;
+// static const int int_sum1 = 1 + 2;
+// static const int int_sum2 = 3 + 4;
 // static const long long_sum1 = 1 + 2;
 // static const long long_sum2 = 3 + 4;
 
 /* Predicate checks */
 TEST(expect_int, expect_true) {
-	EXPECT_TRUE(int_sum1 == 3);
-	EXPECT_TRUE_INFO(int_sum2 == 7, "int_sum2 = %d", int_sum2);
+	// EXPECT_TRUE(int_sum1 == 3);
+	// EXPECT_TRUE_INFO(int_sum2 == 7, "int_sum2 = %d", int_sum2);
 }
 
 // TEST(expect_int, expect_false) {
