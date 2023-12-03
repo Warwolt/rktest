@@ -10,9 +10,9 @@
    and ‘end’ locations.
 */
 
-struct foo {
+typedef struct {
 	int value;
-};
+} foo_t;
 
 /* Implementation Details                                                     */
 /* -------------------------------------------------------------------------- */
@@ -22,52 +22,52 @@ __pragma(section("bar$a", read));
 __pragma(section("bar$b", read));
 __pragma(section("bar$c", read));
 
-__declspec(allocate("bar$a")) extern const struct foo* const bar_begin = NULL;
-__declspec(allocate("bar$c")) extern const struct foo* const bar_end = NULL;
+__declspec(allocate("bar$a")) extern const foo_t* const bar_begin = NULL;
+__declspec(allocate("bar$c")) extern const foo_t* const bar_end = NULL;
 
 #define DEFINE_SECTION \
 	__declspec(allocate("bar$b"))
 #elif defined(__APPLE__)
-extern const struct foo* const
+extern const foo_t* const
 	__start_bar __asm("section$start$__DATA$bar");
-extern const struct foo* const
+extern const foo_t* const
 	__stop_bar __asm("section$end$__DATA$bar");
 
 #define DEFINE_SECTION \
 	__attribute__((used, section("__DATA,bar")))
 
 DEFINE_SECTION
-const struct foo* const dummy = NULL;
+const foo_t* const dummy = NULL;
 #elif defined(__unix__)
-extern const struct foo* const __start_bar;
-extern const struct foo* const __stop_bar;
+extern const foo_t* const __start_bar;
+extern const foo_t* const __stop_bar;
 
 #define DEFINE_SECTION \
 	__attribute__((used, section("bar")))
 
 DEFINE_SECTION
-const struct foo* const dummy = NULL;
+const foo_t* const dummy = NULL;
 #endif
 
 /* Public API                                                                 */
 /* -------------------------------------------------------------------------- */
 
 #if defined(_MSC_VER)
-#define SECTION_BEGIN \
+#define TEST_DATA_BEGIN \
 	(&bar_begin + 1)
-#define SECTION_END \
+#define TEST_DATA_END \
 	(&bar_end)
 #elif defined(__unix__) || defined(__APPLE__)
-#define SECTION_BEGIN \
+#define TEST_DATA_BEGIN \
 	(&__start_bar)
-#define SECTION_END \
+#define TEST_DATA_END \
 	(&__stop_bar)
 #endif
 
-#define REGISTER_FOO(id, value)             \
-	static const struct foo id = { value }; \
-	DEFINE_SECTION                          \
-	const struct foo* const id##_ptr = &id
+#define REGISTER_FOO(id, value)        \
+	static const foo_t id = { value }; \
+	DEFINE_SECTION                     \
+	const foo_t* const id##_ptr = &id
 
 /* Usage                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -76,13 +76,11 @@ REGISTER_FOO(b, 234);
 REGISTER_FOO(a, 123);
 REGISTER_FOO(c, 345);
 
-int main(
-	void
-) {
-	const struct foo* const* it;
+int main(void) {
+	const foo_t* const* it;
 
-	for (it = SECTION_BEGIN; it < SECTION_END; ++it) {
-		if (*it != NULL) {
+	for (it = TEST_DATA_BEGIN; it < TEST_DATA_END; ++it) {
+		if (*it) {
 			printf("%d\n", (*it)->value);
 		}
 	}
