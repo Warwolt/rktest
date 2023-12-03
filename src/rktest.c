@@ -95,8 +95,8 @@ typedef struct {
 __declspec(allocate("rktest$begin")) const rktest_test_t* const test_data_begin = NULL;
 __declspec(allocate("rktest$end")) const rktest_test_t* const test_data_end = NULL;
 #elif __unix__
-extern const struct rktest_test_t* const __begin_rktest;
-extern const struct rktest_test_t* const __end_rktest;
+extern const rktest_test_t* const __begin_rktest;
+extern const rktest_test_t* const __end_rktest;
 #endif
 
 #if defined(_MSC_VER)
