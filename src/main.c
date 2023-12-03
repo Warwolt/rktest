@@ -23,32 +23,27 @@ typedef struct {
 __pragma(section("rktest$begin", read));
 __pragma(section("rktest$data", read));
 __pragma(section("rktest$end", read));
-
 __declspec(allocate("rktest$begin")) extern const test_data_t* const rktest_begin = NULL;
 __declspec(allocate("rktest$end")) extern const test_data_t* const rktest_end = NULL;
 
 #define DEFINE_SECTION \
 	__declspec(allocate("rktest$data"))
+
 #elif defined(__APPLE__)
-extern const test_data_t* const
-	__start_rktest __asm("section$start$__DATA$rktest");
-extern const test_data_t* const
-	__stop_rktest __asm("section$end$__DATA$rktest");
+extern const test_data_t* const __start_rktest __asm("section$start$__DATA$rktest");
+extern const test_data_t* const __stop_rktest __asm("section$end$__DATA$rktest");
+__attribute__((used, section("__DATA,rktest"))) const test_data_t* const dummy = NULL;
 
 #define DEFINE_SECTION \
 	__attribute__((used, section("__DATA,rktest")))
 
-DEFINE_SECTION
-const test_data_t* const dummy = NULL;
 #elif defined(__unix__)
 extern const test_data_t* const __start_rktest;
 extern const test_data_t* const __stop_rktest;
+__attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 
 #define DEFINE_SECTION \
 	__attribute__((used, section("rktest")))
-
-DEFINE_SECTION
-const test_data_t* const dummy = NULL;
 #endif
 
 /* Public API                                                                 */
