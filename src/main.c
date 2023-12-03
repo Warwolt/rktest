@@ -10,11 +10,11 @@ __declspec(allocate("rktest$begin")) extern const test_data_t* const rktest_begi
 __declspec(allocate("rktest$end")) extern const test_data_t* const rktest_end = NULL;
 #elif defined(__APPLE__)
 extern const test_data_t* const __start_rktest __asm("section$start$__DATA$rktest");
-extern const test_data_t* const __stop_rktest __asm("section$end$__DATA$rktest");
+extern const test_data_t* const __end_rktest __asm("section$end$__DATA$rktest");
 __attribute__((used, section("__DATA,rktest"))) const test_data_t* const dummy = NULL;
 #elif defined(__unix__)
 extern const test_data_t* const __start_rktest;
-extern const test_data_t* const __stop_rktest;
+extern const test_data_t* const __end_rktest;
 __attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 #endif
 
@@ -23,7 +23,7 @@ __attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 #define TEST_DATA_END (&rktest_end)
 #elif defined(__unix__) || defined(__APPLE__)
 #define TEST_DATA_BEGIN (&__start_rktest)
-#define TEST_DATA_END (&__stop_rktest)
+#define TEST_DATA_END (&__end_rktest)
 #endif
 
 int main(void) {
