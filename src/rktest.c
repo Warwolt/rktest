@@ -126,12 +126,20 @@ static rktest_result_t enable_windows_virtual_terminal(void) {
 }
 #endif // WIN32
 
-static void initialize(void) {
+static void initialize(int argc, const char* argv[]) {
 	g_colors_enabled = true;
-#ifdef WIN32
-	if (enable_windows_virtual_terminal() != RKTEST_RESULT_OK) {
-		fprintf(stderr, "Error: could not initialize color output\n");
+
+	if (argc > 1 && strcmp(argv[1], "--rktest-color=no") == 0) {
 		g_colors_enabled = false;
+	}
+
+#ifdef WIN32
+	if (g_colors_enabled) {
+		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
+		if (enable_virtual_term != RKTEST_RESULT_OK) {
+			fprintf(stderr, "Error: could not initialize color output\n");
+			g_colors_enabled = false;
+		}
 	}
 #endif // WIN32
 }
@@ -261,8 +269,8 @@ static void print_failed_tests(rktest_report_t* report) {
 	printf(" %zu FAILED TESTS\n", report->num_failed_tests);
 }
 
-int rktest_main(void) {
-	initialize();
+int rktest_main(int argc, const char* argv[]) {
+	initialize(argc, argv);
 
 	rktest_environment_t* env = setup_test_env();
 

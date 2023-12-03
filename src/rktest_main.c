@@ -2,6 +2,6 @@
 
 #include <stdio.h>
 
-int main(void) {
-	return rktest_main();
+int main(int argc, const char* argv[]) {
+	return rktest_main(argc, argv);
 }

@@ -43,7 +43,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 /* Public API --------------------------------------------------------------- */
-int rktest_main(void);
+int rktest_main(int argc, const char* argv[]);
 
 // This needs to work with MSVC, GCC and Clang
 // TODO:
