@@ -45,22 +45,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
-// This needs to work with MSVC, GCC and Clang
-// TODO:
-// [x] MSVC
-// [ ] GCC
-// [ ] Clang
-#define TEST(SUITE, NAME)                                                                                                  \
-	void SUITE##_##NAME##_impl(void);                                                                                      \
-	const rktest_test_t SUITE##_##NAME##_meta = {                                                                          \
-		.test_name = #NAME,                                                                                                \
-		.suite_name = #SUITE,                                                                                              \
-		.func = &SUITE##_##NAME##_impl                                                                                     \
-	};                                                                                                                     \
-	__pragma(data_seg(push));                                                                                              \
-	__pragma(section("rktest$data", read));                                                                                \
-	__declspec(allocate("rktest$data")) const rktest_test_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta; \
-	__pragma(data_seg(pop));                                                                                               \
+#define TEST(SUITE, NAME)                                                                                                 \
+	void SUITE##_##NAME##_impl(void);                                                                                     \
+	const rktest_test_t SUITE##_##NAME##_meta = {                                                                         \
+		.suite_name = #SUITE,                                                                                             \
+		.test_name = #NAME,                                                                                               \
+		.func = &SUITE##_##NAME##_impl                                                                                    \
+	};                                                                                                                    \
+	RKTEST_ALLOCATE_IN_MEMORY_SECTION(const rktest_test_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta); \
 	void SUITE##_##NAME##_impl(void)
 
 // TODO:
@@ -149,6 +141,16 @@ int rktest_main(int argc, const char* argv[]);
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
+#ifdef WIN32
+#define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
+	__pragma(data_seg(push));                          \
+	__pragma(section("rktest$data", read));            \
+	__declspec(allocate("rktest$data")) declaration;   \
+	__pragma(data_seg(pop))
+#else
+#error Trying to compile RK Test on an unsupported platform.
+#endif
+
 // Collects all the information from a TEST() macro
 //
 // Instances of the struct are stored locally in the unit test files. Pointers
