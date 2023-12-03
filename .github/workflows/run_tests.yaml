@@ -1,9 +1,8 @@
-name: Build & Test
+name: build
 on:
   push:
 jobs:
   build:
-    name: Build Project
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -16,4 +15,4 @@ jobs:
         run: cmake --build build
 
       - name: Test Project
-        run: ./build/Debug/tests
+        run: ./build/Debug/tests --rktest-color=no
