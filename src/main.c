@@ -1,23 +1,6 @@
 #include <stdio.h>
 
-/* Example of automatic test registration.
-
-   This approach uses a data section ‘rktest’ to store multiple static instances
-   of type ‘foo’. These objects are first statically instantiated at the file
-   scope and a pointer is then stored in the data section, between some given
-   ‘start’ and ‘end’ locations. Objects stored this way can then be retrieved
-   at runtime by iterating over all the pointers found between these ‘start’
-   and ‘end’ locations.
-*/
-
-typedef struct {
-	const char* suite_name;
-	const char* test_name;
-	void (*run)(void);
-} test_data_t;
-
-/* Implementation Details                                                     */
-/* -------------------------------------------------------------------------- */
+#include "rktest_poc.h"
 
 #if defined(_MSC_VER)
 __pragma(section("rktest$begin", read));
@@ -36,37 +19,12 @@ __attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 #endif
 
 #if defined(_MSC_VER)
-#define DEFINE_SECTION __declspec(allocate("rktest$data"))
-#elif defined(__APPLE__)
-#define DEFINE_SECTION __attribute__((used, section("__DATA,rktest")))
-#elif defined(__unix__)
-#define DEFINE_SECTION __attribute__((used, section("rktest")))
-#endif
-
-/* Public API                                                                 */
-/* -------------------------------------------------------------------------- */
-
-#if defined(_MSC_VER)
 #define TEST_DATA_BEGIN (&rktest_begin + 1)
 #define TEST_DATA_END (&rktest_end)
 #elif defined(__unix__) || defined(__APPLE__)
 #define TEST_DATA_BEGIN (&__start_rktest)
 #define TEST_DATA_END (&__stop_rktest)
 #endif
-
-#define TEST(SUITE, NAME)                                                   \
-	void SUITE##_##NAME##_impl(void);                                       \
-	static const test_data_t SUITE##_##NAME##_data = {                      \
-		.suite_name = #SUITE,                                               \
-		.test_name = #NAME,                                                 \
-		.run = &SUITE##_##NAME##_impl,                                      \
-	};                                                                      \
-	DEFINE_SECTION                                                          \
-	const test_data_t* const SUITE##_##NAME##_ptr = &SUITE##_##NAME##_data; \
-	void SUITE##_##NAME##_impl(void)
-
-/* Usage                                                                      */
-/* -------------------------------------------------------------------------- */
 
 TEST(hello, alice) {
 	printf("Hello Alice\n");
@@ -81,9 +39,7 @@ TEST(hello, charlie) {
 }
 
 int main(void) {
-	const test_data_t* const* it;
-
-	for (it = TEST_DATA_BEGIN; it < TEST_DATA_END; ++it) {
+	for (const test_data_t* const* it = TEST_DATA_BEGIN; it < TEST_DATA_END; ++it) {
 		if (*it) {
 			printf("[ RUN      ] %s.%s\n", (*it)->suite_name, (*it)->test_name);
 			(*it)->run();
