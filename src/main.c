@@ -23,27 +23,32 @@ typedef struct {
 __pragma(section("rktest$begin", read));
 __pragma(section("rktest$data", read));
 __pragma(section("rktest$end", read));
+
 __declspec(allocate("rktest$begin")) extern const test_data_t* const rktest_begin = NULL;
 __declspec(allocate("rktest$end")) extern const test_data_t* const rktest_end = NULL;
 
-#define PLACE_IN_MEMORY_SECTION \
+#define DEFINE_SECTION \
 	__declspec(allocate("rktest$data"))
-
 #elif defined(__APPLE__)
-extern const test_data_t* const __start_rktest __asm("section$start$__DATA$rktest");
-extern const test_data_t* const __stop_rktest __asm("section$end$__DATA$rktest");
-__attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
+extern const test_data_t* const
+	__start_rktest __asm("section$start$__DATA$rktest");
+extern const test_data_t* const
+	__stop_rktest __asm("section$end$__DATA$rktest");
 
-#define PLACE_IN_MEMORY_SECTION \
+#define DEFINE_SECTION \
 	__attribute__((used, section("__DATA,rktest")))
+
+DEFINE_SECTION
+const test_data_t* const dummy = NULL;
 #elif defined(__unix__)
 extern const test_data_t* const __start_rktest;
 extern const test_data_t* const __stop_rktest;
-__attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 
-#define PLACE_IN_MEMORY_SECTION \
+#define DEFINE_SECTION \
 	__attribute__((used, section("rktest")))
 
+DEFINE_SECTION
+const test_data_t* const dummy = NULL;
 #endif
 
 /* Public API                                                                 */
@@ -61,14 +66,15 @@ __attribute__((used, section("rktest"))) const test_data_t* const dummy = NULL;
 	(&__stop_rktest)
 #endif
 
-#define TEST(SUITE, NAME)                                                                           \
-	void SUITE##_##NAME##_impl(void);                                                               \
-	static const test_data_t SUITE##_##NAME##_data = {                                              \
-		.suite_name = #SUITE,                                                                       \
-		.test_name = #NAME,                                                                         \
-		.run = &SUITE##_##NAME##_impl,                                                              \
-	};                                                                                              \
-	PLACE_IN_MEMORY_SECTION const test_data_t* const SUITE##_##NAME##_ptr = &SUITE##_##NAME##_data; \
+#define TEST(SUITE, NAME)                                                   \
+	void SUITE##_##NAME##_impl(void);                                       \
+	static const test_data_t SUITE##_##NAME##_data = {                      \
+		.suite_name = #SUITE,                                               \
+		.test_name = #NAME,                                                 \
+		.run = &SUITE##_##NAME##_impl,                                      \
+	};                                                                      \
+	DEFINE_SECTION                                                          \
+	const test_data_t* const SUITE##_##NAME##_ptr = &SUITE##_##NAME##_data; \
 	void SUITE##_##NAME##_impl(void)
 
 /* Usage                                                                      */
