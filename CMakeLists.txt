@@ -1,17 +1,13 @@
 cmake_minimum_required(VERSION 3.16.0)
 project(rktest)
 enable_language(C)
+include(CheckCCompilerFlag)
 
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wno-error=missing-braces)
 endif()
-
-check_c_compiler_flag(-Wno-error=missing-braces MISSING_BRACES_WARNING)
-if (MISSING_BRACES_WARNING)
-    target_compile_options(target_name PRIVATE -Wno-error=missing-braces)
-endif (MISSING_BRACES_WARNING)
 
 # Test Library
 add_library(${PROJECT_NAME}
