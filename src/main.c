@@ -2,7 +2,7 @@
 
 /* Example of automatic test registration.
 
-   This approach uses a data section ‘bar’ to store multiple static instances
+   This approach uses a data section ‘rktest’ to store multiple static instances
    of type ‘foo’. These objects are first statically instantiated at the file
    scope and a pointer is then stored in the data section, between some given
    ‘start’ and ‘end’ locations. Objects stored this way can then be retrieved
@@ -20,32 +20,32 @@ typedef struct {
 /* -------------------------------------------------------------------------- */
 
 #if defined(_MSC_VER)
-__pragma(section("bar$a", read));
-__pragma(section("bar$b", read));
-__pragma(section("bar$c", read));
+__pragma(section("rktest$begin", read));
+__pragma(section("rktest$data", read));
+__pragma(section("rktest$end", read));
 
-__declspec(allocate("bar$a")) extern const test_data_t* const bar_begin = NULL;
-__declspec(allocate("bar$c")) extern const test_data_t* const bar_end = NULL;
+__declspec(allocate("rktest$begin")) extern const test_data_t* const rktest_begin = NULL;
+__declspec(allocate("rktest$end")) extern const test_data_t* const rktest_end = NULL;
 
 #define DEFINE_SECTION \
-	__declspec(allocate("bar$b"))
+	__declspec(allocate("rktest$data"))
 #elif defined(__APPLE__)
 extern const test_data_t* const
-	__start_bar __asm("section$start$__DATA$bar");
+	__begin_rktest __asm("section$begin$__DATA$rktest");
 extern const test_data_t* const
-	__stop_bar __asm("section$end$__DATA$bar");
+	__end_rktest __asm("section$end$__DATA$rktest");
 
 #define DEFINE_SECTION \
-	__attribute__((used, section("__DATA,bar")))
+	__attribute__((used, section("__DATA,rktest")))
 
 DEFINE_SECTION
 const test_data_t* const dummy = NULL;
 #elif defined(__unix__)
-extern const test_data_t* const __start_bar;
-extern const test_data_t* const __stop_bar;
+extern const test_data_t* const __begin_rktest;
+extern const test_data_t* const __end_rktest;
 
 #define DEFINE_SECTION \
-	__attribute__((used, section("bar")))
+	__attribute__((used, section("rktest")))
 
 DEFINE_SECTION
 const test_data_t* const dummy = NULL;
@@ -56,14 +56,14 @@ const test_data_t* const dummy = NULL;
 
 #if defined(_MSC_VER)
 #define TEST_DATA_BEGIN \
-	(&bar_begin + 1)
+	(&rktest_begin + 1)
 #define TEST_DATA_END \
-	(&bar_end)
+	(&rktest_end)
 #elif defined(__unix__) || defined(__APPLE__)
 #define TEST_DATA_BEGIN \
-	(&__start_bar)
+	(&__start_rktest)
 #define TEST_DATA_END \
-	(&__stop_bar)
+	(&__stop_rktest)
 #endif
 
 #define TEST(SUITE, NAME)                                                   \
