@@ -169,9 +169,24 @@ typedef struct {
 #define RKTEST_CHECK_EXPECT false
 #define RKTEST_CHECK_ASSERT true
 
+#ifdef __GNUC__
+#define RKTEST_PUSH_IGNORE_WARNINGS() \
+	#pragma GCC diagnostic ignored "-Wformat-zero-length"
+#else
+#define RKTEST_PUSH_IGNORE_WARNINGS()
+#endif
+
+#ifdef __GNUC__
+#define RKTEST_POP_IGNORE_WARNINGS \()
+#pragma GCC diagnostic warning "-Wformat-zero-length"
+#else
+#define RKTEST_POP_IGNORE_WARNINGS()
+#endif
+
 void rktest_fail_current_test(void);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
+	RKTEST_PUSH_IGNORE_WARNINGS()                                                  \
 	do {                                                                           \
 		const bool actual_val = actual;                                            \
 		const bool expected_val = expected;                                        \
@@ -186,9 +201,11 @@ void rktest_fail_current_test(void);
 				return;                                                            \
 			}                                                                      \
 		}                                                                          \
-	} while (0)
+	} while (0);                                                                   \
+	RKTEST_POP_IGNORE_WARNINGS()
 
 #define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)                                   \
+	RKTEST_PUSH_IGNORE_WARNINGS()                                                              \
 	do {                                                                                       \
 		const type lhs_val = lhs;                                                              \
 		const type rhs_val = rhs;                                                              \
@@ -204,9 +221,11 @@ void rktest_fail_current_test(void);
 				return;                                                                        \
 			}                                                                                  \
 		}                                                                                      \
-	} while (0)
+	} while (0);                                                                               \
+	RKTEST_POP_IGNORE_WARNINGS()
 
 #define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                               \
+	RKTEST_PUSH_IGNORE_WARNINGS()                                                                                                               \
 	do {                                                                                                                                        \
 		const type lhs_val = lhs;                                                                                                               \
 		const type rhs_val = rhs;                                                                                                               \
@@ -219,7 +238,8 @@ void rktest_fail_current_test(void);
 				return;                                                                                                                         \
 			}                                                                                                                                   \
 		}                                                                                                                                       \
-	} while (0)
+	} while (0);                                                                                                                                \
+	RKTEST_POP_IGNORE_WARNINGS()
 
 /* Logging */
 bool rktest_colors_enabled(void);

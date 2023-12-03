@@ -99,7 +99,7 @@ extern const rktest_test_t* const __begin_rktest;
 extern const rktest_test_t* const __end_rktest;
 #endif
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define TEST_DATA_BEGIN \
 	(&test_data_begin + 1)
 #define TEST_DATA_END \
