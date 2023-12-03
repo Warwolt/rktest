@@ -18,7 +18,7 @@ typedef struct {
 	};                                                                      \
 	DEFINE_SECTION_BEGIN                                                    \
 	const test_data_t* const SUITE##_##NAME##_ptr = &SUITE##_##NAME##_data; \
-	DEFINE_SECTION_END;                                                     \
+	DEFINE_SECTION_END                                                      \
 	void SUITE##_##NAME##_impl(void)
 
 #if defined(_MSC_VER)
@@ -33,7 +33,7 @@ typedef struct {
 #endif
 
 #if defined(_MSC_VER)
-#define DEFINE_SECTION_END __pragma(data_seg(pop))
+#define DEFINE_SECTION_END __pragma(data_seg(pop));
 #elif defined(__APPLE__)
 #define DEFINE_SECTION_END
 #elif defined(__unix__)
