@@ -141,12 +141,15 @@ int rktest_main(int argc, const char* argv[]);
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
-#ifdef WIN32
+#ifdef _MSC_VER
 #define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
 	__pragma(data_seg(push));                          \
 	__pragma(section("rktest$data", read));            \
 	__declspec(allocate("rktest$data")) declaration;   \
 	__pragma(data_seg(pop))
+#elif __unix__
+#define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
+	__attribute__((used, section("rktest")))
 #else
 #error Trying to compile RK Test on an unsupported platform.
 #endif

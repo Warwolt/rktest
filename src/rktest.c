@@ -25,7 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 
@@ -83,15 +83,28 @@ typedef struct {
 // +--------------+-----------------+----------+
 // | rktest$end   | test_data_end   | rktest.o |
 // +--------------+-----------------+----------+
+#ifdef _MSC_VER
 #pragma section("rktest$begin", read)
 #pragma section("rktest$data", read)
 #pragma section("rktest$end", read)
-
-// Add `rktest_test_t` pointers to mark the begining and the end of the
-// `rktest` memory section. Test cases are added to `rktest$data` using the
-// TEST() macro.
 __declspec(allocate("rktest$begin")) const rktest_test_t* const test_data_begin = NULL;
 __declspec(allocate("rktest$end")) const rktest_test_t* const test_data_end = NULL;
+#elif __unix__
+extern const struct rktest_test_t* const __begin_rktest;
+extern const struct rktest_test_t* const __end_rktest;
+#endif
+
+#if defined(_MSC_VER)
+#define TEST_DATA_BEGIN \
+	(&test_data_begin + 1)
+#define TEST_DATA_END \
+	(&test_data_end)
+#elif defined(__unix__) || defined(__APPLE__)
+#define TEST_DATA_BEGIN \
+	(&__begin_rktest)
+#define TEST_DATA_END \
+	(&__end_rktest)
+#endif
 
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
@@ -104,7 +117,7 @@ void rktest_fail_current_test(void) {
 	g_current_test_failed = true;
 }
 
-#ifdef WIN32
+#ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -133,7 +146,7 @@ static void initialize(int argc, const char* argv[]) {
 		g_colors_enabled = false;
 	}
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	if (g_colors_enabled) {
 		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
 		if (enable_virtual_term != RKTEST_RESULT_OK) {
@@ -142,13 +155,6 @@ static void initialize(int argc, const char* argv[]) {
 		}
 	}
 #endif // WIN32
-}
-
-static const rktest_test_t* const* skip_until_next_test(const rktest_test_t* const* it) {
-	do {
-		it++;
-	} while (it != &test_data_end && *it == NULL);
-	return it;
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -187,7 +193,11 @@ static rktest_environment_t* setup_test_env(void) {
 		.total_num_tests = 0,
 	};
 
-	for (const rktest_test_t* const* it = skip_until_next_test(&test_data_begin + 1); it != &test_data_end; it = skip_until_next_test(it)) {
+	for (const rktest_test_t* const* it = TEST_DATA_BEGIN; it != TEST_DATA_END; it++) {
+		if (*it == NULL) {
+			continue;
+		}
+
 		const rktest_test_t* const test = *it;
 
 		if (env->num_test_suites == RKTEST_MAX_NUM_TEST_SUITES) {
