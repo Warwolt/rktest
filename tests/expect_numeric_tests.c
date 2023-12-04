@@ -50,7 +50,7 @@ TEST(expect_int, expect_less_than_equal) {
 	EXPECT_LONG_LE(long_sum1, long_sum2);
 
 	EXPECT_LE_INFO(int_sum1, int_sum2, "int_sum2 = %d\n", int_sum2);
-	EXPECT_LONG_LE_INFO(long_sum1, long_sum2, "long_sum2 = %d\n", long_sum2);
+	EXPECT_LONG_LE_INFO(long_sum1, long_sum2, "long_sum2 = %ld\n", long_sum2);
 }
 
 TEST(expect_int, expect_greater_than) {
@@ -58,7 +58,7 @@ TEST(expect_int, expect_greater_than) {
 	EXPECT_LONG_GT(long_sum2, long_sum1);
 
 	EXPECT_GT_INFO(int_sum2, int_sum1, "int_sum2 = %d\n", int_sum2);
-	EXPECT_LONG_GT_INFO(long_sum2, long_sum1, "long_sum2 = %d\n", long_sum2);
+	EXPECT_LONG_GT_INFO(long_sum2, long_sum1, "long_sum2 = %ld\n", long_sum2);
 }
 
 TEST(expect_int, expect_greater_than_equal) {
@@ -66,5 +66,5 @@ TEST(expect_int, expect_greater_than_equal) {
 	EXPECT_LONG_GE(long_sum2, long_sum1);
 
 	EXPECT_GE_INFO(int_sum2, int_sum1, "int_sum2 = %d\n", int_sum2);
-	EXPECT_LONG_GE_INFO(long_sum2, long_sum1, "long_sum2 = %d\n", long_sum2);
+	EXPECT_LONG_GE_INFO(long_sum2, long_sum1, "long_sum2 = %ld\n", long_sum2);
 }
