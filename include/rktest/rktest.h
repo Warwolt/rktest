@@ -50,7 +50,7 @@ int rktest_main(int argc, const char* argv[]);
 	const rktest_test_t SUITE##_##NAME##_data = {                                      \
 		.suite_name = #SUITE,                                                          \
 		.test_name = #NAME,                                                            \
-		.func = &SUITE##_##NAME##_impl                                                 \
+		.run = &SUITE##_##NAME##_impl                                                  \
 	};                                                                                 \
 	ADD_TO_MEMORY_SECTION_BEGIN                                                        \
 	const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data; \
@@ -172,7 +172,7 @@ int rktest_main(int argc, const char* argv[]);
 typedef struct {
 	const char* suite_name;
 	const char* test_name;
-	void (*func)(void);
+	void (*run)(void);
 } rktest_test_t;
 
 /* Assertions */
@@ -240,10 +240,10 @@ bool rktest_string_is_number(const char* str);
 /* Logging */
 bool rktest_colors_enabled(void);
 
-#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : " ")
-#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : " ")
-#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : " ")
-#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : " ")
+#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
+#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
+#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : "")
+#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : "")
 
 #define rktest_printf_green(...)      \
 	printf("%s", RKTEST_COLOR_GREEN); \

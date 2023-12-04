@@ -220,9 +220,8 @@ static rktest_environment_t* setup_test_env(void) {
 
 static bool run_test(const rktest_test_t* test) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
-	if (test->func) {
-		test->func();
-	}
+
+	test->run();
 
 	const bool test_passed = !g_current_test_failed;
 	g_current_test_failed = false;
