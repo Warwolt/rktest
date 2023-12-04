@@ -180,6 +180,7 @@ typedef struct {
 #define RKTEST_CHECK_ASSERT true
 
 void rktest_fail_current_test(void);
+bool rktest_string_is_number(const char* str);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
 	do {                                                                           \
@@ -205,8 +206,13 @@ void rktest_fail_current_test(void);
 		if (lhs_val != rhs_val) {                                                              \
 			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
 			printf("  %s\n", #lhs);                                                            \
-			printf("    Which is: " fmt "\n", lhs_val);                                        \
+			const bool lhs_is_literal = rktest_string_is_number(#lhs);                         \
+			if (!lhs_is_literal)                                                               \
+				printf("    Which is: " fmt "\n", lhs_val);                                    \
 			printf("  %s\n", #rhs);                                                            \
+			const bool rhs_is_literal = rktest_string_is_number(#rhs);                         \
+			if (!rhs_is_literal)                                                               \
+				printf("    Which is: " fmt "\n", rhs_val);                                    \
 			printf(__VA_ARGS__);                                                               \
 			printf("\n");                                                                      \
 			rktest_fail_current_test();                                                        \
