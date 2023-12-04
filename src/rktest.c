@@ -21,6 +21,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 #include "rktest/rktest.h"
 
+#include <ctype.h>
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -97,6 +98,15 @@ bool rktest_colors_enabled(void) {
 
 void rktest_fail_current_test(void) {
 	g_current_test_failed = true;
+}
+
+bool rktest_string_is_number(const char* str) {
+	for (int i = 0; str[i] != '\0'; i++) {
+		if (!isdigit(str[i])) {
+			return false;
+		}
+	}
+	return true;
 }
 
 #ifdef _MSC_VER
