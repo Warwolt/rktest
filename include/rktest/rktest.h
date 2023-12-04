@@ -45,22 +45,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
-// This needs to work with MSVC, GCC and Clang
-// TODO:
-// [x] MSVC
-// [ ] GCC
-// [ ] Clang
-#define TEST(SUITE, NAME)                                                                                                  \
-	void SUITE##_##NAME##_impl(void);                                                                                      \
-	const rktest_test_t SUITE##_##NAME##_meta = {                                                                          \
-		.test_name = #NAME,                                                                                                \
-		.suite_name = #SUITE,                                                                                              \
-		.func = &SUITE##_##NAME##_impl                                                                                     \
-	};                                                                                                                     \
-	__pragma(data_seg(push));                                                                                              \
-	__pragma(section("rktest$data", read));                                                                                \
-	__declspec(allocate("rktest$data")) const rktest_test_t* const SUITE##_##NAME##_meta##_##ptr = &SUITE##_##NAME##_meta; \
-	__pragma(data_seg(pop));                                                                                               \
+#define TEST(SUITE, NAME)                                                              \
+	void SUITE##_##NAME##_impl(void);                                                  \
+	const rktest_test_t SUITE##_##NAME##_data = {                                      \
+		.suite_name = #SUITE,                                                          \
+		.test_name = #NAME,                                                            \
+		.func = &SUITE##_##NAME##_impl                                                 \
+	};                                                                                 \
+	ADD_TO_MEMORY_SECTION_BEGIN                                                        \
+	const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data; \
+	ADD_TO_MEMORY_SECTION_END                                                          \
 	void SUITE##_##NAME##_impl(void)
 
 // TODO:
@@ -77,11 +71,11 @@ int rktest_main(int argc, const char* argv[]);
 // [ ] EXPECT_NEAR
 
 /* Bool checks */
-#define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, " ")
 
-#define ASSERT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_ASSERT, "")
+#define ASSERT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_ASSERT, " ")
 
 #define EXPECT_TRUE_INFO(expr, ...) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 #define EXPECT_FALSE_INFO(lhs, ...) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, __VA_ARGS__)
@@ -90,19 +84,19 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_FALSE_INFO(lhs, ...) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Integer checks */
-#define EXPECT_EQ(lhs, rhs) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_NE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_GT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_GE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_EQ(lhs, rhs) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_NE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_GT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_GE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_EXPECT, " ")
 
-#define ASSERT_EQ(lhs, rhs) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_NE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_GT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_GE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_ASSERT, "")
+#define ASSERT_EQ(lhs, rhs) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_NE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, <=, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_GT(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_GE(lhs, rhs) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_ASSERT, " ")
 
 #define EXPECT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(int, "%d", lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 #define EXPECT_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
@@ -119,19 +113,19 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(int, "%d", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Long checks */
-#define EXPECT_LONG_EQ(lhs, rhs) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LONG_NE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LONG_LT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LONG_LE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LONG_GT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_EXPECT, "")
-#define EXPECT_LONG_GE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_EXPECT, "")
+#define EXPECT_LONG_EQ(lhs, rhs) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LONG_NE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LONG_LT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LONG_LE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LONG_GT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_LONG_GE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_EXPECT, " ")
 
-#define ASSERT_LONG_EQ(lhs, rhs) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LONG_NE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LONG_LT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LONG_LE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LONG_GT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, "")
-#define ASSERT_LONG_GE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, "")
+#define ASSERT_LONG_EQ(lhs, rhs) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LONG_NE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LONG_LT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LONG_LE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LONG_GT(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_LONG_GE(lhs, rhs) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, " ")
 
 #define EXPECT_LONG_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(long, "%ld", lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 #define EXPECT_LONG_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
@@ -149,6 +143,27 @@ int rktest_main(int argc, const char* argv[]);
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
+#if defined(_MSC_VER)
+#define ADD_TO_MEMORY_SECTION_BEGIN         \
+	__pragma(data_seg(push));               \
+	__pragma(section("rktest$data", read)); \
+	__declspec(allocate("rktest$data"))
+#elif defined(__APPLE__)
+#define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("__DATA,rktest")))
+#elif defined(__unix__)
+#define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("rktest")))
+#endif
+
+#if defined(_MSC_VER)
+#define ADD_TO_MEMORY_SECTION_END __pragma(data_seg(pop));
+#elif defined(__APPLE__)
+#define ADD_TO_MEMORY_SECTION_END
+#elif defined(__unix__)
+#define ADD_TO_MEMORY_SECTION_END
+#else
+#error Trying to compile RK Test on an unsupported platform.
+#endif
+
 // Collects all the information from a TEST() macro
 //
 // Instances of the struct are stored locally in the unit test files. Pointers
@@ -219,10 +234,10 @@ void rktest_fail_current_test(void);
 /* Logging */
 bool rktest_colors_enabled(void);
 
-#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
-#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
-#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : "")
-#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : "")
+#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : " ")
+#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : " ")
+#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : " ")
+#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : " ")
 
 #define rktest_printf_green(...)      \
 	printf("%s", RKTEST_COLOR_GREEN); \

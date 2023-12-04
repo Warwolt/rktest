@@ -23,10 +23,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <memory.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #include <windows.h>
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
 /* RK Test runner internals ------------------------------------------------- */
@@ -58,40 +63,30 @@ typedef struct {
 	size_t num_failed_tests;
 } rktest_report_t;
 
-// Unit test case storage
-//
-// An `rktest` data section is added to the binary, and is used to store meta
-// data about all unit test cases to be run. Three fragments are added: `begin`,
-// `data`, and `end`. The names utilize that fragments are sorted and stored
-// alphabetically in the binary.
-//
-// All unit test files adds local test data to the `rktest$data` fragment of the
-// section with the TEST() macro, and the linker will then collect them into a
-// single `rktest$data` fragment in the binary.
-//
-// This trick is based on the following article by Raymond Chen: "Using linker
-// segments and __declspec(allocate(…)) to arrange data in a specific order"
-// https://devblogs.microsoft.com/oldnewthing/20181107-00/?p=100155
-//
-// Example layout:
-// +--------------+-----------------+-----------+
-// | rktest$begin | test_data_begin | rktest.o |
-// +--------------+-----------------+----------+
-// |              | test_1_case_1   | test1.o  |
-// | rktest$data  | test_1_case_2   | test1.o  |
-// |              | test_2_case_1   | test2.o  |
-// +--------------+-----------------+----------+
-// | rktest$end   | test_data_end   | rktest.o |
-// +--------------+-----------------+----------+
-#pragma section("rktest$begin", read)
-#pragma section("rktest$data", read)
-#pragma section("rktest$end", read)
+/* Declare memory section to store test data in */
+#if defined(_MSC_VER)
+__pragma(section("rktest$begin", read));
+__pragma(section("rktest$data", read));
+__pragma(section("rktest$end", read));
+__declspec(allocate("rktest$begin")) extern const rktest_test_t* const test_data_begin = NULL;
+__declspec(allocate("rktest$end")) extern const rktest_test_t* const test_data_end = NULL;
+#elif defined(__APPLE__)
+extern const rktest_test_t* const __start_rktest __asm("section$start$__DATA$rktest");
+extern const rktest_test_t* const __stop_rktest __asm("section$end$__DATA$rktest");
+__attribute__((used, section("__DATA,rktest"))) const rktest_test_t* const dummy = NULL;
+#elif defined(__unix__)
+extern const rktest_test_t* const __start_rktest;
+extern const rktest_test_t* const __stop_rktest;
+__attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL;
+#endif
 
-// Add `rktest_test_t` pointers to mark the begining and the end of the
-// `rktest` memory section. Test cases are added to `rktest$data` using the
-// TEST() macro.
-__declspec(allocate("rktest$begin")) const rktest_test_t* const test_data_begin = NULL;
-__declspec(allocate("rktest$end")) const rktest_test_t* const test_data_end = NULL;
+#if defined(_MSC_VER)
+#define TEST_DATA_BEGIN (&test_data_begin + 1)
+#define TEST_DATA_END (&test_data_end)
+#elif defined(__unix__) || defined(__APPLE__)
+#define TEST_DATA_BEGIN (&__start_rktest)
+#define TEST_DATA_END (&__stop_rktest)
+#endif
 
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
@@ -104,7 +99,7 @@ void rktest_fail_current_test(void) {
 	g_current_test_failed = true;
 }
 
-#ifdef WIN32
+#ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -133,7 +128,7 @@ static void initialize(int argc, const char* argv[]) {
 		g_colors_enabled = false;
 	}
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	if (g_colors_enabled) {
 		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
 		if (enable_virtual_term != RKTEST_RESULT_OK) {
@@ -142,13 +137,6 @@ static void initialize(int argc, const char* argv[]) {
 		}
 	}
 #endif // WIN32
-}
-
-static const rktest_test_t* const* skip_until_next_test(const rktest_test_t* const* it) {
-	do {
-		it++;
-	} while (it != &test_data_end && *it == NULL);
-	return it;
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -187,7 +175,11 @@ static rktest_environment_t* setup_test_env(void) {
 		.total_num_tests = 0,
 	};
 
-	for (const rktest_test_t* const* it = skip_until_next_test(&test_data_begin + 1); it != &test_data_end; it = skip_until_next_test(it)) {
+	for (const rktest_test_t* const* it = TEST_DATA_BEGIN; it != TEST_DATA_END; it++) {
+		if (*it == NULL) {
+			continue;
+		}
+
 		const rktest_test_t* const test = *it;
 
 		if (env->num_test_suites == RKTEST_MAX_NUM_TEST_SUITES) {
