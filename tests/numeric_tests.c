@@ -5,6 +5,8 @@
 // defining variables here to easily control if tests pass or fail.
 static const int int_sum1 = 1 + 2;
 static const int int_sum2 = 3 + 4;
+static const char char_sum1 = 1 + 2;
+static const char char_sum2 = 3 + 4;
 static const long long_sum1 = 1 + 2;
 static const long long_sum2 = 3 + 4;
 
@@ -22,9 +24,11 @@ TEST(numeric_tests, expect_false) {
 /* Equality checks */
 TEST(numeric_tests, expect_equal) {
 	EXPECT_EQ(int_sum1, 3);
+	EXPECT_EQ(char_sum1, 3);
 	EXPECT_LONG_EQ(long_sum1, 3);
 
 	EXPECT_EQ_INFO(int_sum2, 7, "int_sum2 = %d\n", int_sum2);
+	EXPECT_EQ_INFO(char_sum2, 7, "char_sum2 = %d\n", char_sum2);
 	EXPECT_LONG_EQ_INFO(long_sum2, 7, "long_sum2 = %ld\n", long_sum2);
 }
 
