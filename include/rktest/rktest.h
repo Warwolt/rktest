@@ -23,6 +23,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef RKTEST_H
 #define RKTEST_H
@@ -61,7 +62,7 @@ int rktest_main(int argc, const char* argv[]);
 // [x] EXPECT_*
 // [x] EXPECT_LONG*
 //
-// [ ] EXPECT_STREQ
+// [x] EXPECT_STREQ
 // [ ] EXPECT_STRNE
 // [ ] EXPECT_STRCASEEQ
 // [ ] EXPECT_STRCASENE
@@ -140,6 +141,13 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_LE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+
+/* String checks */
+#define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
@@ -235,6 +243,29 @@ bool rktest_string_is_number(const char* str);
 				return;                                                                                                                         \
 			}                                                                                                                                   \
 		}                                                                                                                                       \
+	} while (0)
+
+#define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, ...)                                           \
+	do {                                                                                       \
+		const char* lhs_val = lhs;                                                             \
+		const char* rhs_val = rhs;                                                             \
+		if (strcmp(lhs_val, rhs_val) != 0) {                                                   \
+			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
+			printf("  %s\n", #lhs);                                                            \
+			const bool lhs_is_literal = (#lhs)[0] == '"';                                      \
+			if (!lhs_is_literal)                                                               \
+				printf("    Which is: %s\n", lhs_val);                                         \
+			printf("  %s\n", #rhs);                                                            \
+			const bool rhs_is_literal = (#rhs)[0] == '"';                                      \
+			if (!rhs_is_literal)                                                               \
+				printf("    Which is: %s\n", rhs_val);                                         \
+			printf(__VA_ARGS__);                                                               \
+			printf("\n");                                                                      \
+			rktest_fail_current_test();                                                        \
+			if (is_assert) {                                                                   \
+				return;                                                                        \
+			}                                                                                  \
+		}                                                                                      \
 	} while (0)
 
 /* Logging */

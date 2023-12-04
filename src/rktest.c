@@ -65,6 +65,7 @@ typedef struct {
 } rktest_report_t;
 
 /* Declare memory section to store test data in */
+// This is based on the following article: https://christophercrouzet.com/blog/dev/rexo-part-2
 #if defined(_MSC_VER)
 __pragma(section("rktest$begin", read));
 __pragma(section("rktest$data", read));
