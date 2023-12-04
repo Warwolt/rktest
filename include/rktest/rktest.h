@@ -144,10 +144,16 @@ int rktest_main(int argc, const char* argv[]);
 
 /* String checks */
 #define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+
 #define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 
 #define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+
 #define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+#define ASSERT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
@@ -266,6 +272,21 @@ bool rktest_string_is_number(const char* str);
 				return;                                                                        \
 			}                                                                                  \
 		}                                                                                      \
+	} while (0)
+
+#define RKTEST_CHECK_STRNE(lhs, rhs, is_assert, ...)                                                                                     \
+	do {                                                                                                                                 \
+		const char* lhs_val = lhs;                                                                                                       \
+		const char* rhs_val = rhs;                                                                                                       \
+		if (strcmp(lhs_val, rhs_val) == 0) {                                                                                             \
+			printf("%s(%d): error: Expected (%s) != (%s), actual \"%s\" vs \"%s\"\n", __FILE__, __LINE__, #lhs, #rhs, lhs_val, rhs_val); \
+			printf(__VA_ARGS__);                                                                                                         \
+			printf("\n");                                                                                                                \
+			rktest_fail_current_test();                                                                                                  \
+			if (is_assert) {                                                                                                             \
+				return;                                                                                                                  \
+			}                                                                                                                            \
+		}                                                                                                                                \
 	} while (0)
 
 /* Logging */

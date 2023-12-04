@@ -10,3 +10,11 @@ TEST(string_tests, strings_equal) {
 	EXPECT_STREQ(str1, "hello");
 	EXPECT_STREQ_INFO(str2, "world", "str2 = %s\n", str2);
 }
+
+TEST(string_tests, strings_not_equal) {
+	ASSERT_STRNE(str1, "hello123");
+	ASSERT_STRNE_INFO(str2, "world123", "str2 = %s\n", str2);
+
+	EXPECT_STRNE(str1, "hello123");
+	EXPECT_STRNE_INFO(str2, "world123", "str2 = %s\n", str2);
+}
