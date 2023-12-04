@@ -45,14 +45,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
-#define TEST(SUITE, NAME)                                                                                                 \
-	void SUITE##_##NAME##_impl(void);                                                                                     \
-	const rktest_test_t SUITE##_##NAME##_data = {                                                                         \
-		.suite_name = #SUITE,                                                                                             \
-		.test_name = #NAME,                                                                                               \
-		.func = &SUITE##_##NAME##_impl                                                                                    \
-	};                                                                                                                    \
-	RKTEST_ALLOCATE_IN_MEMORY_SECTION(const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data); \
+#define TEST(SUITE, NAME)                                                              \
+	void SUITE##_##NAME##_impl(void);                                                  \
+	const rktest_test_t SUITE##_##NAME##_data = {                                      \
+		.suite_name = #SUITE,                                                          \
+		.test_name = #NAME,                                                            \
+		.func = &SUITE##_##NAME##_impl                                                 \
+	};                                                                                 \
+	ADD_TO_MEMORY_SECTION_BEGIN                                                        \
+	const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data; \
+	ADD_TO_MEMORY_SECTION_END                                                          \
 	void SUITE##_##NAME##_impl(void)
 
 // TODO:
@@ -141,15 +143,23 @@ int rktest_main(int argc, const char* argv[]);
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
-#ifdef _MSC_VER
-#define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
-	__pragma(data_seg(push));                          \
-	__pragma(section("rktest$data", read));            \
-	__declspec(allocate("rktest$data")) declaration;   \
-	__pragma(data_seg(pop))
-#elif __unix__
-#define RKTEST_ALLOCATE_IN_MEMORY_SECTION(declaration) \
-	__attribute__((used, section("rktest"))) declaration
+#if defined(_MSC_VER)
+#define ADD_TO_MEMORY_SECTION_BEGIN         \
+	__pragma(data_seg(push));               \
+	__pragma(section("rktest$data", read)); \
+	__declspec(allocate("rktest$data"))
+#elif defined(__APPLE__)
+#define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("__DATA,rktest")))
+#elif defined(__unix__)
+#define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("rktest")))
+#endif
+
+#if defined(_MSC_VER)
+#define ADD_TO_MEMORY_SECTION_END __pragma(data_seg(pop));
+#elif defined(__APPLE__)
+#define ADD_TO_MEMORY_SECTION_END
+#elif defined(__unix__)
+#define ADD_TO_MEMORY_SECTION_END
 #else
 #error Trying to compile RK Test on an unsupported platform.
 #endif
@@ -186,8 +196,8 @@ typedef struct {
 void rktest_fail_current_test(void);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
-	RKTEST_PUSH_IGNORE_WARNINGS                                                    \
 	do {                                                                           \
+		RKTEST_PUSH_IGNORE_WARNINGS                                                \
 		const bool actual_val = actual;                                            \
 		const bool expected_val = expected;                                        \
 		if (actual_val != expected_val) {                                          \
@@ -201,12 +211,12 @@ void rktest_fail_current_test(void);
 				return;                                                            \
 			}                                                                      \
 		}                                                                          \
-	} while (0);                                                                   \
-	RKTEST_POP_IGNORE_WARNINGS
+		RKTEST_POP_IGNORE_WARNINGS                                                 \
+	} while (0)
 
 #define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)                                   \
-	RKTEST_PUSH_IGNORE_WARNINGS                                                                \
 	do {                                                                                       \
+		RKTEST_PUSH_IGNORE_WARNINGS                                                            \
 		const type lhs_val = lhs;                                                              \
 		const type rhs_val = rhs;                                                              \
 		if (lhs_val != rhs_val) {                                                              \
@@ -221,12 +231,12 @@ void rktest_fail_current_test(void);
 				return;                                                                        \
 			}                                                                                  \
 		}                                                                                      \
-	} while (0);                                                                               \
-	RKTEST_POP_IGNORE_WARNINGS
+		RKTEST_POP_IGNORE_WARNINGS                                                             \
+	} while (0)
 
 #define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                               \
-	RKTEST_PUSH_IGNORE_WARNINGS                                                                                                                 \
 	do {                                                                                                                                        \
+		RKTEST_PUSH_IGNORE_WARNINGS                                                                                                             \
 		const type lhs_val = lhs;                                                                                                               \
 		const type rhs_val = rhs;                                                                                                               \
 		if (!(lhs_val op rhs_val)) {                                                                                                            \
@@ -238,8 +248,8 @@ void rktest_fail_current_test(void);
 				return;                                                                                                                         \
 			}                                                                                                                                   \
 		}                                                                                                                                       \
-	} while (0);                                                                                                                                \
-	RKTEST_POP_IGNORE_WARNINGS
+		RKTEST_POP_IGNORE_WARNINGS                                                                                                              \
+	} while (0)
 
 /* Logging */
 bool rktest_colors_enabled(void);

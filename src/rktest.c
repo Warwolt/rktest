@@ -63,52 +63,29 @@ typedef struct {
 	size_t num_failed_tests;
 } rktest_report_t;
 
-// Unit test case storage
-//
-// An `rktest` data section is added to the binary, and is used to store meta
-// data about all unit test cases to be run. Three fragments are added: `begin`,
-// `data`, and `end`. The names utilize that fragments are sorted and stored
-// alphabetically in the binary.
-//
-// All unit test files adds local test data to the `rktest$data` fragment of the
-// section with the TEST() macro, and the linker will then collect them into a
-// single `rktest$data` fragment in the binary.
-//
-// This trick is based on the following article by Raymond Chen: "Using linker
-// segments and __declspec(allocate(…)) to arrange data in a specific order"
-// https://devblogs.microsoft.com/oldnewthing/20181107-00/?p=100155
-//
-// Example layout:
-// +--------------+-----------------+-----------+
-// | rktest$begin | test_data_begin | rktest.o |
-// +--------------+-----------------+----------+
-// |              | test_1_case_1   | test1.o  |
-// | rktest$data  | test_1_case_2   | test1.o  |
-// |              | test_2_case_1   | test2.o  |
-// +--------------+-----------------+----------+
-// | rktest$end   | test_data_end   | rktest.o |
-// +--------------+-----------------+----------+
-#ifdef _MSC_VER
-#pragma section("rktest$begin", read)
-#pragma section("rktest$data", read)
-#pragma section("rktest$end", read)
-__declspec(allocate("rktest$begin")) const rktest_test_t* const test_data_begin = NULL;
-__declspec(allocate("rktest$end")) const rktest_test_t* const test_data_end = NULL;
-#elif __unix__
-extern const rktest_test_t* const __begin_rktest;
-extern const rktest_test_t* const __end_rktest;
+/* Declare memory section to store test data in */
+#if defined(_MSC_VER)
+__pragma(section("rktest$begin", read));
+__pragma(section("rktest$data", read));
+__pragma(section("rktest$end", read));
+__declspec(allocate("rktest$begin")) extern const rktest_test_t* const test_data_begin = NULL;
+__declspec(allocate("rktest$end")) extern const rktest_test_t* const test_data_end = NULL;
+#elif defined(__APPLE__)
+extern const rktest_test_t* const __start_rktest __asm("section$start$__DATA$rktest");
+extern const rktest_test_t* const __stop_rktest __asm("section$end$__DATA$rktest");
+__attribute__((used, section("__DATA,rktest"))) const rktest_test_t* const dummy = NULL;
+#elif defined(__unix__)
+extern const rktest_test_t* const __start_rktest;
+extern const rktest_test_t* const __stop_rktest;
+__attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL;
 #endif
 
-#ifdef _MSC_VER
-#define TEST_DATA_BEGIN \
-	(&test_data_begin + 1)
-#define TEST_DATA_END \
-	(&test_data_end)
+#if defined(_MSC_VER)
+#define TEST_DATA_BEGIN (&test_data_begin + 1)
+#define TEST_DATA_END (&test_data_end)
 #elif defined(__unix__) || defined(__APPLE__)
-#define TEST_DATA_BEGIN \
-	(&__begin_rktest)
-#define TEST_DATA_END \
-	(&__end_rktest)
+#define TEST_DATA_BEGIN (&__start_rktest)
+#define TEST_DATA_END (&__stop_rktest)
 #endif
 
 static bool g_colors_enabled = false;
