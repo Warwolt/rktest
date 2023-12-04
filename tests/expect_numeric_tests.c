@@ -3,8 +3,8 @@
 #include <stdint.h>
 
 // defining variables here to easily control if tests pass or fail.
-static const int int_sum1 = 1 + 2 + 10;
-static const int int_sum2 = 3 + 4 + 10;
+static const int int_sum1 = 1 + 2;
+static const int int_sum2 = 3 + 4;
 // static const long long_sum1 = 1 + 2;
 // static const long long_sum2 = 3 + 4;
 
