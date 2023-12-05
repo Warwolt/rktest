@@ -64,8 +64,8 @@ int rktest_main(int argc, const char* argv[]);
 //
 // [x] EXPECT_STREQ
 // [x] EXPECT_STRNE
-// [ ] EXPECT_STRCASEEQ
-// [ ] EXPECT_STRCASENE
+// [x] EXPECT_STRCASEEQ
+// [x] EXPECT_STRCASENE
 //
 // [ ] EXPECT_FLOAT_EQ
 // [ ] EXPECT_DOUBLE_EQ
