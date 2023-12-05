@@ -15,7 +15,7 @@ jobs:
         run: cmake --build build
 
       - name: Test Project
-        run: ./build/Debug/tests
+        run: .\build\Debug\tests
         shell: cmd
 
   build-linux:
