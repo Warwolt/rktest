@@ -26,3 +26,11 @@ TEST(string_tests, strings_case_equal) {
 	EXPECT_CASE_STREQ(str1, "hello");
 	EXPECT_CASE_STREQ_INFO(str2, "world", "str2 = %s\n", str2);
 }
+
+TEST(string_tests, strings_case_not_equal) {
+	ASSERT_CASE_STRNE(str1, "Hello123");
+	ASSERT_CASE_STRNE_INFO(str2, "World123", "str2 = %s\n", str2);
+
+	EXPECT_CASE_STRNE(str1, "hello123");
+	EXPECT_CASE_STRNE_INFO(str2, "world123", "str2 = %s\n", str2);
+}
