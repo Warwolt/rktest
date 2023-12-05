@@ -142,6 +142,23 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
+/* Floating point checks */
+// Checks that two floats are within 4 Units in the Last Place
+// (Based on the same technique used in Google Test)
+// https://en.wikipedia.org/wiki/Unit_in_the_last_place
+// https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+#define EXPECT_FLOAT_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(float, lhs, rhs, rktest_floats_within_4_ulp, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_FLOAT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(float, lhs, rhs, rktest_floats_within_4_ulp, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define ASSERT_FLOAT_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(float, lhs, rhs, rktest_floats_within_4_ulp, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_FLOAT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(float, lhs, rhs, rktest_floats_within_4_ulp, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+
+#define EXPECT_DOUBLE_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(double, lhs, rhs, rktest_doubles_within_4_ulp, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_DOUBLE_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(double, lhs, rhs, rktest_doubles_within_4_ulp, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define ASSERT_DOUBLE_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(double, lhs, rhs, rktest_doubles_within_4_ulp, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_DOUBLE_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(double, lhs, rhs, rktest_doubles_within_4_ulp, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+
 /* String checks */
 #define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
 #define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
@@ -207,6 +224,8 @@ typedef struct {
 void rktest_fail_current_test(void);
 bool rktest_string_is_number(const char* str);
 int rktest_strcasecmp(const char* lhs, const char* rhs);
+bool rktest_floats_within_4_ulp(float lhs, float rhs);
+bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
 	do {                                                                           \
@@ -261,6 +280,25 @@ int rktest_strcasecmp(const char* lhs, const char* rhs);
 				return;                                                                                                                          \
 			}                                                                                                                                    \
 		}                                                                                                                                        \
+	} while (0)
+
+#define RKTEST_CHECK_FLOAT_EQ(type, lhs, rhs, compare, is_assert, ...)                         \
+	do {                                                                                       \
+		const type lhs_val = lhs;                                                              \
+		const type rhs_val = rhs;                                                              \
+		if (!compare(lhs_val, rhs_val)) {                                                      \
+			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
+			printf("  %s\n", #lhs);                                                            \
+			printf("    Which is: %.8f\n", lhs_val);                                           \
+			printf("  %s\n", #rhs);                                                            \
+			printf("    Which is: %.8f\n", rhs_val);                                           \
+			printf(__VA_ARGS__);                                                               \
+			printf("\n");                                                                      \
+			rktest_fail_current_test();                                                        \
+			if (is_assert) {                                                                   \
+				return;                                                                        \
+			}                                                                                  \
+		}                                                                                      \
 	} while (0)
 
 #define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, match_case, ...)                                         \

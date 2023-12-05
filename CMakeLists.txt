@@ -14,14 +14,17 @@ add_library(${PROJECT_NAME}
     src/rktest_main.c
     src/rktest.c
 )
-
 target_include_directories(${PROJECT_NAME} PUBLIC
     include
 )
+if(UNIX)
+    target_link_libraries(${PROJECT_NAME} PUBLIC m)
+endif()
 
 # Tests
 add_executable(tests
-    tests/numeric_tests.c
+    tests/integer_tests.c
+    tests/float_tests.c
     tests/string_tests.c
 )
 target_include_directories(tests PUBLIC include)

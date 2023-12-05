@@ -1,4 +1,4 @@
-#include "rktest/rktest.h"
+#include <rktest/rktest.h>
 
 const char* str1 = "hello";
 const char* str2 = "world";
