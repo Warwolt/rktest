@@ -63,7 +63,7 @@ int rktest_main(int argc, const char* argv[]);
 // [x] EXPECT_LONG*
 //
 // [x] EXPECT_STREQ
-// [ ] EXPECT_STRNE
+// [x] EXPECT_STRNE
 // [ ] EXPECT_STRCASEEQ
 // [ ] EXPECT_STRCASENE
 //
@@ -143,17 +143,21 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* String checks */
-#define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
-#define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
+#define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
+#define EXPECT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, " ")
 
-#define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
-#define EXPECT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define EXPECT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define EXPECT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 
-#define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
-#define ASSERT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
+#define ASSERT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
+#define ASSERT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, " ")
 
-#define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
-#define ASSERT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+#define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define ASSERT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define ASSERT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
@@ -193,8 +197,12 @@ typedef struct {
 #define RKTEST_CHECK_EXPECT false
 #define RKTEST_CHECK_ASSERT true
 
+#define RKTEST_CASE_INSENSETIVE false
+#define RKTEST_MATCH_CASE true
+
 void rktest_fail_current_test(void);
 bool rktest_string_is_number(const char* str);
+int rktest_strcasecmp(const char* lhs, const char* rhs);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
 	do {                                                                           \
@@ -251,30 +259,32 @@ bool rktest_string_is_number(const char* str);
 		}                                                                                                                                       \
 	} while (0)
 
-#define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, ...)                                           \
-	do {                                                                                       \
-		const char* lhs_val = lhs;                                                             \
-		const char* rhs_val = rhs;                                                             \
-		if (strcmp(lhs_val, rhs_val) != 0) {                                                   \
-			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
-			printf("  %s\n", #lhs);                                                            \
-			const bool lhs_is_literal = (#lhs)[0] == '"';                                      \
-			if (!lhs_is_literal)                                                               \
-				printf("    Which is: %s\n", lhs_val);                                         \
-			printf("  %s\n", #rhs);                                                            \
-			const bool rhs_is_literal = (#rhs)[0] == '"';                                      \
-			if (!rhs_is_literal)                                                               \
-				printf("    Which is: %s\n", rhs_val);                                         \
-			printf(__VA_ARGS__);                                                               \
-			printf("\n");                                                                      \
-			rktest_fail_current_test();                                                        \
-			if (is_assert) {                                                                   \
-				return;                                                                        \
-			}                                                                                  \
-		}                                                                                      \
+#define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, match_case, ...)                                         \
+	do {                                                                                                 \
+		const char* lhs_val = lhs;                                                                       \
+		const char* rhs_val = rhs;                                                                       \
+		if (match_case ? (strcmp(lhs_val, rhs_val) != 0) : (rktest_strcasecmp(lhs_val, rhs_val) != 0)) { \
+			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__);           \
+			printf("  %s\n", #lhs);                                                                      \
+			const bool lhs_is_literal = (#lhs)[0] == '"';                                                \
+			if (!lhs_is_literal)                                                                         \
+				printf("    Which is: %s\n", lhs_val);                                                   \
+			printf("  %s\n", #rhs);                                                                      \
+			const bool rhs_is_literal = (#rhs)[0] == '"';                                                \
+			if (!rhs_is_literal)                                                                         \
+				printf("    Which is: %s\n", rhs_val);                                                   \
+			if (!match_case)                                                                             \
+				printf("Ignoring case\n");                                                               \
+			printf(__VA_ARGS__);                                                                         \
+			printf("\n");                                                                                \
+			rktest_fail_current_test();                                                                  \
+			if (is_assert) {                                                                             \
+				return;                                                                                  \
+			}                                                                                            \
+		}                                                                                                \
 	} while (0)
 
-#define RKTEST_CHECK_STRNE(lhs, rhs, is_assert, ...)                                                                                     \
+#define RKTEST_CHECK_STRNE(lhs, rhs, is_assert, match_case, ...)                                                                         \
 	do {                                                                                                                                 \
 		const char* lhs_val = lhs;                                                                                                       \
 		const char* rhs_val = rhs;                                                                                                       \

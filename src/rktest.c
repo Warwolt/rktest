@@ -110,6 +110,15 @@ bool rktest_string_is_number(const char* str) {
 	return true;
 }
 
+// based on https://stackoverflow.com/a/34873406/3157744
+int rktest_strcasecmp(const char* lhs, const char* rhs) {
+	while (*lhs && (tolower(*lhs) == tolower(*rhs))) {
+		lhs++;
+		rhs++;
+	}
+	return *(const unsigned char*)lhs - *(const unsigned char*)rhs;
+}
+
 #ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
