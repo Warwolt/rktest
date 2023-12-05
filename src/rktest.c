@@ -135,8 +135,26 @@ static float prev_4_ulp_float(float x) {
 	return x;
 }
 
+static double next_4_ulp_double(double x) {
+	for (int i = 0; i < 4; i++) {
+		x = nextafter(x, DBL_MAX);
+	}
+	return x;
+}
+
+static double prev_4_ulp_double(double x) {
+	for (int i = 0; i < 4; i++) {
+		x = nextafter(x, -DBL_MAX);
+	}
+	return x;
+}
+
 bool rktest_floats_within_4_ulp(float lhs, float rhs) {
 	return prev_4_ulp_float(rhs) <= lhs && lhs <= next_4_ulp_float(rhs);
+}
+
+bool rktest_doubles_within_4_ulp(double lhs, double rhs) {
+	return prev_4_ulp_double(rhs) <= lhs && lhs <= next_4_ulp_double(rhs);
 }
 
 #ifdef _MSC_VER
