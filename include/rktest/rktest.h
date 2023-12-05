@@ -147,7 +147,11 @@ int rktest_main(int argc, const char* argv[]);
 // (Based on the same technique used in Google Test)
 // https://en.wikipedia.org/wiki/Unit_in_the_last_place
 // https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
-#define EXPECT_FLOAT_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define EXPECT_FLOAT_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_FLOAT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define ASSERT_FLOAT_EQ(lhs, rhs) RKTEST_CHECK_FLOAT_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_FLOAT_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_FLOAT_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* String checks */
 #define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
