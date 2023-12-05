@@ -124,16 +124,19 @@ static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
 	DWORD dwMode = 0;
 	if (!GetConsoleMode(hOut, &dwMode)) {
+		fprintf(stderr, "Error: GetConsoleMode failed\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	if (!SetConsoleMode(hOut, dwMode)) {
+		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
