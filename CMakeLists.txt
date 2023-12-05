@@ -22,6 +22,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 # Tests
 add_executable(tests
     tests/numeric_tests.c
+    tests/string_tests.c
 )
 target_include_directories(tests PUBLIC include)
 target_link_libraries(tests PUBLIC ${PROJECT_NAME})

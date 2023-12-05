@@ -65,6 +65,7 @@ typedef struct {
 } rktest_report_t;
 
 /* Declare memory section to store test data in */
+// This is based on the following article: https://christophercrouzet.com/blog/dev/rexo-part-2
 #if defined(_MSC_VER)
 __pragma(section("rktest$begin", read));
 __pragma(section("rktest$data", read));
@@ -109,21 +110,33 @@ bool rktest_string_is_number(const char* str) {
 	return true;
 }
 
+// based on https://stackoverflow.com/a/34873406/3157744
+int rktest_strcasecmp(const char* lhs, const char* rhs) {
+	while (*lhs && (tolower(*lhs) == tolower(*rhs))) {
+		lhs++;
+		rhs++;
+	}
+	return *(const unsigned char*)lhs - *(const unsigned char*)rhs;
+}
+
 #ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
 	DWORD dwMode = 0;
 	if (!GetConsoleMode(hOut, &dwMode)) {
+		fprintf(stderr, "Error: GetConsoleMode failed\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	if (!SetConsoleMode(hOut, dwMode)) {
+		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
 		return RKTEST_RESULT_ERROR;
 	}
 
@@ -220,9 +233,8 @@ static rktest_environment_t* setup_test_env(void) {
 
 static bool run_test(const rktest_test_t* test) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
-	if (test->func) {
-		test->func();
-	}
+
+	test->run();
 
 	const bool test_passed = !g_current_test_failed;
 	g_current_test_failed = false;

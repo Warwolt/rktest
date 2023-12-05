@@ -23,6 +23,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef RKTEST_H
 #define RKTEST_H
@@ -50,7 +51,7 @@ int rktest_main(int argc, const char* argv[]);
 	const rktest_test_t SUITE##_##NAME##_data = {                                      \
 		.suite_name = #SUITE,                                                          \
 		.test_name = #NAME,                                                            \
-		.func = &SUITE##_##NAME##_impl                                                 \
+		.run = &SUITE##_##NAME##_impl                                                  \
 	};                                                                                 \
 	ADD_TO_MEMORY_SECTION_BEGIN                                                        \
 	const rktest_test_t* const SUITE##_##NAME##_data##_##ptr = &SUITE##_##NAME##_data; \
@@ -61,10 +62,10 @@ int rktest_main(int argc, const char* argv[]);
 // [x] EXPECT_*
 // [x] EXPECT_LONG*
 //
-// [ ] EXPECT_STREQ
-// [ ] EXPECT_STRNE
-// [ ] EXPECT_STRCASEEQ
-// [ ] EXPECT_STRCASENE
+// [x] EXPECT_STREQ
+// [x] EXPECT_STRNE
+// [x] EXPECT_STRCASEEQ
+// [x] EXPECT_STRCASENE
 //
 // [ ] EXPECT_FLOAT_EQ
 // [ ] EXPECT_DOUBLE_EQ
@@ -141,6 +142,27 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
+/* String checks */
+#define EXPECT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
+#define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
+#define EXPECT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, " ")
+#define EXPECT_CASE_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, " ")
+
+#define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define EXPECT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define EXPECT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+#define EXPECT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+
+#define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
+#define ASSERT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
+#define ASSERT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, " ")
+#define ASSERT_CASE_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, " ")
+
+#define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define ASSERT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
+#define ASSERT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+#define ASSERT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
 #if defined(_MSC_VER)
@@ -172,15 +194,19 @@ int rktest_main(int argc, const char* argv[]);
 typedef struct {
 	const char* suite_name;
 	const char* test_name;
-	void (*func)(void);
+	void (*run)(void);
 } rktest_test_t;
 
 /* Assertions */
 #define RKTEST_CHECK_EXPECT false
 #define RKTEST_CHECK_ASSERT true
 
+#define RKTEST_CASE_INSENSETIVE false
+#define RKTEST_MATCH_CASE true
+
 void rktest_fail_current_test(void);
 bool rktest_string_is_number(const char* str);
+int rktest_strcasecmp(const char* lhs, const char* rhs);
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                        \
 	do {                                                                           \
@@ -222,28 +248,71 @@ bool rktest_string_is_number(const char* str);
 		}                                                                                      \
 	} while (0)
 
-#define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                               \
-	do {                                                                                                                                        \
-		const type lhs_val = lhs;                                                                                                               \
-		const type rhs_val = rhs;                                                                                                               \
-		if (!(lhs_val op rhs_val)) {                                                                                                            \
-			printf("%s(%d): error: Expected (%s) %s (%s), actual " fmt " vs " fmt "\n", __FILE__, __LINE__, #lhs, #op, #rhs, lhs_val, rhs_val); \
-			printf(__VA_ARGS__);                                                                                                                \
-			printf("\n");                                                                                                                       \
-			rktest_fail_current_test();                                                                                                         \
-			if (is_assert) {                                                                                                                    \
-				return;                                                                                                                         \
-			}                                                                                                                                   \
-		}                                                                                                                                       \
+#define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                                \
+	do {                                                                                                                                         \
+		const type lhs_val = lhs;                                                                                                                \
+		const type rhs_val = rhs;                                                                                                                \
+		if (!(lhs_val op rhs_val)) {                                                                                                             \
+			printf("%s(%d): error: Expected (%s) %s (%s), actual: " fmt " vs " fmt "\n", __FILE__, __LINE__, #lhs, #op, #rhs, lhs_val, rhs_val); \
+			printf(__VA_ARGS__);                                                                                                                 \
+			printf("\n");                                                                                                                        \
+			rktest_fail_current_test();                                                                                                          \
+			if (is_assert) {                                                                                                                     \
+				return;                                                                                                                          \
+			}                                                                                                                                    \
+		}                                                                                                                                        \
+	} while (0)
+
+#define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, match_case, ...)                                         \
+	do {                                                                                                 \
+		const char* lhs_val = lhs;                                                                       \
+		const char* rhs_val = rhs;                                                                       \
+		if (match_case ? (strcmp(lhs_val, rhs_val) != 0) : (rktest_strcasecmp(lhs_val, rhs_val) != 0)) { \
+			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__);           \
+			printf("  %s\n", #lhs);                                                                      \
+			const bool lhs_is_literal = (#lhs)[0] == '"';                                                \
+			if (!lhs_is_literal)                                                                         \
+				printf("    Which is: %s\n", lhs_val);                                                   \
+			printf("  %s\n", #rhs);                                                                      \
+			const bool rhs_is_literal = (#rhs)[0] == '"';                                                \
+			if (!rhs_is_literal)                                                                         \
+				printf("    Which is: %s\n", rhs_val);                                                   \
+			if (!match_case)                                                                             \
+				printf("Ignoring case\n");                                                               \
+			printf(__VA_ARGS__);                                                                         \
+			printf("\n");                                                                                \
+			rktest_fail_current_test();                                                                  \
+			if (is_assert) {                                                                             \
+				return;                                                                                  \
+			}                                                                                            \
+		}                                                                                                \
+	} while (0)
+
+#define RKTEST_CHECK_STRNE(lhs, rhs, is_assert, match_case, ...)                                         \
+	do {                                                                                                 \
+		const char* lhs_val = lhs;                                                                       \
+		const char* rhs_val = rhs;                                                                       \
+		if (match_case ? (strcmp(lhs_val, rhs_val) == 0) : (rktest_strcasecmp(lhs_val, rhs_val) == 0)) { \
+			printf("%s(%d): error: Expected (%s) != (%s)", __FILE__, __LINE__, #lhs, #rhs);              \
+			if (!match_case)                                                                             \
+				printf(" (ignoring case)");                                                              \
+			printf(", actual: \"%s\" vs \"%s\"\n", lhs_val, rhs_val);                                    \
+			printf(__VA_ARGS__);                                                                         \
+			printf("\n");                                                                                \
+			rktest_fail_current_test();                                                                  \
+			if (is_assert) {                                                                             \
+				return;                                                                                  \
+			}                                                                                            \
+		}                                                                                                \
 	} while (0)
 
 /* Logging */
 bool rktest_colors_enabled(void);
 
-#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : " ")
-#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : " ")
-#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : " ")
-#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : " ")
+#define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
+#define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
+#define RKTEST_COLOR_YELLOW (rktest_colors_enabled() ? "\033[33m" : "")
+#define RKTEST_COLOR_RESET (rktest_colors_enabled() ? "\033[0m" : "")
 
 #define rktest_printf_green(...)      \
 	printf("%s", RKTEST_COLOR_GREEN); \
