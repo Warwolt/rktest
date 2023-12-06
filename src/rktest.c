@@ -33,6 +33,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 #else
 #include <time.h>
+#include <unistd.h> // DEBUGGING
 #endif
 
 #ifdef __GNUC__
@@ -386,6 +387,11 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t test_timer = rktest_timer_start();
+#ifdef _MSC_VER
+	Sleep(5000); // sleep 10 seconds to verify timer
+#else
+	usleep(5000 * 1000);
+#endif
 	rktest_report_t* report = run_all_tests(env);
 	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
