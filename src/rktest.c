@@ -358,11 +358,6 @@ static bool run_test(const rktest_test_t* test) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
 	rktest_timer_t test_timer = rktest_timer_start();
-#ifdef _MSC_VER
-	Sleep(100);
-#else
-	usleep(100 * 1000);
-#endif
 	test->run();
 	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
@@ -424,6 +419,11 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
+#ifdef _MSC_VER
+	Sleep(5000);
+#else
+	usleep(5000 * 1000);
+#endif
 	rktest_report_t* report = run_all_tests(env);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
