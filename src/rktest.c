@@ -353,15 +353,17 @@ static rktest_environment_t* setup_test_env(void) {
 static bool run_test(const rktest_test_t* test) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
+	rktest_timer_t test_timer = rktest_timer_start();
 	test->run();
+	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
 	const bool test_passed = !g_current_test_failed;
 	g_current_test_failed = false;
 
 	if (test_passed) {
-		rktest_log_info("[       OK ] ", "%s.%s (xx ms)\n", test->suite_name, test->test_name);
+		rktest_log_info("[       OK ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
 	} else {
-		rktest_log_error("[  FAILED  ] ", "%s.%s (xx ms)\n", test->suite_name, test->test_name);
+		rktest_log_error("[  FAILED  ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
 	}
 
 	return test_passed;
@@ -377,6 +379,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 
 	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
 		rktest_log_info("[----------] ", "%zu tests from %s\n", suite->num_tests, suite->name);
+		rktest_timer_t suite_timer = rktest_timer_start();
 		foreach (rktest_test_t*, test, suite->tests, suite->num_tests) {
 			const bool test_passed = run_test(test);
 			if (test_passed) {
@@ -386,7 +389,8 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 				report->num_failed_tests++;
 			}
 		}
-		rktest_log_info("[----------] ", "%zu tests from %s (xx ms total)\n", suite->num_tests, suite->name);
+		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
+		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", suite->num_tests, suite->name, suite_time_ms);
 		printf("\n");
 	}
 
@@ -410,12 +414,12 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_tests, env->num_test_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
-	rktest_timer_t test_timer = rktest_timer_start();
+	rktest_timer_t total_time_timer = rktest_timer_start();
 	rktest_report_t* report = run_all_tests(env);
-	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
+	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_tests, env->num_test_suites, test_time_ms);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_tests, env->num_test_suites, total_time_ms);
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
