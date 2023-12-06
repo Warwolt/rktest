@@ -134,7 +134,7 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 #elif defined(__MACH__)
 rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	timer->end = mach_absolute_time();
-	rktest_millis_t ms = (rktest_millis_t)((timer->end - timer->start) * timer->timebase_info.numer / timebase_info.denom / 1000000);
+	rktest_millis_t ms = (rktest_millis_t)((timer->end - timer->start) * timer->timebase_info.numer / timer->timebase_info.denom / 1000000);
 	return ms;
 }
 #else
