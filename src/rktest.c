@@ -115,6 +115,7 @@ rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
 	mach_timebase_info(&timer.timebase_info);
 	timer.start = mach_absolute_time();
+	return timer;
 }
 #else
 rktest_timer_t rktest_timer_start(void) {
