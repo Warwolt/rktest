@@ -25,14 +25,20 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <float.h>
 #include <math.h>
 #include <memory.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #ifdef _MSC_VER
 #include <windows.h>
+#elif defined(__MACH__)
+#include <mach/mach_time.h>
 #else
 #include <time.h>
+#endif
+
+#ifndef _MSC_VER
 #include <unistd.h> // DEBUGGING
 #endif
 
@@ -40,7 +46,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
-/* RK Test runner internals ------------------------------------------------- */
 #define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
 
 #define foreach(type_ptr, iter, array, array_len) \
@@ -69,10 +74,19 @@ typedef struct {
 	size_t num_failed_tests;
 } rktest_report_t;
 
-#ifdef WIN32
+/* Timer type */
+typedef int rktest_millis_t;
+
+#if defined(WIN32)
 typedef struct {
 	double pc_freq;
 	__int64 start;
+} rktest_timer_t;
+#elif defined(__MACH__)
+typedef struct {
+	mach_timebase_info_data_t timebase_info;
+	uint64_t start;
+	uint64_t end;
 } rktest_timer_t;
 #else
 typedef struct {
@@ -81,10 +95,8 @@ typedef struct {
 } rktest_timer_t;
 #endif
 
-typedef int rktest_millis_t;
-
-/* Timer implementation */
-#ifdef WIN32
+/* ------------------------- Timer implementation -------------------------- */
+#if defined(WIN32)
 rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
 
@@ -98,6 +110,12 @@ rktest_timer_t rktest_timer_start(void) {
 
 	return timer;
 }
+#elif defined(__MACH__)
+rktest_timer_t rktest_timer_start(void) {
+	rktest_timer_t timer;
+	mach_timebase_info(&timer.timebase_info);
+	timer.start = mach_absolute_time();
+}
 #else
 rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
@@ -106,19 +124,25 @@ rktest_timer_t rktest_timer_start(void) {
 }
 #endif
 
-#ifdef WIN32
+#if defined(WIN32)
 rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);
 	const int ms = (int)round((li.QuadPart - timer->start) / timer->pc_freq);
 	return ms;
 }
+#elif defined(__MACH__)
+rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
+	timer->end = mach_absolute_time();
+	rktest_millis_t ms = (rktest_millis_t)((timer->end - timer->start) * timer->timebase_info.numer / timebase_info.denom / 1000000);
+	return ms;
+}
 #else
 rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	clock_gettime(CLOCK_MONOTONIC, &timer->end);
-	int ms = 0;
-	ms += (int)((timer->end.tv_sec - timer->start.tv_sec) * 1000.0); // seconds
-	ms += (int)((timer->end.tv_nsec - timer->start.tv_nsec) / 1000.0); // milliseconds
+	rktest_millis_t ms = 0;
+	ms += (rktest_millis_t)((timer->end.tv_sec - timer->start.tv_sec) * 1000.0); // seconds
+	ms += (rktest_millis_t)((timer->end.tv_nsec - timer->start.tv_nsec) / 1000.0); // milliseconds
 	return ms;
 }
 #endif
@@ -149,6 +173,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 #define TEST_DATA_END (&__stop_rktest)
 #endif
 
+/* -------------------- Public function implementations -------------------- */
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 
@@ -214,6 +239,7 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs) {
 	return prev_4_ulp_double(rhs) <= lhs && lhs <= next_4_ulp_double(rhs);
 }
 
+/* ------------------------ Platform initialization ------------------------ */
 #ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
@@ -257,6 +283,7 @@ static void initialize(int argc, const char* argv[]) {
 #endif // WIN32
 }
 
+/* ------------------------- RKTest implementation ------------------------- */
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
 	foreach (rktest_suite_t*, suite, suites, num_suites) {
 		if (strcmp(suite->name, suite_name) == 0) {
