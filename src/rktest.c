@@ -31,6 +31,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifdef _MSC_VER
 #include <windows.h>
+#else
+#include <time.h>
 #endif
 
 #ifdef __GNUC__
@@ -65,6 +67,60 @@ typedef struct {
 	rktest_test_t failed_tests[RKTEST_MAX_NUM_TESTS];
 	size_t num_failed_tests;
 } rktest_report_t;
+
+#ifdef WIN32
+typedef struct {
+	double pc_freq;
+	__int64 start;
+} rktest_timer_t;
+#else
+typedef struct {
+	struct timespec start;
+	struct timespec end;
+} rktest_timer_t;
+#endif
+
+typedef int rktest_millis_t;
+
+/* Timer implementation */
+#ifdef WIN32
+rktest_timer_t rktest_timer_start(void) {
+	rktest_timer_t timer;
+
+	LARGE_INTEGER li;
+	QueryPerformanceFrequency(&li);
+
+	timer.pc_freq = (double)(li.QuadPart) / 1000.0;
+
+	QueryPerformanceCounter(&li);
+	timer.start = li.QuadPart;
+
+	return timer;
+}
+#else
+rktest_timer_t rktest_timer_start(void) {
+	rktest_timer_t timer;
+	clock_gettime(CLOCK_REALTIME, &timer.start);
+	return timer;
+}
+#endif
+
+#ifdef WIN32
+rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	const int ms = (int)round((li.QuadPart - timer->start) / timer->pc_freq);
+	return ms;
+}
+#else
+rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
+	clock_gettime(CLOCK_REALTIME, &timer->end);
+	int ms = 0;
+	ms += (int)((timer->end.tv_sec - timer->start.tv_sec) * 1000.0); // seconds
+	ms += (int)((timer->end.tv_nsec - timer->start.tv_nsec) / 1000.0); // milliseconds
+	return ms;
+}
+#endif
 
 /* Declare memory section to store test data in */
 // This is based on the following article: https://christophercrouzet.com/blog/dev/rexo-part-2
@@ -329,10 +385,12 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_tests, env->num_test_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
+	rktest_timer_t test_timer = rktest_timer_start();
 	rktest_report_t* report = run_all_tests(env);
+	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (xx ms total)\n", env->total_num_tests, env->num_test_suites);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_tests, env->num_test_suites, test_time_ms);
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
