@@ -38,6 +38,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <time.h>
 #endif
 
+#ifndef _MSC_VER
+#include <unistd.h> // DEBUGGING
+#endif
+
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
@@ -354,6 +358,11 @@ static bool run_test(const rktest_test_t* test) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
 	rktest_timer_t test_timer = rktest_timer_start();
+#ifdef _MSC_VER
+	Sleep(100);
+#else
+	usleep(100 * 1000);
+#endif
 	test->run();
 	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
