@@ -281,6 +281,10 @@ static void initialize(int argc, const char* argv[]) {
 }
 
 /* ------------------------- RKTest implementation ------------------------- */
+static bool string_is_prefixed_by(const char* str, const char* prefix) {
+	return strncmp(prefix, str, strlen(prefix)) == 0;
+}
+
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
 	foreach (rktest_suite_t*, suite, suites, num_suites) {
 		if (strcmp(suite->name, suite_name) == 0) {
@@ -378,9 +382,35 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 	};
 
 	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
-		rktest_log_info("[----------] ", "%zu tests from %s\n", suite->num_tests, suite->name);
+		/* Scan for disabled tests */
+		size_t num_disabled_tests = 0;
+		bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE] = { 0 };
+		for (size_t i = 0; i < suite->num_tests; i++) {
+			const rktest_test_t* test = &suite->tests[i];
+			if (string_is_prefixed_by(test->test_name, "DISABLED_")) {
+				num_disabled_tests++;
+				test_is_disabled[i] = true;
+			}
+		}
+		const size_t num_filtered_tests = suite->num_tests - num_disabled_tests;
+
+		/* Skip suite if all cases filtered out */
+		if (num_disabled_tests == suite->num_tests) {
+			continue;
+		}
+
+		rktest_log_info("[----------] ", "%zu tests from %s\n", num_filtered_tests, suite->name);
 		rktest_timer_t suite_timer = rktest_timer_start();
-		foreach (rktest_test_t*, test, suite->tests, suite->num_tests) {
+		for (size_t i = 0; i < suite->num_tests; i++) {
+			const rktest_test_t* test = &suite->tests[i];
+
+			/* Check if test is disabled, skip it*/
+			if (test_is_disabled[i]) {
+				rktest_log_warning("[ DISABLED ] ", "%s.%s\n", test->suite_name, test->test_name);
+				continue;
+			}
+
+			/* Run non-disabled test */
 			const bool test_passed = run_test(test);
 			if (test_passed) {
 				report->num_passed_tests++;
@@ -390,7 +420,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
-		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", suite->num_tests, suite->name, suite_time_ms);
+		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", num_filtered_tests, suite->name, suite_time_ms);
 		printf("\n");
 	}
 

@@ -371,6 +371,10 @@ bool rktest_colors_enabled(void);
 	rktest_printf_green(prefix_str);     \
 	printf(__VA_ARGS__);
 
+#define rktest_log_warning(prefix_str, ...) \
+	rktest_printf_yellow(prefix_str);       \
+	printf(__VA_ARGS__);
+
 #define rktest_log_error(prefix_str, ...) \
 	rktest_printf_red(prefix_str);        \
 	printf(__VA_ARGS__);
