@@ -23,8 +23,9 @@ endif()
 
 # Tests
 add_executable(tests
-    tests/integer_tests.c
+    tests/disabled_tests.c
     tests/float_tests.c
+    tests/integer_tests.c
     tests/string_tests.c
 )
 target_include_directories(tests PUBLIC include)

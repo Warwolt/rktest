@@ -58,19 +58,6 @@ int rktest_main(int argc, const char* argv[]);
 	ADD_TO_MEMORY_SECTION_END                                                          \
 	void SUITE##_##NAME##_impl(void)
 
-// TODO:
-// [x] EXPECT_*
-// [x] EXPECT_LONG*
-//
-// [x] EXPECT_STREQ
-// [x] EXPECT_STRNE
-// [x] EXPECT_STRCASEEQ
-// [x] EXPECT_STRCASENE
-//
-// [ ] EXPECT_FLOAT_EQ
-// [ ] EXPECT_DOUBLE_EQ
-// [ ] EXPECT_NEAR
-
 /* Bool checks */
 #define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, " ")
 #define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, " ")
@@ -369,6 +356,10 @@ bool rktest_colors_enabled(void);
 
 #define rktest_log_info(prefix_str, ...) \
 	rktest_printf_green(prefix_str);     \
+	printf(__VA_ARGS__);
+
+#define rktest_log_warning(prefix_str, ...) \
+	rktest_printf_yellow(prefix_str);       \
 	printf(__VA_ARGS__);
 
 #define rktest_log_error(prefix_str, ...) \

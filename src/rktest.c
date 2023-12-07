@@ -55,13 +55,17 @@ typedef enum {
 typedef struct {
 	const char* name;
 	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	size_t num_tests;
+	bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE];
+	size_t total_num_tests;
+	size_t num_disabled_tests;
 } rktest_suite_t;
 
 typedef struct {
 	rktest_suite_t test_suites[RKTEST_MAX_NUM_TEST_SUITES];
 	size_t num_test_suites;
-	size_t total_num_tests;
+	size_t total_num_filtered_suites;
+	size_t total_num_filtered_tests;
+	size_t total_num_disabled_tests;
 } rktest_environment_t;
 
 typedef struct {
@@ -281,6 +285,10 @@ static void initialize(int argc, const char* argv[]) {
 }
 
 /* ------------------------- RKTest implementation ------------------------- */
+static bool string_is_prefixed_by(const char* str, const char* prefix) {
+	return strncmp(prefix, str, strlen(prefix)) == 0;
+}
+
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
 	foreach (rktest_suite_t*, suite, suites, num_suites) {
 		if (strcmp(suite->name, suite_name) == 0) {
@@ -292,11 +300,8 @@ static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_s
 
 static rktest_suite_t* add_new_suite(rktest_environment_t* env, const char* suite_name) {
 	rktest_suite_t* suite = &env->test_suites[env->num_test_suites++];
-	*suite = (rktest_suite_t) {
-		.name = suite_name,
-		.num_tests = 0,
-		.tests = { 0 },
-	};
+	*suite = (rktest_suite_t) { 0 };
+	suite->name = suite_name;
 	return suite;
 }
 
@@ -311,11 +316,7 @@ static rktest_suite_t* find_or_add_suite(rktest_environment_t* env, const char* 
 // If it's non-null, we have a test and push it into `tests`.
 static rktest_environment_t* setup_test_env(void) {
 	rktest_environment_t* env = malloc(sizeof(rktest_environment_t));
-	*env = (rktest_environment_t) {
-		.test_suites = { 0 },
-		.num_test_suites = 0,
-		.total_num_tests = 0,
-	};
+	*env = (rktest_environment_t) { 0 };
 
 	for (const rktest_test_t* const* it = TEST_DATA_BEGIN; it != TEST_DATA_END; it++) {
 		if (*it == NULL) {
@@ -325,7 +326,7 @@ static rktest_environment_t* setup_test_env(void) {
 		const rktest_test_t* const test = *it;
 
 		if (env->num_test_suites == RKTEST_MAX_NUM_TEST_SUITES) {
-			fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES (%zu)."
+			fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES (%zu). "
 							"See the `Config variables` section of rktest.h\n",
 					RKTEST_MAX_NUM_TEST_SUITES);
 			exit(1);
@@ -333,17 +334,34 @@ static rktest_environment_t* setup_test_env(void) {
 
 		rktest_suite_t* suite = find_or_add_suite(env, test->suite_name);
 
-		if (suite->num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
-			fprintf(stderr, "Error: number of tests in suite %s is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu)."
+		if (suite->total_num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
+			fprintf(stderr, "Error: number of tests in suite \"%s\" is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu). "
 							"See the `Config variables` section of rktest.h\n",
 					suite->name,
 					RKTEST_MAX_NUM_TESTS_PER_SUITE);
 			exit(1);
 		}
 
-		// add test to suite
-		env->total_num_tests++;
-		suite->tests[suite->num_tests++] = *test;
+		/* Check if test is disabled */
+		if (string_is_prefixed_by(test->test_name, "DISABLED_")) {
+			suite->test_is_disabled[suite->total_num_tests] = true;
+			suite->num_disabled_tests++;
+			env->total_num_disabled_tests++;
+		} else {
+			suite->test_is_disabled[suite->total_num_tests] = false;
+			env->total_num_filtered_tests++;
+		}
+
+		/* Add test to suite */
+		suite->tests[suite->total_num_tests] = *test;
+		suite->total_num_tests++;
+	}
+
+	/* Count number of suites actually containing tests*/
+	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
+		if (suite->num_disabled_tests < suite->total_num_tests) {
+			env->total_num_filtered_suites++;
+		}
 	}
 
 	// return env;
@@ -378,9 +396,24 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 	};
 
 	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
-		rktest_log_info("[----------] ", "%zu tests from %s\n", suite->num_tests, suite->name);
+		/* Skip suite if all cases filtered out */
+		if (suite->num_disabled_tests == suite->total_num_tests) {
+			continue;
+		}
+
+		const size_t num_filtered_tests = suite->total_num_tests - suite->num_disabled_tests;
+		rktest_log_info("[----------] ", "%zu tests from %s\n", num_filtered_tests, suite->name);
 		rktest_timer_t suite_timer = rktest_timer_start();
-		foreach (rktest_test_t*, test, suite->tests, suite->num_tests) {
+		for (size_t i = 0; i < suite->total_num_tests; i++) {
+			const rktest_test_t* test = &suite->tests[i];
+
+			/* Check if test is disabled, skip it*/
+			if (suite->test_is_disabled[i]) {
+				rktest_log_warning("[ DISABLED ] ", "%s.%s\n", test->suite_name, test->test_name);
+				continue;
+			}
+
+			/* Run non-disabled test */
 			const bool test_passed = run_test(test);
 			if (test_passed) {
 				report->num_passed_tests++;
@@ -390,7 +423,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
-		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", suite->num_tests, suite->name, suite_time_ms);
+		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", num_filtered_tests, suite->name, suite_time_ms);
 		printf("\n");
 	}
 
@@ -403,7 +436,7 @@ static void print_failed_tests(rktest_report_t* report) {
 		rktest_log_error("[  FAILED  ] ", "%s.%s\n", failed_test->suite_name, failed_test->test_name);
 	}
 	printf("\n");
-	printf(" %zu FAILED TESTS\n", report->num_failed_tests);
+	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "s" : "");
 }
 
 int rktest_main(int argc, const char* argv[]) {
@@ -411,7 +444,7 @@ int rktest_main(int argc, const char* argv[]) {
 
 	rktest_environment_t* env = setup_test_env();
 
-	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_tests, env->num_test_suites);
+	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
@@ -419,12 +452,19 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_tests, env->num_test_suites, total_time_ms);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_filtered_tests, env->total_num_filtered_suites, total_time_ms);
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
 	if (tests_failed) {
 		print_failed_tests(report);
+	}
+
+	if (env->total_num_disabled_tests > 0) {
+		if (!tests_failed) {
+			printf("\n");
+		}
+		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "s" : "");
 	}
 
 	free(report);
