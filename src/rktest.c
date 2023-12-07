@@ -441,6 +441,9 @@ int rktest_main(int argc, const char* argv[]) {
 
 	rktest_environment_t* env = setup_test_env();
 
+	// FIXME: we need to know how much filtering we've done already here!
+	// If we have filtered all tests, we should say "Runnning 0 tests from 0 test suites"
+	// Probably the test filtering should happen in `setup_test_env`
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_tests, env->num_test_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
