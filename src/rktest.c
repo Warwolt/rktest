@@ -63,7 +63,8 @@ typedef struct {
 typedef struct {
 	rktest_suite_t test_suites[RKTEST_MAX_NUM_TEST_SUITES];
 	size_t num_test_suites;
-	size_t total_num_tests;
+	size_t total_num_filtered_suites;
+	size_t total_num_filtered_tests;
 } rktest_environment_t;
 
 typedef struct {
@@ -345,12 +346,19 @@ static rktest_environment_t* setup_test_env(void) {
 			suite->num_disabled_tests++;
 			suite->test_is_disabled[suite->total_num_tests] = true;
 		} else {
-			env->total_num_tests++;
+			env->total_num_filtered_tests++;
 		}
 
 		/* Add test to suite */
 		suite->tests[suite->total_num_tests] = *test;
 		suite->total_num_tests++;
+	}
+
+	/* Count number of suites actually containing tests*/
+	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
+		if (suite->num_disabled_tests < suite->total_num_tests) {
+			env->total_num_filtered_suites++;
+		}
 	}
 
 	// return env;
@@ -433,7 +441,7 @@ int rktest_main(int argc, const char* argv[]) {
 
 	rktest_environment_t* env = setup_test_env();
 
-	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_tests, env->num_test_suites);
+	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
@@ -441,7 +449,7 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_tests, env->num_test_suites, total_time_ms);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_filtered_tests, env->total_num_filtered_suites, total_time_ms);
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
