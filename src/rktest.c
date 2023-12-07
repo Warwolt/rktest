@@ -65,6 +65,7 @@ typedef struct {
 	size_t num_test_suites;
 	size_t total_num_filtered_suites;
 	size_t total_num_filtered_tests;
+	size_t total_num_disabled_tests;
 } rktest_environment_t;
 
 typedef struct {
@@ -343,9 +344,11 @@ static rktest_environment_t* setup_test_env(void) {
 
 		/* Check if test is disabled */
 		if (string_is_prefixed_by(test->test_name, "DISABLED_")) {
-			suite->num_disabled_tests++;
 			suite->test_is_disabled[suite->total_num_tests] = true;
+			suite->num_disabled_tests++;
+			env->total_num_disabled_tests++;
 		} else {
+			suite->test_is_disabled[suite->total_num_tests] = false;
 			env->total_num_filtered_tests++;
 		}
 
@@ -433,7 +436,7 @@ static void print_failed_tests(rktest_report_t* report) {
 		rktest_log_error("[  FAILED  ] ", "%s.%s\n", failed_test->suite_name, failed_test->test_name);
 	}
 	printf("\n");
-	printf(" %zu FAILED TESTS\n", report->num_failed_tests);
+	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "s" : "");
 }
 
 int rktest_main(int argc, const char* argv[]) {
@@ -455,6 +458,13 @@ int rktest_main(int argc, const char* argv[]) {
 	const bool tests_failed = report->num_failed_tests > 0;
 	if (tests_failed) {
 		print_failed_tests(report);
+	}
+
+	if (env->total_num_disabled_tests > 0) {
+		if (!tests_failed) {
+			printf("\n");
+		}
+		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "s" : "");
 	}
 
 	free(report);
