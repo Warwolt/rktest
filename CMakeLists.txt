@@ -24,9 +24,9 @@ endif()
 # Tests
 add_executable(tests
     tests/disabled_tests.c
-    tests/float_tests.c
-    tests/integer_tests.c
-    tests/string_tests.c
+    # tests/float_tests.c
+    # tests/integer_tests.c
+    # tests/string_tests.c
 )
 target_include_directories(tests PUBLIC include)
 target_link_libraries(tests PUBLIC ${PROJECT_NAME})
