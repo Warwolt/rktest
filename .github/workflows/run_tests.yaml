@@ -15,7 +15,7 @@ jobs:
         run: cmake --build build
 
       - name: Test Project
-        run: ./build/Debug/tests --rktest-color=no
+        run: ./build/Debug/tests --rktest_color=no
 
   build-linux:
     runs-on: ubuntu-latest
@@ -46,4 +46,3 @@ jobs:
 
       - name: Test Project
         run: ./build/tests
-
