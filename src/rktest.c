@@ -204,12 +204,14 @@ bool string_wildcard_match(const char* string, const char* pattern) {
 					if (*pattern) {
 						continue;
 					}
+
 					return true;
 				} else if (wildcard_char) {
 					string++;
 					// "*ooba*" -> "foobar"
 					continue;
 				}
+
 				return false;
 			}
 		}
@@ -322,7 +324,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 	rktest_config_t config = (rktest_config_t) { 0 };
 	config.color_mode = RKTEST_COLOR_MODE_AUTO;
 
-	for (int i = 0; i < argc; i++) {
+	for (int i = 1; i < argc; i++) {
 		const char* arg = argv[i];
 
 		if (string_starts_with(arg, "--rktest_color=")) {
@@ -339,7 +341,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			}
 		}
 
-		if (string_starts_with(arg, "--rktest_filter=")) {
+		else if (string_starts_with(arg, "--rktest_filter=")) {
 			const char* filter_pattern = arg + strlen("--rktest_filter=");
 			const size_t filter_len = strlen(filter_pattern);
 			if (filter_len > RKTEST_MAX_FILTER_LENGTH) {
@@ -348,6 +350,12 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 				exit(1);
 			}
 			strncpy(config.test_filter, filter_pattern, filter_len);
+		}
+
+		else {
+			fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
+			print_usage();
+			exit(1);
 		}
 	}
 
@@ -422,10 +430,16 @@ static rktest_suite_t* find_or_add_suite(rktest_environment_t* env, const char* 
 	return suite;
 }
 
+static bool test_matches_filter(const rktest_test_t* test, const char* pattern) {
+	char full_test_name[128];
+	snprintf(full_test_name, sizeof(full_test_name) / sizeof(char), "%s.%s", test->suite_name, test->test_name);
+	return pattern && string_wildcard_match(full_test_name, pattern);
+}
+
 // Loop through the entirety of the `rkdata` memory section, including padding.
 // If the iterator `it` points to null, it's padding and we skip it.
 // If it's non-null, we have a test and push it into `tests`.
-static rktest_environment_t* setup_test_env(void) {
+static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 	rktest_environment_t* env = malloc(sizeof(rktest_environment_t));
 	*env = (rktest_environment_t) { 0 };
 
@@ -453,19 +467,21 @@ static rktest_environment_t* setup_test_env(void) {
 			exit(1);
 		}
 
-		/* Check if test is disabled */
-		if (string_starts_with(test->test_name, "DISABLED_")) {
-			suite->test_is_disabled[suite->total_num_tests] = true;
-			suite->num_disabled_tests++;
-			env->total_num_disabled_tests++;
-		} else {
-			suite->test_is_disabled[suite->total_num_tests] = false;
-			env->total_num_filtered_tests++;
-		}
-
 		/* Add test to suite */
-		suite->tests[suite->total_num_tests] = *test;
-		suite->total_num_tests++;
+		if (test_matches_filter(test, config->test_filter)) {
+			if (string_starts_with(test->test_name, "DISABLED_")) {
+				suite->test_is_disabled[suite->total_num_tests] = true;
+				suite->num_disabled_tests++;
+				env->total_num_disabled_tests++;
+			} else {
+				suite->test_is_disabled[suite->total_num_tests] = false;
+				env->total_num_filtered_tests++;
+
+				/* Add test to suite */
+				suite->tests[suite->total_num_tests] = *test;
+				suite->total_num_tests++;
+			}
+		}
 	}
 
 	/* Count number of suites actually containing tests*/
@@ -552,8 +568,7 @@ static void print_failed_tests(rktest_report_t* report) {
 
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
-	// TODO pass config to setup_test_env
-	rktest_environment_t* env = setup_test_env();
+	rktest_environment_t* env = setup_test_env(&config);
 
 	if (*config.test_filter) {
 		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
