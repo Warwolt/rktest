@@ -148,7 +148,59 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 }
 #endif
 
-/* Declare memory section to store test data in */
+/* --------------------------- Wildcard matching --------------------------- */
+// Wildcard matching, originally by Stephen Mathieson
+// https://github.com/clibs/wildcardcmp/blob/master/wildcardcmp.c
+bool string_wildcard_match(const char* string, const char* pattern) {
+	const char* wildcard_char = NULL; // last `*`
+	const char* string_char = NULL; // last checked char
+
+	// malformed
+	if (!pattern || !string) {
+		return false;
+	}
+
+	// loop 1 char at a time
+	while (true) {
+		if (*string == '\0') {
+			if (*pattern == '\0' || *pattern == '*') {
+				return true;
+			}
+
+			if (*string_char == '\0') {
+				return false;
+			}
+
+			string = string_char++;
+			pattern = wildcard_char;
+			continue;
+		} else {
+			if (*pattern != *string) {
+				if (*pattern == '*') {
+					wildcard_char = ++pattern;
+					string_char = string;
+					// "*" -> "foobar"
+					if (*pattern) {
+						continue;
+					}
+					return true;
+				} else if (wildcard_char) {
+					string++;
+					// "*ooba*" -> "foobar"
+					continue;
+				}
+				return false;
+			}
+		}
+
+		string++;
+		pattern++;
+	}
+
+	return true;
+}
+
+/* ----------------------- Test case memory storage ------------------------ */
 // This is based on the following article: https://christophercrouzet.com/blog/dev/rexo-part-2
 #if defined(_MSC_VER)
 __pragma(section("rktest$begin", read));
