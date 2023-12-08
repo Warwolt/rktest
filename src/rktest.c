@@ -363,12 +363,12 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 	for (int i = 0; i < argc; i++) {
 		const char* arg = argv[i];
 
-		if (string_starts_with(arg, "--rktest-color=")) {
-			if (strcmp(arg + strlen("--rktest-color="), "yes") == 0) {
+		if (string_starts_with(arg, "--rktest_color=")) {
+			if (strcmp(arg + strlen("--rktest_color="), "yes") == 0) {
 				config.color_mode = RKTEST_COLOR_MODE_ON;
-			} else if (strcmp(arg + strlen("--rktest-color="), "no") == 0) {
+			} else if (strcmp(arg + strlen("--rktest_color="), "no") == 0) {
 				config.color_mode = RKTEST_COLOR_MODE_OFF;
-			} else if (strcmp(arg + strlen("--rktest-color="), "auto") == 0) {
+			} else if (strcmp(arg + strlen("--rktest_color="), "auto") == 0) {
 				config.color_mode = RKTEST_COLOR_MODE_AUTO;
 			} else {
 				fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
@@ -377,10 +377,10 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			}
 		}
 
-		if (strcmp(arg, "--rktest-color=no") == 0) {
+		if (strcmp(arg, "--rktest_color=no") == 0) {
 			config.color_mode = RKTEST_COLOR_MODE_OFF;
 		}
-		if (strcmp(arg, "--rktest-color=yes") == 0) {
+		if (strcmp(arg, "--rktest_color=yes") == 0) {
 			config.color_mode = RKTEST_COLOR_MODE_ON;
 		}
 
