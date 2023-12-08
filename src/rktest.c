@@ -184,6 +184,13 @@ bool string_wildcard_match(const char* string, const char* pattern) {
 	// loop 1 char at a time
 	while (true) {
 		if (*string == '\0') {
+			// FIXME: this returns true for the following case:
+			//  string  = "integer_tests.expect_true"
+			//  pattern = "*tests"
+			//
+			//  This should NOT match! The pattern means that we should be able
+			//  to find a suffix that is exactly "tests" but no such suffix
+			//  exists, so  there's a bug.
 			if (*pattern == '\0' || *pattern == '*') {
 				return true;
 			}
