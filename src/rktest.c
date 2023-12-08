@@ -552,6 +552,7 @@ static void print_failed_tests(rktest_report_t* report) {
 
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
+	// TODO pass config to setup_test_env
 	rktest_environment_t* env = setup_test_env();
 
 	if (*config.test_filter) {
