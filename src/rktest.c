@@ -431,9 +431,13 @@ static rktest_suite_t* find_or_add_suite(rktest_environment_t* env, const char* 
 }
 
 static bool test_matches_filter(const rktest_test_t* test, const char* pattern) {
+	if (*pattern == '\0') {
+		return true;
+	}
+
 	char full_test_name[128];
 	snprintf(full_test_name, sizeof(full_test_name) / sizeof(char), "%s.%s", test->suite_name, test->test_name);
-	return pattern && string_wildcard_match(full_test_name, pattern);
+	return string_wildcard_match(full_test_name, pattern);
 }
 
 // Loop through the entirety of the `rkdata` memory section, including padding.
