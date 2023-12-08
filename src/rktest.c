@@ -52,6 +52,16 @@ typedef enum {
 	RKTEST_RESULT_ERROR,
 } rktest_result_t;
 
+typedef enum {
+	RKTEST_COLOR_MODE_ON,
+	RKTEST_COLOR_MODE_OFF,
+	RKTEST_COLOR_MODE_AUTO,
+} rktest_color_mode_t;
+
+typedef struct {
+	rktest_color_mode_t color_mode;
+} rktest_config_t;
+
 typedef struct {
 	const char* name;
 	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
@@ -148,7 +158,11 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 }
 #endif
 
-/* --------------------------- Wildcard matching --------------------------- */
+/* ---------------------------- String utility ----------------------------- */
+static bool string_starts_with(const char* str, const char* prefix) {
+	return strncmp(prefix, str, strlen(prefix)) == 0;
+}
+
 // Wildcard matching, originally by Stephen Mathieson
 // https://github.com/clibs/wildcardcmp/blob/master/wildcardcmp.c
 bool string_wildcard_match(const char* string, const char* pattern) {
@@ -226,7 +240,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 #define TEST_DATA_END (&__stop_rktest)
 #endif
 
-/* -------------------- Public function implementations -------------------- */
+/* -------------------- Header function implementations -------------------- */
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 
@@ -318,10 +332,10 @@ static rktest_result_t enable_windows_virtual_terminal(void) {
 }
 #endif // WIN32
 
-static void initialize(int argc, const char* argv[]) {
+static void initialize(const rktest_config_t* config) {
 	g_colors_enabled = true;
 
-	if (argc > 1 && strcmp(argv[1], "--rktest-color=no") == 0) {
+	if (config->color_mode == RKTEST_COLOR_MODE_OFF) {
 		g_colors_enabled = false;
 	}
 
@@ -337,8 +351,43 @@ static void initialize(int argc, const char* argv[]) {
 }
 
 /* ------------------------- RKTest implementation ------------------------- */
-static bool string_is_prefixed_by(const char* str, const char* prefix) {
-	return strncmp(prefix, str, strlen(prefix)) == 0;
+static void print_usage(void) {
+	// TODO
+}
+
+static rktest_config_t parse_args(int argc, const char* argv[]) {
+	rktest_config_t config = (rktest_config_t) {
+		.color_mode = RKTEST_COLOR_MODE_AUTO,
+	};
+
+	for (int i = 0; i < argc; i++) {
+		const char* arg = argv[i];
+
+		if (string_starts_with(arg, "--rktest-color=")) {
+			if (strcmp(arg + strlen("--rktest-color="), "yes") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_ON;
+			} else if (strcmp(arg + strlen("--rktest-color="), "no") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_OFF;
+			} else if (strcmp(arg + strlen("--rktest-color="), "auto") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_AUTO;
+			} else {
+				fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
+				print_usage();
+				exit(1);
+			}
+		}
+
+		if (strcmp(arg, "--rktest-color=no") == 0) {
+			config.color_mode = RKTEST_COLOR_MODE_OFF;
+		}
+		if (strcmp(arg, "--rktest-color=yes") == 0) {
+			config.color_mode = RKTEST_COLOR_MODE_ON;
+		}
+
+		printf("%s\n", arg);
+	}
+
+	return config;
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -395,7 +444,7 @@ static rktest_environment_t* setup_test_env(void) {
 		}
 
 		/* Check if test is disabled */
-		if (string_is_prefixed_by(test->test_name, "DISABLED_")) {
+		if (string_starts_with(test->test_name, "DISABLED_")) {
 			suite->test_is_disabled[suite->total_num_tests] = true;
 			suite->num_disabled_tests++;
 			env->total_num_disabled_tests++;
@@ -492,7 +541,8 @@ static void print_failed_tests(rktest_report_t* report) {
 }
 
 int rktest_main(int argc, const char* argv[]) {
-	initialize(argc, argv);
+	rktest_config_t config = parse_args(argc, argv);
+	initialize(&config);
 
 	rktest_environment_t* env = setup_test_env();
 
