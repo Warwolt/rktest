@@ -42,7 +42,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4996) // needed for strncpy
+#endif
+
+/* -------------------------- Types and constants -------------------------- */
 #define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
+#define RKTEST_MAX_FILTER_LENGTH 256
 
 #define foreach(type_ptr, iter, array, array_len) \
 	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
@@ -60,6 +66,7 @@ typedef enum {
 
 typedef struct {
 	rktest_color_mode_t color_mode;
+	char test_filter[RKTEST_MAX_FILTER_LENGTH];
 } rktest_config_t;
 
 typedef struct {
@@ -312,9 +319,8 @@ static void print_usage(void) {
 }
 
 static rktest_config_t parse_args(int argc, const char* argv[]) {
-	rktest_config_t config = (rktest_config_t) {
-		.color_mode = RKTEST_COLOR_MODE_AUTO,
-	};
+	rktest_config_t config = (rktest_config_t) { 0 };
+	config.color_mode = RKTEST_COLOR_MODE_AUTO;
 
 	for (int i = 0; i < argc; i++) {
 		const char* arg = argv[i];
@@ -331,6 +337,17 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 				print_usage();
 				exit(1);
 			}
+		}
+
+		if (string_starts_with(arg, "--rktest_filter=")) {
+			const char* filter_pattern = arg + strlen("--rktest_filter=");
+			const size_t filter_len = strlen(filter_pattern);
+			if (filter_len > RKTEST_MAX_FILTER_LENGTH) {
+				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH);
+				fprintf(stderr, "filter pattern = \"%s\"", filter_pattern);
+				exit(1);
+			}
+			strncpy(config.test_filter, filter_pattern, filter_len);
 		}
 	}
 
@@ -362,7 +379,7 @@ static rktest_result_t enable_windows_virtual_terminal(void) {
 }
 #endif // WIN32
 
-static void initialize(int argc, const char* argv[]) {
+static rktest_config_t initialize(int argc, const char* argv[]) {
 	rktest_config_t config = parse_args(argc, argv);
 
 	g_colors_enabled = true;
@@ -379,6 +396,8 @@ static void initialize(int argc, const char* argv[]) {
 		}
 	}
 #endif // WIN32
+
+	return config;
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -532,9 +551,12 @@ static void print_failed_tests(rktest_report_t* report) {
 }
 
 int rktest_main(int argc, const char* argv[]) {
-	initialize(argc, argv);
-
+	rktest_config_t config = initialize(argc, argv);
 	rktest_environment_t* env = setup_test_env();
+
+	if (*config.test_filter) {
+		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
+	}
 
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
