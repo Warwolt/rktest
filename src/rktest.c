@@ -376,15 +376,6 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 				exit(1);
 			}
 		}
-
-		if (strcmp(arg, "--rktest_color=no") == 0) {
-			config.color_mode = RKTEST_COLOR_MODE_OFF;
-		}
-		if (strcmp(arg, "--rktest_color=yes") == 0) {
-			config.color_mode = RKTEST_COLOR_MODE_ON;
-		}
-
-		printf("%s\n", arg);
 	}
 
 	return config;
