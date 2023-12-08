@@ -306,50 +306,6 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs) {
 	return prev_4_ulp_double(rhs) <= lhs && lhs <= next_4_ulp_double(rhs);
 }
 
-/* ------------------------ Platform initialization ------------------------ */
-#ifdef _MSC_VER
-static rktest_result_t enable_windows_virtual_terminal(void) {
-	// Set output mode to handle virtual terminal sequences
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (hOut == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
-		return RKTEST_RESULT_ERROR;
-	}
-
-	DWORD dwMode = 0;
-	if (!GetConsoleMode(hOut, &dwMode)) {
-		fprintf(stderr, "Error: GetConsoleMode failed\n");
-		return RKTEST_RESULT_ERROR;
-	}
-
-	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	if (!SetConsoleMode(hOut, dwMode)) {
-		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
-		return RKTEST_RESULT_ERROR;
-	}
-
-	return RKTEST_RESULT_OK;
-}
-#endif // WIN32
-
-static void initialize(const rktest_config_t* config) {
-	g_colors_enabled = true;
-
-	if (config->color_mode == RKTEST_COLOR_MODE_OFF) {
-		g_colors_enabled = false;
-	}
-
-#ifdef _MSC_VER
-	if (g_colors_enabled) {
-		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
-		if (enable_virtual_term != RKTEST_RESULT_OK) {
-			fprintf(stderr, "Error: could not initialize color output\n");
-			g_colors_enabled = false;
-		}
-	}
-#endif // WIN32
-}
-
 /* ------------------------- RKTest implementation ------------------------- */
 static void print_usage(void) {
 	// TODO
@@ -379,6 +335,50 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 	}
 
 	return config;
+}
+
+#ifdef _MSC_VER
+static rktest_result_t enable_windows_virtual_terminal(void) {
+	// Set output mode to handle virtual terminal sequences
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
+		return RKTEST_RESULT_ERROR;
+	}
+
+	DWORD dwMode = 0;
+	if (!GetConsoleMode(hOut, &dwMode)) {
+		fprintf(stderr, "Error: GetConsoleMode failed\n");
+		return RKTEST_RESULT_ERROR;
+	}
+
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if (!SetConsoleMode(hOut, dwMode)) {
+		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
+		return RKTEST_RESULT_ERROR;
+	}
+
+	return RKTEST_RESULT_OK;
+}
+#endif // WIN32
+
+static void initialize(int argc, const char* argv[]) {
+	rktest_config_t config = parse_args(argc, argv);
+
+	g_colors_enabled = true;
+	if (config.color_mode == RKTEST_COLOR_MODE_OFF) {
+		g_colors_enabled = false;
+	}
+
+#ifdef _MSC_VER
+	if (g_colors_enabled) {
+		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
+		if (enable_virtual_term != RKTEST_RESULT_OK) {
+			fprintf(stderr, "Error: could not initialize color output\n");
+			g_colors_enabled = false;
+		}
+	}
+#endif // WIN32
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -532,8 +532,7 @@ static void print_failed_tests(rktest_report_t* report) {
 }
 
 int rktest_main(int argc, const char* argv[]) {
-	rktest_config_t config = parse_args(argc, argv);
-	initialize(&config);
+	initialize(argc, argv);
 
 	rktest_environment_t* env = setup_test_env();
 
