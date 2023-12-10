@@ -105,7 +105,7 @@ typedef struct {
 } rk_vector_header_t;
 
 #define vec_foreach(type_ptr, iter, vec) \
-	for (type_ptr iter = &vec[0]; iter != &vec[vec_len(vec)]; iter++)
+	for (type_ptr iter = &(vec)[0]; iter != &(vec)[vec_len(vec)]; iter++)
 
 #define vec_t(type) type*
 #define vec_new() NULL
@@ -637,8 +637,14 @@ static void print_failed_tests(rktest_report_t* report) {
 	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
 }
 
-static void print_int_vec(const vec_t(int) int_vec) {
-	vec_foreach(const int*, num, int_vec) {
+static void push_int_vec(vec_t(int) * int_vec) {
+	vec_push(*int_vec, 12);
+	vec_push(*int_vec, 34);
+	vec_push(*int_vec, 56);
+}
+
+static void print_int_vec(const vec_t(int) * int_vec) {
+	vec_foreach(const int*, num, *int_vec) {
 		printf("num = %d\n", *num);
 	}
 }
@@ -681,10 +687,8 @@ int rktest_main(int argc, const char* argv[]) {
 	// CHECK
 	{
 		vec_t(int) int_vec = vec_new();
-		vec_push(int_vec, 12);
-		vec_push(int_vec, 34);
-		vec_push(int_vec, 56);
-		print_int_vec(int_vec);
+		push_int_vec(&int_vec);
+		print_int_vec(&int_vec);
 		vec_free(int_vec);
 	}
 
