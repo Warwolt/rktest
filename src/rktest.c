@@ -364,8 +364,6 @@ static void print_usage(void) {
 	printf("    Disable printing out the filename of a test case on assert failure.\n");
 }
 
-// Run only the tests whose name matches one of the positive patterns but
-
 static rktest_config_t parse_args(int argc, const char* argv[]) {
 	rktest_config_t config = (rktest_config_t) { 0 };
 	config.color_mode = RKTEST_COLOR_MODE_AUTO;
