@@ -20,8 +20,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - name: Configure CMake
+      - name: Setup CMake
         uses: threeal/cmake-action@v1.3.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest syrupy
 
       - name: Build
         run: cmake --build build
@@ -30,4 +40,4 @@ jobs:
         run: ${{ matrix.executable }}
 
       - name: Run snapshot tests
-        run: echo TODO
+        run: pytest -vv
