@@ -13,3 +13,7 @@ TEST(disabled_tests, this_test_should_run) {
 TEST(disabled_tests2, DISABLED_this_test_should_not_run) {
 	EXPECT_EQ(1 + 1, 3);
 }
+
+TEST(disabled_tests2, DISABLED_this_test_should_not_run_either) {
+	EXPECT_EQ(1 + 1, 5);
+}
