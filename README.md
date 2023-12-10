@@ -31,3 +31,11 @@ Finally, run the tests from repo root:
 ```
 pytest
 ```
+
+If a snapshot needs to be updated, run:
+
+```
+pytest --snapshot-update
+```
+
+And commit the updated snapshots.
