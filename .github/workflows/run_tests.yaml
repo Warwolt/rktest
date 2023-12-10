@@ -13,7 +13,7 @@ jobs:
             executable: ./build/tests
           - os: macos-latest
             executable: ./build/tests
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
