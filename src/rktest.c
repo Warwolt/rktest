@@ -553,9 +553,8 @@ static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	return test_passed;
 }
 
-static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
-	rktest_report_t* report = malloc(sizeof(rktest_report_t));
-	*report = (rktest_report_t) { 0 };
+static rktest_report_t run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
+	rktest_report_t report = { 0 };
 
 	vec_foreach(rktest_suite_t*, suite, env->test_suites) {
 		/* Skip suite if all cases filtered out */
@@ -576,9 +575,9 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_co
 			/* Run non-disabled test */
 			const bool test_passed = run_test(test, config);
 			if (test_passed) {
-				report->num_passed_tests++;
+				report.num_passed_tests++;
 			} else {
-				vec_push(report->failed_tests, *test);
+				vec_push(report.failed_tests, *test);
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
@@ -603,7 +602,6 @@ static void print_failed_tests(rktest_report_t* report) {
 
 static void free_test_report(rktest_report_t* report) {
 	vec_free(report->failed_tests);
-	free(report);
 }
 
 static void free_test_env(rktest_environment_t* env) {
@@ -620,12 +618,11 @@ int rktest_main(int argc, const char* argv[]) {
 	if (*config.test_filter) {
 		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
 	}
-
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env.total_num_filtered_tests, env.total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
-	rktest_report_t* report = run_all_tests(&env, &config);
+	rktest_report_t report = run_all_tests(&env, &config);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
@@ -634,11 +631,11 @@ int rktest_main(int argc, const char* argv[]) {
 		printf("(%d ms total)", total_time_ms);
 	}
 	printf("\n");
-	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
+	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report.num_passed_tests);
 
-	const bool tests_failed = vec_len(report->failed_tests) > 0;
+	const bool tests_failed = vec_len(report.failed_tests) > 0;
 	if (tests_failed) {
-		print_failed_tests(report);
+		print_failed_tests(&report);
 	}
 
 	if (env.total_num_disabled_tests > 0) {
@@ -648,7 +645,7 @@ int rktest_main(int argc, const char* argv[]) {
 		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env.total_num_disabled_tests, env.total_num_disabled_tests > 1 ? "S" : "");
 	}
 
-	free_test_report(report);
+	free_test_report(&report);
 	free_test_env(&env);
 
 	return tests_failed;
