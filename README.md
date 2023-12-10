@@ -1,3 +1,5 @@
+![run_test badge](https://github.com/Warwolt/rktest/actions/workflows/run_tests.yaml/badge.svg)
+
 # RK Test
 
 RK Test is a small test library for C99 programs, written to closely mimick
