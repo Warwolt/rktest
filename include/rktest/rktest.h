@@ -214,78 +214,90 @@ int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
-#define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)                          \
-	do {                                                                             \
-		const bool actual_val = actual;                                              \
-		const bool expected_val = expected;                                          \
-		if (actual_val != expected_val) {                                            \
-			printf("%s(%d): error: Value of: `%s`:\n", __FILE__, __LINE__, #actual); \
-			printf("  Actual: %s\n", actual_val ? "true" : "false");                 \
-			printf("Expected: %s\n", expected_val ? "true" : "false");               \
-			printf(__VA_ARGS__);                                                     \
-			printf("\n");                                                            \
-			rktest_fail_current_test();                                              \
-			if (is_assert) {                                                         \
-				return;                                                              \
-			}                                                                        \
-		}                                                                            \
+#define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)            \
+	do {                                                               \
+		const bool actual_val = actual;                                \
+		const bool expected_val = expected;                            \
+		if (actual_val != expected_val) {                              \
+			if (rktest_filenames_enabled()) {                          \
+				printf("%s(%d): ", __FILE__, __LINE__);                \
+			}                                                          \
+			printf("error: Value of: `%s`:\n", #actual);               \
+			printf("  Actual: %s\n", actual_val ? "true" : "false");   \
+			printf("Expected: %s\n", expected_val ? "true" : "false"); \
+			printf(__VA_ARGS__);                                       \
+			printf("\n");                                              \
+			rktest_fail_current_test();                                \
+			if (is_assert) {                                           \
+				return;                                                \
+			}                                                          \
+		}                                                              \
 	} while (0)
 
-#define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)                                   \
-	do {                                                                                       \
-		const type lhs_val = lhs;                                                              \
-		const type rhs_val = rhs;                                                              \
-		if (lhs_val != rhs_val) {                                                              \
-			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
-			printf("  %s\n", #lhs);                                                            \
-			const bool lhs_is_literal = rktest_string_is_number(#lhs);                         \
-			if (!lhs_is_literal)                                                               \
-				printf("    Which is: " fmt "\n", lhs_val);                                    \
-			printf("  %s\n", #rhs);                                                            \
-			const bool rhs_is_literal = rktest_string_is_number(#rhs);                         \
-			if (!rhs_is_literal)                                                               \
-				printf("    Which is: " fmt "\n", rhs_val);                                    \
-			printf(__VA_ARGS__);                                                               \
-			printf("\n");                                                                      \
-			rktest_fail_current_test();                                                        \
-			if (is_assert) {                                                                   \
-				return;                                                                        \
-			}                                                                                  \
-		}                                                                                      \
+#define RKTEST_CHECK_EQ(type, fmt, lhs, rhs, is_assert, ...)           \
+	do {                                                               \
+		const type lhs_val = lhs;                                      \
+		const type rhs_val = rhs;                                      \
+		if (lhs_val != rhs_val) {                                      \
+			if (rktest_filenames_enabled()) {                          \
+				printf("%s(%d): ", __FILE__, __LINE__);                \
+			}                                                          \
+			printf("error: Expected equality of these values:\n");     \
+			printf("  %s\n", #lhs);                                    \
+			const bool lhs_is_literal = rktest_string_is_number(#lhs); \
+			if (!lhs_is_literal)                                       \
+				printf("    Which is: " fmt "\n", lhs_val);            \
+			printf("  %s\n", #rhs);                                    \
+			const bool rhs_is_literal = rktest_string_is_number(#rhs); \
+			if (!rhs_is_literal)                                       \
+				printf("    Which is: " fmt "\n", rhs_val);            \
+			printf(__VA_ARGS__);                                       \
+			printf("\n");                                              \
+			rktest_fail_current_test();                                \
+			if (is_assert) {                                           \
+				return;                                                \
+			}                                                          \
+		}                                                              \
 	} while (0)
 
-#define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                                                \
-	do {                                                                                                                                         \
-		const type lhs_val = lhs;                                                                                                                \
-		const type rhs_val = rhs;                                                                                                                \
-		if (!(lhs_val op rhs_val)) {                                                                                                             \
-			printf("%s(%d): error: Expected (%s) %s (%s), actual: " fmt " vs " fmt "\n", __FILE__, __LINE__, #lhs, #op, #rhs, lhs_val, rhs_val); \
-			printf(__VA_ARGS__);                                                                                                                 \
-			printf("\n");                                                                                                                        \
-			rktest_fail_current_test();                                                                                                          \
-			if (is_assert) {                                                                                                                     \
-				return;                                                                                                                          \
-			}                                                                                                                                    \
-		}                                                                                                                                        \
+#define RKTEST_CHECK_CMP(type, fmt, lhs, rhs, op, is_assert, ...)                                                    \
+	do {                                                                                                             \
+		const type lhs_val = lhs;                                                                                    \
+		const type rhs_val = rhs;                                                                                    \
+		if (!(lhs_val op rhs_val)) {                                                                                 \
+			if (rktest_filenames_enabled()) {                                                                        \
+				printf("%s(%d): ", __FILE__, __LINE__);                                                              \
+			}                                                                                                        \
+			printf("error: Expected (%s) %s (%s), actual: " fmt " vs " fmt "\n", #lhs, #op, #rhs, lhs_val, rhs_val); \
+			printf(__VA_ARGS__);                                                                                     \
+			printf("\n");                                                                                            \
+			rktest_fail_current_test();                                                                              \
+			if (is_assert) {                                                                                         \
+				return;                                                                                              \
+			}                                                                                                        \
+		}                                                                                                            \
 	} while (0)
 
-#define RKTEST_CHECK_FLOAT_EQ(type, lhs, rhs, compare, is_assert, ...)                         \
-	do {                                                                                       \
-		const type lhs_val = lhs;                                                              \
-		const type rhs_val = rhs;                                                              \
-		if (!compare(lhs_val, rhs_val)) {                                                      \
-			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__); \
-			printf("  %s\n", #lhs);                                                            \
-			printf("    Which is: %.8f\n", lhs_val);                                           \
-			printf("  %s\n", #rhs);                                                            \
-			printf("    Which is: %.8f\n", rhs_val);                                           \
-			printf(__VA_ARGS__);                                                               \
-			printf("\n");                                                                      \
-			rktest_fail_current_test();                                                        \
-			if (is_assert) {                                                                   \
-				return;                                                                        \
-			}                                                                                  \
-		}                                                                                      \
+#define RKTEST_CHECK_FLOAT_EQ(type, lhs, rhs, compare, is_assert, ...) \
+	do {                                                               \
+		const type lhs_val = lhs;                                      \
+		const type rhs_val = rhs;                                      \
+		if (!compare(lhs_val, rhs_val)) {                              \
+			if (rktest_filenames_enabled()) {                          \
+				printf("%s(%d): ", __FILE__, __LINE__);                \
+			}                                                          \
+			printf("error: Expected equality of these values:\n");     \
+			printf("  %s\n", #lhs);                                    \
+			printf("    Which is: %.8f\n", lhs_val);                   \
+			printf("  %s\n", #rhs);                                    \
+			printf("    Which is: %.8f\n", rhs_val);                   \
+			printf(__VA_ARGS__);                                       \
+			printf("\n");                                              \
+			rktest_fail_current_test();                                \
+			if (is_assert) {                                           \
+				return;                                                \
+			}                                                          \
+		}                                                              \
 	} while (0)
 
 #define RKTEST_CHECK_STREQ(lhs, rhs, is_assert, match_case, ...)                                         \
@@ -293,7 +305,10 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 		const char* lhs_val = lhs;                                                                       \
 		const char* rhs_val = rhs;                                                                       \
 		if (match_case ? (strcmp(lhs_val, rhs_val) != 0) : (rktest_strcasecmp(lhs_val, rhs_val) != 0)) { \
-			printf("%s(%d): error: Expected equality of these values:\n", __FILE__, __LINE__);           \
+			if (rktest_filenames_enabled()) {                                                            \
+				printf("%s(%d): ", __FILE__, __LINE__);                                                  \
+			}                                                                                            \
+			printf("error: Expected equality of these values:\n");                                       \
 			printf("  %s\n", #lhs);                                                                      \
 			const bool lhs_is_literal = (#lhs)[0] == '"';                                                \
 			if (!lhs_is_literal)                                                                         \
@@ -318,7 +333,10 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 		const char* lhs_val = lhs;                                                                       \
 		const char* rhs_val = rhs;                                                                       \
 		if (match_case ? (strcmp(lhs_val, rhs_val) == 0) : (rktest_strcasecmp(lhs_val, rhs_val) == 0)) { \
-			printf("%s(%d): error: Expected (%s) != (%s)", __FILE__, __LINE__, #lhs, #rhs);              \
+			if (rktest_filenames_enabled()) {                                                            \
+				printf("%s(%d): ", __FILE__, __LINE__);                                                  \
+			}                                                                                            \
+			printf("error: Expected (%s) != (%s)", #lhs, #rhs);                                          \
 			if (!match_case)                                                                             \
 				printf(" (ignoring case)");                                                              \
 			printf(", actual: \"%s\" vs \"%s\"\n", lhs_val, rhs_val);                                    \
@@ -333,6 +351,7 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
 /* Logging */
 bool rktest_colors_enabled(void);
+bool rktest_filenames_enabled(void);
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")

@@ -3,9 +3,15 @@
   '''
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
-  D:\dev\c\rktest\tests\float_tests.c(12): error: Expected equality of these values:
+  error: Expected equality of these values:
     float_sum
       Which is: 1.00000000
     0.9f
@@ -13,7 +19,7 @@
    
   [  FAILED  ] float_tests.float_equal 
   [ RUN      ] float_tests.float_equal_info 
-  D:\dev\c\rktest\tests\float_tests.c(17): error: Expected equality of these values:
+  error: Expected equality of these values:
     float_sum
       Which is: 1.00000000
     0.9f
@@ -22,7 +28,7 @@
   
   [  FAILED  ] float_tests.float_equal_info 
   [ RUN      ] float_tests.double_equal 
-  D:\dev\c\rktest\tests\float_tests.c(22): error: Expected equality of these values:
+  error: Expected equality of these values:
     double_sum
       Which is: 1.00000000
     0.9
@@ -30,7 +36,7 @@
    
   [  FAILED  ] float_tests.double_equal 
   [ RUN      ] float_tests.double_equal_info 
-  D:\dev\c\rktest\tests\float_tests.c(27): error: Expected equality of these values:
+  error: Expected equality of these values:
     double_sum
       Which is: 1.00000000
     0.9
@@ -42,20 +48,20 @@
   
   [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
-  D:\dev\c\rktest\tests\integer_tests.c(23): error: Value of: `int_sum1 == 3`:
+  error: Value of: `int_sum1 == 3`:
     Actual: false
   Expected: true
    
   [  FAILED  ] integer_tests.expect_true 
   [ RUN      ] integer_tests.expect_true_info 
-  D:\dev\c\rktest\tests\integer_tests.c(28): error: Value of: `int_sum2 == 7`:
+  error: Value of: `int_sum2 == 7`:
     Actual: false
   Expected: true
   int_sum2 = 17
   
   [  FAILED  ] integer_tests.expect_true_info 
   [ RUN      ] integer_tests.expect_false 
-  D:\dev\c\rktest\tests\integer_tests.c(33): error: Value of: `int_sum1 == 1 + 2 + 50`:
+  error: Value of: `int_sum1 == 1 + 2 + 50`:
     Actual: true
   Expected: false
    
@@ -63,14 +69,14 @@
   [ RUN      ] integer_tests.expect_false_info 
   [       OK ] integer_tests.expect_false_info 
   [ RUN      ] integer_tests.expect_equal 
-  D:\dev\c\rktest\tests\integer_tests.c(44): error: Expected equality of these values:
+  error: Expected equality of these values:
     int_sum1
       Which is: 53
     3
    
   [  FAILED  ] integer_tests.expect_equal 
   [ RUN      ] integer_tests.expect_equal_info 
-  D:\dev\c\rktest\tests\integer_tests.c(54): error: Expected equality of these values:
+  error: Expected equality of these values:
     int_sum2
       Which is: 17
     7
@@ -82,38 +88,38 @@
   [ RUN      ] integer_tests.expect_not_equal_info 
   [       OK ] integer_tests.expect_not_equal_info 
   [ RUN      ] integer_tests.expect_less_than 
-  D:\dev\c\rktest\tests\integer_tests.c(85): error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
+  error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
    
   [  FAILED  ] integer_tests.expect_less_than 
   [ RUN      ] integer_tests.expect_less_than_info 
-  D:\dev\c\rktest\tests\integer_tests.c(95): error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
+  error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
   int_sum2 = 17
   
   [  FAILED  ] integer_tests.expect_less_than_info 
   [ RUN      ] integer_tests.expect_less_than_equal 
-  D:\dev\c\rktest\tests\integer_tests.c(105): error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
+  error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
    
   [  FAILED  ] integer_tests.expect_less_than_equal 
   [ RUN      ] integer_tests.expect_less_than_equal_info 
-  D:\dev\c\rktest\tests\integer_tests.c(115): error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
+  error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
   int_sum2 = 17
   
   [  FAILED  ] integer_tests.expect_less_than_equal_info 
   [ RUN      ] integer_tests.expect_greater_than 
-  D:\dev\c\rktest\tests\integer_tests.c(125): error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
+  error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
    
   [  FAILED  ] integer_tests.expect_greater_than 
   [ RUN      ] integer_tests.expect_greater_than_info 
-  D:\dev\c\rktest\tests\integer_tests.c(135): error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
+  error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
   int_sum2 = 17
   
   [  FAILED  ] integer_tests.expect_greater_than_info 
   [ RUN      ] integer_tests.expect_greater_than_equal 
-  D:\dev\c\rktest\tests\integer_tests.c(145): error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
+  error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
    
   [  FAILED  ] integer_tests.expect_greater_than_equal 
   [ RUN      ] integer_tests.expect_greater_than_equal_info 
-  D:\dev\c\rktest\tests\integer_tests.c(155): error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
+  error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
   int_sum2 = 17
   
   [  FAILED  ] integer_tests.expect_greater_than_equal_info 
@@ -121,14 +127,14 @@
   
   [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
-  D:\dev\c\rktest\tests\string_tests.c(12): error: Expected equality of these values:
+  error: Expected equality of these values:
     str1
       Which is: elloh
     "hello"
    
   [  FAILED  ] string_tests.strings_equal 
   [ RUN      ] string_tests.strings_equal_info 
-  D:\dev\c\rktest\tests\string_tests.c(17): error: Expected equality of these values:
+  error: Expected equality of these values:
     str2
       Which is: dlorw
     "world"
@@ -140,7 +146,7 @@
   [ RUN      ] string_tests.strings_not_equal_info 
   [       OK ] string_tests.strings_not_equal_info 
   [ RUN      ] string_tests.strings_case_equal 
-  D:\dev\c\rktest\tests\string_tests.c(32): error: Expected equality of these values:
+  error: Expected equality of these values:
     str1
       Which is: elloh
     "Hello"
@@ -148,7 +154,7 @@
    
   [  FAILED  ] string_tests.strings_case_equal 
   [ RUN      ] string_tests.strings_case_equal_info 
-  D:\dev\c\rktest\tests\string_tests.c(37): error: Expected equality of these values:
+  error: Expected equality of these values:
     str2
       Which is: dlorw
     "World"
@@ -178,12 +184,6 @@
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
-  
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
   
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
@@ -221,6 +221,12 @@
   Note: Test filter = *tests*
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -302,12 +308,6 @@
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
-  
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
   
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
@@ -321,6 +321,12 @@
   '''
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -402,12 +408,6 @@
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
-  
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
   
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
@@ -508,6 +508,12 @@
   Note: Test filter = *
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -589,12 +595,6 @@
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
-  
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
   
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 

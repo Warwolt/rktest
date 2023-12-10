@@ -6,7 +6,7 @@ FAILING_TEST_EXECUTABLE = './build/Debug/failing_tests' if os.name == 'nt' else 
 
 
 def run_test_exe(exe, args: [str] = []) -> str:
-    result = subprocess.run([exe, '--rktest_print_time=0',
+    result = subprocess.run([exe, '--rktest_print_time=0', '--rktest_print_filenames=0',
                             '--rktest_color=no'] + args, stdout=subprocess.PIPE)
     return result.stdout.decode('utf-8')
 
