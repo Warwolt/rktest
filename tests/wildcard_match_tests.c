@@ -1,43 +1,27 @@
 #include <rktest/rktest.h>
 
+// Based on wildcard matching in 7zip source code
+// https://github.com/mcmilk/7-Zip/blob/826145b86107fc0a778ac673348226db180e4532/CPP/Common/Wildcard.cpp#L124
 static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		/* If at end of either string, stop iterating */
-		if (str[0] == '\0' || pattern[0] == '\0') {
-			return pattern[0] == str[0] || pattern[0] == '*';
-		}
-
-		/* If asterisk, try to match next chars */
-		if (pattern[0] == '*') {
-			while (true) {
-				// if pattern doesn't have a suffix, anything will match
-				if (pattern[1] == '\0') {
-					return true;
-				}
-				// if string is empty, we didn't find a match
-				if (str[0] == '\0') {
+		char m = *pattern;
+		char c = *str;
+		if (m == 0)
+			return (c == 0);
+		if (m == '*') {
+			if (string_wildcard_match(pattern + 1, str))
+				return true;
+			if (c == 0)
+				return 0;
+		} else {
+			if (m == '?') {
+				if (c == 0)
 					return false;
-				}
-				// matched pattern
-				if (str[0] == pattern[1]) {
-					str += 1;
-					pattern += 2;
-					break;
-				}
-				str++;
-			}
-		}
-
-		/* If current chars differ, then does not match */
-		else if (str[0] != pattern[0]) {
-			return false;
-		}
-
-		/* Go to next characters*/
-		str++;
-		if (pattern[0] != '*') {
+			} else if (m != c)
+				return false;
 			pattern++;
 		}
+		str++;
 	}
 }
 
@@ -71,4 +55,9 @@ TEST(wildcard_match_tests, asterisk_then_literal_does_suffix_match) {
 	EXPECT_TRUE(string_wildcard_match("berry", "*berry"));
 	EXPECT_TRUE(string_wildcard_match("strawberry", "*berry"));
 	EXPECT_FALSE(string_wildcard_match("straw", "*berry"));
+}
+
+TEST(wildcard_match_tests, prefix_and_suffix_match) {
+	EXPECT_TRUE(string_wildcard_match("strawberry", "st*ry"));
+	EXPECT_FALSE(string_wildcard_match("strawberry", "s*r"));
 }
