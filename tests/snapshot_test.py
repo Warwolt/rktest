@@ -3,14 +3,12 @@ import subprocess
 
 TEST_EXECUTABLE = './build/Debug/tests' if os.name == 'nt' else './build/tests'
 
-result = subprocess.run([TEST_EXECUTABLE], stdout=subprocess.PIPE)
-output = result.stdout.decode('utf-8')
 
-print(output)
-
-def capital_case(x):
-    return x.capitalize()
+def run_test_exe(args: [str] = []) -> str:
+    result = subprocess.run([TEST_EXECUTABLE, '--rktest_print_time=0'] + args, stdout=subprocess.PIPE)
+    return result.stdout.decode('utf-8')
 
 
-def test_capital_case():
-    assert capital_case('semaphore') == 'Semaphore'
+def test_no_args(snapshot):
+    actual = run_test_exe()
+    assert actual == snapshot

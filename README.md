@@ -23,7 +23,7 @@ RK Test tests itself using a combination of C++ and Python tests. To run the tes
 Then, install pytest:
 
 ```
-pip install pytest
+pip install pytest syrupy
 ```
 
 Finally, run the tests from repo root:
