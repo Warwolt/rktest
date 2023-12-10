@@ -450,11 +450,11 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 			} else {
 				suite->test_is_disabled[suite->total_num_tests] = false;
 				env->total_num_filtered_tests++;
-
-				/* Add test to suite */
-				suite->tests[suite->total_num_tests] = *test;
-				suite->total_num_tests++;
 			}
+
+			/* Add test to suite */
+			suite->tests[suite->total_num_tests] = *test;
+			suite->total_num_tests++;
 		}
 	}
 
