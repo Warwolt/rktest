@@ -12,7 +12,9 @@ RK Test has the following features:
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
 
-## Example usage
+## Usage
+Due to the similarities between RK Test and Google Test, it may be helpful to read the [Google Test primer](https://google.github.io/googletest/primer.html.).
+
 To set up a simple test suite, create a source file that includes `rktest.h` and link against the `rktest_main` library.
 
 Test cases are then defined with the `TEST()` macro, which takes to arguments: the name of the test suite, and the name of the test case. A body is then given, which will be executed like a function. The `EXPECT_EQ` takes two integral types and compares them, and fails the test in case they are not equal.
