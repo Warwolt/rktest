@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 32 tests from 5 test suites.
+  [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -125,16 +125,48 @@
   [  FAILED  ] integer_tests.expect_greater_than_equal_info 
   [----------] 16 tests from integer_tests 
   
-  [----------] 4 tests from string_tests
+  [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
-  [       OK ] string_tests.strings_equal 
+  D:\dev\c\rktest\tests\string_tests.c(12): error: Expected equality of these values:
+    str1
+      Which is: elloh
+    "hello"
+   
+  [  FAILED  ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_equal_info 
+  D:\dev\c\rktest\tests\string_tests.c(17): error: Expected equality of these values:
+    str2
+      Which is: dlorw
+    "world"
+  str2 = dlorw
+  
+  [  FAILED  ] string_tests.strings_equal_info 
   [ RUN      ] string_tests.strings_not_equal 
   [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_not_equal_info 
+  [       OK ] string_tests.strings_not_equal_info 
   [ RUN      ] string_tests.strings_case_equal 
-  [       OK ] string_tests.strings_case_equal 
+  D:\dev\c\rktest\tests\string_tests.c(32): error: Expected equality of these values:
+    str1
+      Which is: elloh
+    "Hello"
+  Ignoring case
+   
+  [  FAILED  ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_equal_info 
+  D:\dev\c\rktest\tests\string_tests.c(37): error: Expected equality of these values:
+    str2
+      Which is: dlorw
+    "World"
+  Ignoring case
+  str2 = dlorw
+  
+  [  FAILED  ] string_tests.strings_case_equal_info 
   [ RUN      ] string_tests.strings_case_not_equal 
   [       OK ] string_tests.strings_case_not_equal 
-  [----------] 4 tests from string_tests 
+  [ RUN      ] string_tests.strings_case_not_equal_info 
+  [       OK ] string_tests.strings_case_not_equal_info 
+  [----------] 8 tests from string_tests 
   
   [----------] 7 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
@@ -154,9 +186,9 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 32 tests from 5 test suites ran. 
+  [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 15 tests.
-  [  FAILED  ] 17 tests, listed below:
+  [  FAILED  ] 21 tests, listed below:
   [  FAILED  ] float_tests.float_equal
   [  FAILED  ] float_tests.float_equal_info
   [  FAILED  ] float_tests.double_equal
@@ -174,8 +206,12 @@
   [  FAILED  ] integer_tests.expect_greater_than_info
   [  FAILED  ] integer_tests.expect_greater_than_equal
   [  FAILED  ] integer_tests.expect_greater_than_equal_info
+  [  FAILED  ] string_tests.strings_equal
+  [  FAILED  ] string_tests.strings_equal_info
+  [  FAILED  ] string_tests.strings_case_equal
+  [  FAILED  ] string_tests.strings_case_equal_info
   
-   17 FAILED TESTs
+   21 FAILED TESTs
     YOU HAVE 1 DISABLED TEST
   
   '''
@@ -183,7 +219,7 @@
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 32 tests from 5 test suites.
+  [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -237,16 +273,24 @@
   [       OK ] integer_tests.expect_greater_than_equal_info 
   [----------] 16 tests from integer_tests 
   
-  [----------] 4 tests from string_tests
+  [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
   [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_equal_info 
+  [       OK ] string_tests.strings_equal_info 
   [ RUN      ] string_tests.strings_not_equal 
   [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_not_equal_info 
+  [       OK ] string_tests.strings_not_equal_info 
   [ RUN      ] string_tests.strings_case_equal 
   [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_equal_info 
+  [       OK ] string_tests.strings_case_equal_info 
   [ RUN      ] string_tests.strings_case_not_equal 
   [       OK ] string_tests.strings_case_not_equal 
-  [----------] 4 tests from string_tests 
+  [ RUN      ] string_tests.strings_case_not_equal_info 
+  [       OK ] string_tests.strings_case_not_equal_info 
+  [----------] 8 tests from string_tests 
   
   [----------] 7 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
@@ -266,8 +310,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 32 tests from 5 test suites ran. 
-  [  PASSED  ] 32 tests.
+  [==========] 36 tests from 5 test suites ran. 
+  [  PASSED  ] 36 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -275,7 +319,7 @@
 # ---
 # name: test_no_args
   '''
-  [==========] Running 32 tests from 5 test suites.
+  [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -329,16 +373,24 @@
   [       OK ] integer_tests.expect_greater_than_equal_info 
   [----------] 16 tests from integer_tests 
   
-  [----------] 4 tests from string_tests
+  [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
   [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_equal_info 
+  [       OK ] string_tests.strings_equal_info 
   [ RUN      ] string_tests.strings_not_equal 
   [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_not_equal_info 
+  [       OK ] string_tests.strings_not_equal_info 
   [ RUN      ] string_tests.strings_case_equal 
   [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_equal_info 
+  [       OK ] string_tests.strings_case_equal_info 
   [ RUN      ] string_tests.strings_case_not_equal 
   [       OK ] string_tests.strings_case_not_equal 
-  [----------] 4 tests from string_tests 
+  [ RUN      ] string_tests.strings_case_not_equal_info 
+  [       OK ] string_tests.strings_case_not_equal_info 
+  [----------] 8 tests from string_tests 
   
   [----------] 7 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
@@ -358,8 +410,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 32 tests from 5 test suites ran. 
-  [  PASSED  ] 32 tests.
+  [==========] 36 tests from 5 test suites ran. 
+  [  PASSED  ] 36 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -454,7 +506,7 @@
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 32 tests from 5 test suites.
+  [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -508,16 +560,24 @@
   [       OK ] integer_tests.expect_greater_than_equal_info 
   [----------] 16 tests from integer_tests 
   
-  [----------] 4 tests from string_tests
+  [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
   [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_equal_info 
+  [       OK ] string_tests.strings_equal_info 
   [ RUN      ] string_tests.strings_not_equal 
   [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_not_equal_info 
+  [       OK ] string_tests.strings_not_equal_info 
   [ RUN      ] string_tests.strings_case_equal 
   [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_equal_info 
+  [       OK ] string_tests.strings_case_equal_info 
   [ RUN      ] string_tests.strings_case_not_equal 
   [       OK ] string_tests.strings_case_not_equal 
-  [----------] 4 tests from string_tests 
+  [ RUN      ] string_tests.strings_case_not_equal_info 
+  [       OK ] string_tests.strings_case_not_equal_info 
+  [----------] 8 tests from string_tests 
   
   [----------] 7 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
@@ -537,8 +597,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 32 tests from 5 test suites ran. 
-  [  PASSED  ] 32 tests.
+  [==========] 36 tests from 5 test suites ran. 
+  [  PASSED  ] 36 tests.
   
     YOU HAVE 1 DISABLED TEST
   
