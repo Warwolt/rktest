@@ -498,7 +498,9 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 		/* Find or add test suite */
 		rktest_suite_t* suite = find_suite_with_name(env.test_suites, test.suite_name);
 		if (!suite) {
-			vec_push(env.test_suites, (rktest_suite_t) { 0, .name = test.suite_name });
+			rktest_suite_t new_suite = { 0 };
+			new_suite.name = test.suite_name;
+			vec_push(env.test_suites, new_suite);
 			suite = &vec_back(env.test_suites);
 		}
 
