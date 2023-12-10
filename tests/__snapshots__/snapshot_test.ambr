@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 30 tests from 5 test suites.
+  [==========] Running 32 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -9,12 +9,42 @@
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
   
-  [----------] 2 tests from float_tests
+  [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
-  [       OK ] float_tests.float_equal 
+  D:\dev\c\rktest\tests\float_tests.c(12): error: Expected equality of these values:
+    float_sum
+      Which is: 1.00000000
+    0.9f
+      Which is: 0.89999998
+   
+  [  FAILED  ] float_tests.float_equal 
+  [ RUN      ] float_tests.float_equal_info 
+  D:\dev\c\rktest\tests\float_tests.c(17): error: Expected equality of these values:
+    float_sum
+      Which is: 1.00000000
+    0.9f
+      Which is: 0.89999998
+  Hello world!
+  
+  [  FAILED  ] float_tests.float_equal_info 
   [ RUN      ] float_tests.double_equal 
-  [       OK ] float_tests.double_equal 
-  [----------] 2 tests from float_tests 
+  D:\dev\c\rktest\tests\float_tests.c(22): error: Expected equality of these values:
+    double_sum
+      Which is: 1.00000000
+    0.9
+      Which is: 0.90000000
+   
+  [  FAILED  ] float_tests.double_equal 
+  [ RUN      ] float_tests.double_equal_info 
+  D:\dev\c\rktest\tests\float_tests.c(27): error: Expected equality of these values:
+    double_sum
+      Which is: 1.00000000
+    0.9
+      Which is: 0.90000000
+  Hello world!
+  
+  [  FAILED  ] float_tests.double_equal_info 
+  [----------] 4 tests from float_tests 
   
   [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
@@ -124,9 +154,13 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 30 tests from 5 test suites ran. 
-  [  PASSED  ] 17 tests.
-  [  FAILED  ] 13 tests, listed below:
+  [==========] 32 tests from 5 test suites ran. 
+  [  PASSED  ] 15 tests.
+  [  FAILED  ] 17 tests, listed below:
+  [  FAILED  ] float_tests.float_equal
+  [  FAILED  ] float_tests.float_equal_info
+  [  FAILED  ] float_tests.double_equal
+  [  FAILED  ] float_tests.double_equal_info
   [  FAILED  ] integer_tests.expect_true
   [  FAILED  ] integer_tests.expect_true_info
   [  FAILED  ] integer_tests.expect_false
@@ -141,7 +175,7 @@
   [  FAILED  ] integer_tests.expect_greater_than_equal
   [  FAILED  ] integer_tests.expect_greater_than_equal_info
   
-   13 FAILED TESTs
+   17 FAILED TESTs
     YOU HAVE 1 DISABLED TEST
   
   '''
@@ -149,7 +183,7 @@
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 30 tests from 5 test suites.
+  [==========] Running 32 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -157,12 +191,16 @@
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
   
-  [----------] 2 tests from float_tests
+  [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.float_equal_info 
+  [       OK ] float_tests.float_equal_info 
   [ RUN      ] float_tests.double_equal 
   [       OK ] float_tests.double_equal 
-  [----------] 2 tests from float_tests 
+  [ RUN      ] float_tests.double_equal_info 
+  [       OK ] float_tests.double_equal_info 
+  [----------] 4 tests from float_tests 
   
   [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
@@ -228,8 +266,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 30 tests from 5 test suites ran. 
-  [  PASSED  ] 30 tests.
+  [==========] 32 tests from 5 test suites ran. 
+  [  PASSED  ] 32 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -237,7 +275,7 @@
 # ---
 # name: test_no_args
   '''
-  [==========] Running 30 tests from 5 test suites.
+  [==========] Running 32 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -245,12 +283,16 @@
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
   
-  [----------] 2 tests from float_tests
+  [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.float_equal_info 
+  [       OK ] float_tests.float_equal_info 
   [ RUN      ] float_tests.double_equal 
   [       OK ] float_tests.double_equal 
-  [----------] 2 tests from float_tests 
+  [ RUN      ] float_tests.double_equal_info 
+  [       OK ] float_tests.double_equal_info 
+  [----------] 4 tests from float_tests 
   
   [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
@@ -316,8 +358,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 30 tests from 5 test suites ran. 
-  [  PASSED  ] 30 tests.
+  [==========] 32 tests from 5 test suites ran. 
+  [  PASSED  ] 32 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -412,7 +454,7 @@
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 30 tests from 5 test suites.
+  [==========] Running 32 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -420,12 +462,16 @@
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
   
-  [----------] 2 tests from float_tests
+  [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.float_equal_info 
+  [       OK ] float_tests.float_equal_info 
   [ RUN      ] float_tests.double_equal 
   [       OK ] float_tests.double_equal 
-  [----------] 2 tests from float_tests 
+  [ RUN      ] float_tests.double_equal_info 
+  [       OK ] float_tests.double_equal_info 
+  [----------] 4 tests from float_tests 
   
   [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
@@ -491,8 +537,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 30 tests from 5 test suites ran. 
-  [  PASSED  ] 30 tests.
+  [==========] 32 tests from 5 test suites ran. 
+  [  PASSED  ] 32 tests.
   
     YOU HAVE 1 DISABLED TEST
   
