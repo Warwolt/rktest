@@ -1,0 +1,289 @@
+# serializer version: 1
+# name: test_infix_match
+  '''
+  Note: Test filter = *tests*
+  [==========] Running 22 tests from 5 test suites.
+  [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from float_tests
+  [ RUN      ] float_tests.float_equal 
+  [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.double_equal 
+  [       OK ] float_tests.double_equal 
+  [----------] 2 tests from float_tests 
+  
+  [----------] 8 tests from integer_tests
+  [ RUN      ] integer_tests.expect_true 
+  [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_false 
+  [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_less_than 
+  [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than 
+  [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [----------] 8 tests from integer_tests 
+  
+  [----------] 4 tests from string_tests
+  [ RUN      ] string_tests.strings_equal 
+  [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_not_equal 
+  [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_case_equal 
+  [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_not_equal 
+  [       OK ] string_tests.strings_case_not_equal 
+  [----------] 4 tests from string_tests 
+  
+  [----------] 7 tests from wildcard_match_tests
+  [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [       OK ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [ RUN      ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [       OK ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [ RUN      ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [       OK ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [ RUN      ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [       OK ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [ RUN      ] wildcard_match_tests.prefix_and_suffix_match 
+  [       OK ] wildcard_match_tests.prefix_and_suffix_match 
+  [ RUN      ] wildcard_match_tests.infix_match 
+  [       OK ] wildcard_match_tests.infix_match 
+  [----------] 7 tests from wildcard_match_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 22 tests from 5 test suites ran. 
+  [  PASSED  ] 22 tests.
+  
+    YOU HAVE 1 DISABLED TEST
+  
+  '''
+# ---
+# name: test_no_args
+  '''
+  [==========] Running 22 tests from 5 test suites.
+  [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from float_tests
+  [ RUN      ] float_tests.float_equal 
+  [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.double_equal 
+  [       OK ] float_tests.double_equal 
+  [----------] 2 tests from float_tests 
+  
+  [----------] 8 tests from integer_tests
+  [ RUN      ] integer_tests.expect_true 
+  [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_false 
+  [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_less_than 
+  [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than 
+  [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [----------] 8 tests from integer_tests 
+  
+  [----------] 4 tests from string_tests
+  [ RUN      ] string_tests.strings_equal 
+  [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_not_equal 
+  [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_case_equal 
+  [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_not_equal 
+  [       OK ] string_tests.strings_case_not_equal 
+  [----------] 4 tests from string_tests 
+  
+  [----------] 7 tests from wildcard_match_tests
+  [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [       OK ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [ RUN      ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [       OK ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [ RUN      ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [       OK ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [ RUN      ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [       OK ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [ RUN      ] wildcard_match_tests.prefix_and_suffix_match 
+  [       OK ] wildcard_match_tests.prefix_and_suffix_match 
+  [ RUN      ] wildcard_match_tests.infix_match 
+  [       OK ] wildcard_match_tests.infix_match 
+  [----------] 7 tests from wildcard_match_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 22 tests from 5 test suites ran. 
+  [  PASSED  ] 22 tests.
+  
+    YOU HAVE 1 DISABLED TEST
+  
+  '''
+# ---
+# name: test_prefix_match
+  '''
+  Note: Test filter = integer*
+  [==========] Running 8 tests from 1 test suites.
+  [----------] Global test environment set-up.
+  [----------] 8 tests from integer_tests
+  [ RUN      ] integer_tests.expect_true 
+  [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_false 
+  [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_less_than 
+  [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than 
+  [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [----------] 8 tests from integer_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 8 tests from 1 test suites ran. 
+  [  PASSED  ] 8 tests.
+  
+  '''
+# ---
+# name: test_suffix_match
+  '''
+  Note: Test filter = *equal
+  [==========] Running 10 tests from 3 test suites.
+  [----------] Global test environment set-up.
+  [----------] 2 tests from float_tests
+  [ RUN      ] float_tests.float_equal 
+  [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.double_equal 
+  [       OK ] float_tests.double_equal 
+  [----------] 2 tests from float_tests 
+  
+  [----------] 4 tests from integer_tests
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [----------] 4 tests from integer_tests 
+  
+  [----------] 4 tests from string_tests
+  [ RUN      ] string_tests.strings_equal 
+  [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_not_equal 
+  [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_case_equal 
+  [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_not_equal 
+  [       OK ] string_tests.strings_case_not_equal 
+  [----------] 4 tests from string_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 10 tests from 3 test suites ran. 
+  [  PASSED  ] 10 tests.
+  
+  '''
+# ---
+# name: test_wildcard_match
+  '''
+  Note: Test filter = *
+  [==========] Running 22 tests from 5 test suites.
+  [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from float_tests
+  [ RUN      ] float_tests.float_equal 
+  [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.double_equal 
+  [       OK ] float_tests.double_equal 
+  [----------] 2 tests from float_tests 
+  
+  [----------] 8 tests from integer_tests
+  [ RUN      ] integer_tests.expect_true 
+  [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_false 
+  [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_less_than 
+  [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than 
+  [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [----------] 8 tests from integer_tests 
+  
+  [----------] 4 tests from string_tests
+  [ RUN      ] string_tests.strings_equal 
+  [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_not_equal 
+  [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_case_equal 
+  [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_not_equal 
+  [       OK ] string_tests.strings_case_not_equal 
+  [----------] 4 tests from string_tests 
+  
+  [----------] 7 tests from wildcard_match_tests
+  [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [       OK ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [ RUN      ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [       OK ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [ RUN      ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [       OK ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [ RUN      ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [       OK ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [ RUN      ] wildcard_match_tests.prefix_and_suffix_match 
+  [       OK ] wildcard_match_tests.prefix_and_suffix_match 
+  [ RUN      ] wildcard_match_tests.infix_match 
+  [       OK ] wildcard_match_tests.infix_match 
+  [----------] 7 tests from wildcard_match_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 22 tests from 5 test suites ran. 
+  [  PASSED  ] 22 tests.
+  
+    YOU HAVE 1 DISABLED TEST
+  
+  '''
+# ---

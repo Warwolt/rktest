@@ -54,9 +54,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
 
 typedef enum {
-	RKTEST_RESULT_OK,
-	RKTEST_RESULT_ERROR,
-} rktest_result_t;
+	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
+	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
+	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
+	RKTEST_ENABLE_VTERM_OK,
+} rktest_enable_vterm_result_t;
 
 typedef enum {
 	RKTEST_COLOR_MODE_ON,
@@ -67,6 +69,7 @@ typedef enum {
 typedef struct {
 	rktest_color_mode_t color_mode;
 	char test_filter[RKTEST_MAX_FILTER_LENGTH];
+	bool print_timestamp_enabled;
 } rktest_config_t;
 
 typedef struct {
@@ -174,19 +177,24 @@ static bool string_starts_with(const char* str, const char* prefix) {
 // https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
 static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		if (pattern[0] == 0)
+		if (pattern[0] == 0) {
 			return (str[0] == 0);
+		}
 		if (pattern[0] == '*') {
-			if (string_wildcard_match(pattern + 1, str))
+			if (string_wildcard_match(str, pattern + 1)) {
 				return true;
-			if (str[0] == 0)
-				return 0;
+			}
+			if (str[0] == 0) {
+				return false;
+			}
 		} else {
 			if (pattern[0] == '?') {
-				if (str[0] == 0)
+				if (str[0] == 0) {
 					return false;
-			} else if (pattern[0] != str[0])
+				}
+			} else if (pattern[0] != str[0]) {
 				return false;
+			}
 			pattern++;
 		}
 		str++;
@@ -293,6 +301,7 @@ static void print_usage(void) {
 static rktest_config_t parse_args(int argc, const char* argv[]) {
 	rktest_config_t config = (rktest_config_t) { 0 };
 	config.color_mode = RKTEST_COLOR_MODE_AUTO;
+	config.print_timestamp_enabled = true;
 
 	for (int i = 1; i < argc; i++) {
 		const char* arg = argv[i];
@@ -322,6 +331,14 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			strncpy(config.test_filter, filter_pattern, filter_len);
 		}
 
+		else if (string_starts_with(arg, "--rktest_print_time=")) {
+			if (strcmp(arg + strlen("--rktest_print_time="), "0") == 0) {
+				config.print_timestamp_enabled = false;
+			} else {
+				config.print_timestamp_enabled = true;
+			}
+		}
+
 		else {
 			fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
 			print_usage();
@@ -333,27 +350,24 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 }
 
 #ifdef _MSC_VER
-static rktest_result_t enable_windows_virtual_terminal(void) {
+static rktest_enable_vterm_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE;
 	}
 
 	DWORD dwMode = 0;
 	if (!GetConsoleMode(hOut, &dwMode)) {
-		fprintf(stderr, "Error: GetConsoleMode failed\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED;
 	}
 
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	if (!SetConsoleMode(hOut, dwMode)) {
-		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED;
 	}
 
-	return RKTEST_RESULT_OK;
+	return RKTEST_ENABLE_VTERM_OK;
 }
 #endif // WIN32
 
@@ -367,10 +381,20 @@ static rktest_config_t initialize(int argc, const char* argv[]) {
 
 #ifdef _MSC_VER
 	if (g_colors_enabled) {
-		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
-		if (enable_virtual_term != RKTEST_RESULT_OK) {
-			fprintf(stderr, "Error: could not initialize color output\n");
-			g_colors_enabled = false;
+		switch (enable_windows_virtual_terminal()) {
+			case RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE:
+				g_colors_enabled = false;
+				fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
+				break;
+			case RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED:
+				g_colors_enabled = false;
+				break;
+			case RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED:
+				g_colors_enabled = false;
+				fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
+				break;
+			case RKTEST_ENABLE_VTERM_OK:
+				break;
 		}
 	}
 #endif // WIN32
@@ -469,7 +493,7 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 	return env;
 }
 
-static bool run_test(const rktest_test_t* test) {
+static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
 	rktest_timer_t test_timer = rktest_timer_start();
@@ -480,15 +504,20 @@ static bool run_test(const rktest_test_t* test) {
 	g_current_test_failed = false;
 
 	if (test_passed) {
-		rktest_log_info("[       OK ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
+		rktest_printf_green("[       OK ] ");
 	} else {
-		rktest_log_error("[  FAILED  ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
+		rktest_printf_red("[  FAILED  ] ");
 	}
+	printf("%s.%s ", test->suite_name, test->test_name);
+	if (config->print_timestamp_enabled) {
+		printf("(%d ms)", test_time_ms);
+	}
+	printf("\n");
 
 	return test_passed;
 }
 
-static rktest_report_t* run_all_tests(rktest_environment_t* env) {
+static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
 	rktest_report_t* report = malloc(sizeof(rktest_report_t));
 	*report = (rktest_report_t) {
 		.failed_tests = { 0 },
@@ -515,7 +544,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 
 			/* Run non-disabled test */
-			const bool test_passed = run_test(test);
+			const bool test_passed = run_test(test, config);
 			if (test_passed) {
 				report->num_passed_tests++;
 			} else {
@@ -524,8 +553,11 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
-		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", num_filtered_tests, suite->name, suite_time_ms);
-		printf("\n");
+		rktest_log_info("[----------] ", "%zu tests from %s ", num_filtered_tests, suite->name);
+		if (config->print_timestamp_enabled) {
+			printf("(%d ms total)", suite_time_ms);
+		}
+		printf("\n\n");
 	}
 
 	return report;
@@ -552,11 +584,15 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
-	rktest_report_t* report = run_all_tests(env);
+	rktest_report_t* report = run_all_tests(env, &config);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_filtered_tests, env->total_num_filtered_suites, total_time_ms);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	if (config.print_timestamp_enabled) {
+		printf("(%d ms total)", total_time_ms);
+	}
+	printf("\n");
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
