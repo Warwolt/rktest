@@ -3,12 +3,6 @@
   '''
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
-  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   D:\dev\c\rktest\tests\float_tests.c(12): error: Expected equality of these values:
@@ -185,6 +179,12 @@
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
   
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 15 tests.
@@ -211,8 +211,8 @@
   [  FAILED  ] string_tests.strings_case_equal
   [  FAILED  ] string_tests.strings_case_equal_info
   
-   21 FAILED TESTs
-    YOU HAVE 1 DISABLED TEST
+   21 FAILED TESTS
+    YOU HAVE 2 DISABLED TESTS
   
   '''
 # ---
@@ -221,12 +221,6 @@
   Note: Test filter = *tests*
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
-  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -309,11 +303,17 @@
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
   
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 1 DISABLED TEST
+    YOU HAVE 2 DISABLED TESTS
   
   '''
 # ---
@@ -321,12 +321,6 @@
   '''
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
-  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -409,11 +403,17 @@
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
   
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 1 DISABLED TEST
+    YOU HAVE 2 DISABLED TESTS
   
   '''
 # ---
@@ -508,12 +508,6 @@
   Note: Test filter = *
   [==========] Running 36 tests from 5 test suites.
   [----------] Global test environment set-up.
-  [----------] 1 tests from disabled_tests
-  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
-  [ RUN      ] disabled_tests.this_test_should_run 
-  [       OK ] disabled_tests.this_test_should_run 
-  [----------] 1 tests from disabled_tests 
-  
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -596,11 +590,17 @@
   [       OK ] wildcard_match_tests.infix_match 
   [----------] 7 tests from wildcard_match_tests 
   
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
   [----------] Global test environment tear-down.
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 1 DISABLED TEST
+    YOU HAVE 2 DISABLED TESTS
   
   '''
 # ---

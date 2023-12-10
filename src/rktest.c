@@ -569,7 +569,7 @@ static void print_failed_tests(rktest_report_t* report) {
 		rktest_log_error("[  FAILED  ] ", "%s.%s\n", failed_test->suite_name, failed_test->test_name);
 	}
 	printf("\n");
-	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "s" : "");
+	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
 }
 
 int rktest_main(int argc, const char* argv[]) {
@@ -604,7 +604,7 @@ int rktest_main(int argc, const char* argv[]) {
 		if (!tests_failed) {
 			printf("\n");
 		}
-		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "s" : "");
+		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "S" : "");
 	}
 
 	free(report);
