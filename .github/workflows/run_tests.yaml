@@ -23,9 +23,7 @@ jobs:
       - name: Setup CMake
         uses: threeal/cmake-action@v1.3.0
         with:
-          options: |
-            rktest_build_tests=ON
-            rktest_build_samples=ON
+          options: rktest_build_tests=ON rktest_build_samples=ON
 
       - name: Setup Python
         uses: actions/setup-python@v4

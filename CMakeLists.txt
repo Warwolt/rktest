@@ -43,7 +43,7 @@ if (r2ktest_build_tests)
     target_include_directories(failing_tests PUBLIC include)
     target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
     target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
-endif (r2ktest_build_tests )
+endif (r2ktest_build_tests)
 
 # Samples
 if (rktest_build_samples)
