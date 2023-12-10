@@ -425,6 +425,7 @@
 # ---
 # name: test_pass_bad_arg
   '''
+  Error: Unrecognized argument --badargument
   
   This program is a unit test runner built using RK Test.
   
