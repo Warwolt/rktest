@@ -176,9 +176,6 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 /* -------------------------- Types and constants -------------------------- */
 #define RKTEST_MAX_FILTER_LENGTH 256
 
-#define foreach(type_ptr, iter, array, array_len) \
-	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
-
 typedef enum {
 	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
 	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
