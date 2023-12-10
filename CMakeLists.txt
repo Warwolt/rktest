@@ -22,12 +22,19 @@ if(UNIX)
 endif()
 
 # Tests
-add_executable(tests
+set(TEST_SRC
     tests/disabled_tests.c
     tests/float_tests.c
     tests/integer_tests.c
     tests/string_tests.c
     tests/wildcard_match_tests.c
 )
+add_executable(tests ${TEST_SRC})
 target_include_directories(tests PUBLIC include)
 target_link_libraries(tests PUBLIC ${PROJECT_NAME})
+
+add_executable(failing_tests ${TEST_SRC})
+target_include_directories(failing_tests PUBLIC include)
+target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
+target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
+
