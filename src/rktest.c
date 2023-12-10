@@ -54,9 +54,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
 
 typedef enum {
-	RKTEST_RESULT_OK,
-	RKTEST_RESULT_ERROR,
-} rktest_result_t;
+	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
+	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
+	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
+	RKTEST_ENABLE_VTERM_OK,
+} rktest_enable_vterm_result_t;
 
 typedef enum {
 	RKTEST_COLOR_MODE_ON,
@@ -333,27 +335,24 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 }
 
 #ifdef _MSC_VER
-static rktest_result_t enable_windows_virtual_terminal(void) {
+static rktest_enable_vterm_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (hOut == INVALID_HANDLE_VALUE) {
-		fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE;
 	}
 
 	DWORD dwMode = 0;
 	if (!GetConsoleMode(hOut, &dwMode)) {
-		fprintf(stderr, "Error: GetConsoleMode failed\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED;
 	}
 
 	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	if (!SetConsoleMode(hOut, dwMode)) {
-		fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
-		return RKTEST_RESULT_ERROR;
+		return RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED;
 	}
 
-	return RKTEST_RESULT_OK;
+	return RKTEST_ENABLE_VTERM_OK;
 }
 #endif // WIN32
 
@@ -367,10 +366,20 @@ static rktest_config_t initialize(int argc, const char* argv[]) {
 
 #ifdef _MSC_VER
 	if (g_colors_enabled) {
-		const rktest_result_t enable_virtual_term = enable_windows_virtual_terminal();
-		if (enable_virtual_term != RKTEST_RESULT_OK) {
-			fprintf(stderr, "Error: could not initialize color output\n");
-			g_colors_enabled = false;
+		switch (enable_windows_virtual_terminal()) {
+			case RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE:
+				g_colors_enabled = false;
+				fprintf(stderr, "Error: GetStdHandle returned INVALID_HANDLE_VALUE\n");
+				break;
+			case RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED:
+				g_colors_enabled = false;
+				break;
+			case RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED:
+				g_colors_enabled = false;
+				fprintf(stderr, "Error: SetConsoleMode to ENABLE_VIRTUAL_TERMINAL_PROCESSING failed\n");
+				break;
+			case RKTEST_ENABLE_VTERM_OK:
+				break;
 		}
 	}
 #endif // WIN32
