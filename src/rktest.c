@@ -636,6 +636,14 @@ static void print_failed_tests(rktest_report_t* report) {
 	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
 }
 
+static void free_report_env(rktest_report_t* report) {
+	free(report);
+}
+
+static void free_test_env(rktest_environment_t* env) {
+	free(env);
+}
+
 static void push_int_vec(vec_t(int) * int_vec) {
 	vec_push(*int_vec, 12);
 	vec_push(*int_vec, 34);
@@ -695,8 +703,8 @@ int rktest_main(int argc, const char* argv[]) {
 		vec_free(my_struct.int_vec);
 	}
 
-	free(report);
-	free(env);
+	free_report_env(report);
+	free_test_env(env);
 
 	return tests_failed;
 }
