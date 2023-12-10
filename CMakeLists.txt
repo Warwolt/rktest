@@ -3,6 +3,9 @@ project(rktest)
 enable_language(C)
 include(CheckCCompilerFlag)
 
+option(rktest_build_tests "Build rktest tests" OFF)
+option(rktest_build_samples "Build rktest samples" OFF)
+
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()

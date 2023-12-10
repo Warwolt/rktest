@@ -67,10 +67,67 @@ Rerunning the test suite now gives:
 ![Sample1 failing output](/samples/sample01_output_failing.png)
 
 ## Integrating
-(build from source, or link against)
+RK Test consists of two files, `rktest.c` and `rktest.h`. The easiest way to integrate RK Test into your project is to just add these two files to your source tree.
+
+Build `rktest.c` and `rktest.h` into a library `rktest`, and then build an executable from your unit test files that links against this library. A `main.c` test runner main file should be added that calls `rktest_main`, or alternatively you can use the existing `rktest_main.c` file.
+
+All the `TEST()` tests in your unit test files will automatically be discovered by RK Test and executed.
+
+### CMake
+In case your project is using CMake, you can easily integrate RK Test by adding this repository into your source tree and then including the RK Test `CMakeLists.txt` from your own.
 
 ## Assertions
-(document all macros)
+All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPEC_*` continues to execute the remaining test on failure, whereas `ASSERT_*` aborts the current test case on failure.
+
+Additionally, all macros has `*_INFO` variants, which allows passing a
+printf-style formatting string that will be printed if the assertion fails to
+give additional user specified details.
+
+RK Test defines the following assertion macros for bools:
+
+| Macro name           | Assertion               |
+| -------------------- | ----------------------- |
+| EXPECT_TRUE(actual)  | `actual` equals `true`  |
+| EXPECT_FALSE(actual) | `actual` equals `false` |
+
+Integer assertions:
+
+| Macro name                  | Assertion              |
+| --------------------------- | ---------------------- |
+| EXPECT_EQ(actual, expected) | `actual` == `expected` |
+| EXPECT_NE(actual, expected) | `actual` != `expected` |
+| EXPECT_LT(actual, expected) | `actual` < `expected`  |
+| EXPECT_LE(actual, expected) | `actual `<= `expected` |
+| EXPECT_GT(actual, expected) | `actual `> `expected`  |
+| EXPECT_GE(actual, expected) | `actual `>= `expected` |
+
+Long integer assertions:
+
+| Macro name                       | Assertion              |
+| -------------------------------- | ---------------------- |
+| EXPECT_LONG_EQ(actual, expected) | `actual` == `expected` |
+| EXPECT_LONG_NE(actual, expected) | `actual` != `expected` |
+| EXPECT_LONG_LT(actual, expected) | `actual` < `expected`  |
+| EXPECT_LONG_LE(actual, expected) | `actual `<= `expected` |
+| EXPECT_LONG_GT(actual, expected) | `actual `> `expected`  |
+| EXPECT_LONG_GE(actual, expected) | `actual `>= `expected` |
+
+String assertions:
+
+| Macro name                          | Assertion                                                     |
+| ----------------------------------- | ------------------------------------------------------------- |
+| EXPECT_STREQ(actual, expected)      | `actual` is the same string as `expected`                     |
+| EXPECT_STRNE(actual, expected)      | `actual` is NOT the same string as `expected`                 |
+| EXPECT_CASE_STREQ(actual, expected) | `actual` is the same string as `expected` (ignoring case)     |
+| EXPECT_CASE_STRNE(actual, expected) | `actual` is NOT the same string as `expected` (ignoring case) |
+
+Floating point assertions (See [this article](https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/)
+regarding Units in Last Place):
+
+| Macro name                         | Assertion                                              |
+| ---------------------------------- | ------------------------------------------------------ |
+| EXPECT_FLOAT_EQ(actual, expected)  | `actual` and `expected` are within 4 ULP of each other |
+| EXPECT_DOUBLE_EQ(actual, expected) | `actual` and `expected` are within 4 ULP of each other |
 
 ## Why use RK Test instead of Google Test?
 
@@ -93,6 +150,14 @@ Here's a list of other unit test frameworks built on similar techniques:
 - [Criterion](https://github.com/Snaipe/Criterion/)
 - [Rexo](https://github.com/christophercrouzet/rexo/)
 
+## Building the test and sample files
+
+The files in the `tests` and `samples` are by default not built, but can be enabled by passing the following when generating the CMake build:
+
+```
+cmake -B build -Drktest_build_tests=ON -Drktest_build_samples=ON
+```
+
 ## Running the snapshot tests of RK Test
 
 RK Test uses python and snapshot tests to test the output from the library. To run the snapshot tests, first install python:
@@ -108,7 +173,7 @@ pip install pytest syrupy
 Finally, run the tests from repo root:
 
 ```
-pytest
+pytest -vv
 ```
 
 If a snapshot needs to be updated, run:
