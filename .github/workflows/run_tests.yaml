@@ -9,8 +9,10 @@ jobs:
         include:
           - os: windows-latest
             executable: ./build/Debug/tests
+
           - os: ubuntu-latest
             executable: ./build/tests
+
           - os: macos-latest
             executable: ./build/tests
     runs-on: ${{ matrix.os }}
@@ -18,11 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - name: Configure Project
+      - name: Configure CMake
         uses: threeal/cmake-action@v1.3.0
 
-      - name: Build Project
+      - name: Build
         run: cmake --build build
 
-      - name: Test Project
+      - name: Run test suite
         run: ${{ matrix.executable }}
+
+      - name: Run snapshot tests
+        run: echo TODO
