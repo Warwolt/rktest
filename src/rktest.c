@@ -485,9 +485,8 @@ static bool test_matches_filter(const rktest_test_t* test, const char* pattern) 
 // Loop through the entirety of the `rkdata` memory section, including padding.
 // If the iterator `it` points to null, it's padding and we skip it.
 // If it's non-null, we have a test and push it into `tests`.
-static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
-	rktest_environment_t* env = malloc(sizeof(rktest_environment_t));
-	*env = (rktest_environment_t) { 0 };
+static rktest_environment_t setup_test_env(const rktest_config_t* config) {
+	rktest_environment_t env = { 0 };
 
 	for (const rktest_test_t* const* it = TEST_DATA_BEGIN; it != TEST_DATA_END; it++) {
 		if (*it == NULL) {
@@ -497,10 +496,10 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 		rktest_test_t test = **it;
 
 		/* Find or add test suite */
-		rktest_suite_t* suite = find_suite_with_name(env->test_suites, test.suite_name);
+		rktest_suite_t* suite = find_suite_with_name(env.test_suites, test.suite_name);
 		if (!suite) {
-			vec_push(env->test_suites, (rktest_suite_t) { 0, .name = test.suite_name });
-			suite = &vec_back(env->test_suites);
+			vec_push(env.test_suites, (rktest_suite_t) { 0, .name = test.suite_name });
+			suite = &vec_back(env.test_suites);
 		}
 
 		/* Add test to suite */
@@ -508,10 +507,10 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 			if (string_starts_with(test.test_name, "DISABLED_")) {
 				test.is_disabled = true;
 				suite->num_disabled_tests++;
-				env->total_num_disabled_tests++;
+				env.total_num_disabled_tests++;
 			} else {
 				test.is_disabled = false;
-				env->total_num_filtered_tests++;
+				env.total_num_filtered_tests++;
 			}
 
 			/* Add test to suite */
@@ -520,9 +519,9 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 	}
 
 	/* Count number of suites actually containing tests*/
-	vec_foreach(const rktest_suite_t*, suite, env->test_suites) {
+	vec_foreach(const rktest_suite_t*, suite, env.test_suites) {
 		if (suite->num_disabled_tests < vec_len(suite->tests)) {
-			env->total_num_filtered_suites++;
+			env.total_num_filtered_suites++;
 		}
 	}
 
@@ -612,26 +611,25 @@ static void free_test_env(rktest_environment_t* env) {
 		vec_free(suite->tests);
 	}
 	vec_free(env->test_suites);
-	free(env);
 }
 
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
-	rktest_environment_t* env = setup_test_env(&config);
+	rktest_environment_t env = setup_test_env(&config);
 
 	if (*config.test_filter) {
 		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
 	}
 
-	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env.total_num_filtered_tests, env.total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
-	rktest_report_t* report = run_all_tests(env, &config);
+	rktest_report_t* report = run_all_tests(&env, &config);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env.total_num_filtered_tests, env.total_num_filtered_suites);
 	if (config.print_timestamps_enabled) {
 		printf("(%d ms total)", total_time_ms);
 	}
@@ -643,15 +641,15 @@ int rktest_main(int argc, const char* argv[]) {
 		print_failed_tests(report);
 	}
 
-	if (env->total_num_disabled_tests > 0) {
+	if (env.total_num_disabled_tests > 0) {
 		if (!tests_failed) {
 			printf("\n");
 		}
-		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "S" : "");
+		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env.total_num_disabled_tests, env.total_num_disabled_tests > 1 ? "S" : "");
 	}
 
 	free_test_report(report);
-	free_test_env(env);
+	free_test_env(&env);
 
 	return tests_failed;
 }
