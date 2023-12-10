@@ -46,54 +46,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma warning(disable: 4996) // needed for strncpy
 #endif
 
-/* -------------------------- Types and constants -------------------------- */
-#define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
-#define RKTEST_MAX_FILTER_LENGTH 256
-
-#define foreach(type_ptr, iter, array, array_len) \
-	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
-
-typedef enum {
-	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
-	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
-	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
-	RKTEST_ENABLE_VTERM_OK,
-} rktest_enable_vterm_result_t;
-
-typedef enum {
-	RKTEST_COLOR_MODE_ON,
-	RKTEST_COLOR_MODE_OFF,
-	RKTEST_COLOR_MODE_AUTO,
-} rktest_color_mode_t;
-
-typedef struct {
-	rktest_color_mode_t color_mode;
-	char test_filter[RKTEST_MAX_FILTER_LENGTH];
-	bool print_timestamps_enabled;
-} rktest_config_t;
-
-typedef struct {
-	const char* name;
-	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	size_t total_num_tests;
-	size_t num_disabled_tests;
-} rktest_suite_t;
-
-typedef struct {
-	rktest_suite_t test_suites[RKTEST_MAX_NUM_TEST_SUITES];
-	size_t num_test_suites;
-	size_t total_num_filtered_suites;
-	size_t total_num_filtered_tests;
-	size_t total_num_disabled_tests;
-} rktest_environment_t;
-
-typedef struct {
-	size_t num_passed_tests;
-	rktest_test_t failed_tests[RKTEST_MAX_NUM_TESTS];
-	size_t num_failed_tests;
-} rktest_report_t;
-
 /* ------------------------- Vector implementation ------------------------- */
 // Based on https://github.com/Warwolt/rkvec/blob/main/include/rkvec/rkvec.h
 // Which in turn is based on https://github.com/nothings/stb/blob/master/stb_ds.h
@@ -219,6 +171,54 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	return ms;
 }
 #endif
+
+/* -------------------------- Types and constants -------------------------- */
+#define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
+#define RKTEST_MAX_FILTER_LENGTH 256
+
+#define foreach(type_ptr, iter, array, array_len) \
+	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
+
+typedef enum {
+	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
+	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
+	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
+	RKTEST_ENABLE_VTERM_OK,
+} rktest_enable_vterm_result_t;
+
+typedef enum {
+	RKTEST_COLOR_MODE_ON,
+	RKTEST_COLOR_MODE_OFF,
+	RKTEST_COLOR_MODE_AUTO,
+} rktest_color_mode_t;
+
+typedef struct {
+	rktest_color_mode_t color_mode;
+	char test_filter[RKTEST_MAX_FILTER_LENGTH];
+	bool print_timestamps_enabled;
+} rktest_config_t;
+
+typedef struct {
+	const char* name;
+	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
+	bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE];
+	size_t total_num_tests;
+	size_t num_disabled_tests;
+} rktest_suite_t;
+
+typedef struct {
+	rktest_suite_t test_suites[RKTEST_MAX_NUM_TEST_SUITES];
+	size_t num_test_suites;
+	size_t total_num_filtered_suites;
+	size_t total_num_filtered_tests;
+	size_t total_num_disabled_tests;
+} rktest_environment_t;
+
+typedef struct {
+	size_t num_passed_tests;
+	rktest_test_t failed_tests[RKTEST_MAX_NUM_TESTS];
+	size_t num_failed_tests;
+} rktest_report_t;
 
 /* ---------------------------- String utility ----------------------------- */
 static bool string_starts_with(const char* str, const char* prefix) {
