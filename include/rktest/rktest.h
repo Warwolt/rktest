@@ -31,18 +31,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // RK Test is a small unit test library for C99 with an interface heavily based
 // on Google Test, featuring self registering tests.
 
-/* Config variables --------------------------------------------------------- */
-// Define these variables before including rktest.h to configure the max number
-// of supported test suites and max number of unit tests per suite.
-
-#ifndef RKTEST_MAX_NUM_TEST_SUITES
-#define RKTEST_MAX_NUM_TEST_SUITES ((size_t)64)
-#endif
-
-#ifndef RKTEST_MAX_NUM_TESTS_PER_SUITE
-#define RKTEST_MAX_NUM_TESTS_PER_SUITE ((size_t)64)
-#endif
-
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
@@ -199,6 +187,7 @@ typedef struct {
 	const char* suite_name;
 	const char* test_name;
 	void (*run)(void);
+	bool is_disabled;
 } rktest_test_t;
 
 /* Assertions */

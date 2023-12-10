@@ -46,55 +46,61 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma warning(disable: 4996) // needed for strncpy
 #endif
 
-/* -------------------------- Types and constants -------------------------- */
-#define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
-#define RKTEST_MAX_FILTER_LENGTH 256
-
-#define foreach(type_ptr, iter, array, array_len) \
-	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
-
-typedef enum {
-	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
-	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
-	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
-	RKTEST_ENABLE_VTERM_OK,
-} rktest_enable_vterm_result_t;
-
-typedef enum {
-	RKTEST_COLOR_MODE_ON,
-	RKTEST_COLOR_MODE_OFF,
-	RKTEST_COLOR_MODE_AUTO,
-} rktest_color_mode_t;
-
+/* ------------------------- Vector implementation ------------------------- */
+// Based on https://github.com/Warwolt/rkvec/blob/main/include/rkvec/rkvec.h
+// Which in turn is based on https://github.com/nothings/stb/blob/master/stb_ds.h
 typedef struct {
-	rktest_color_mode_t color_mode;
-	char test_filter[RKTEST_MAX_FILTER_LENGTH];
-	bool print_timestamps_enabled;
-} rktest_config_t;
+	size_t length;
+	size_t capacity;
+	void* hash_table;
+	ptrdiff_t temp;
+} rk_vector_header_t;
 
-typedef struct {
-	const char* name;
-	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	size_t total_num_tests;
-	size_t num_disabled_tests;
-} rktest_suite_t;
+#define vec_foreach(type_ptr, iter, vec) \
+	for (type_ptr iter = &(vec)[0]; iter != &(vec)[vec_len(vec)]; iter++)
 
-typedef struct {
-	rktest_suite_t test_suites[RKTEST_MAX_NUM_TEST_SUITES];
-	size_t num_test_suites;
-	size_t total_num_filtered_suites;
-	size_t total_num_filtered_tests;
-	size_t total_num_disabled_tests;
-} rktest_environment_t;
+#define vec_t(type) type*
+#define vec_new() NULL
+#define vec_free(vec) ((void)((vec) ? free(vec_header(vec)) : (void)0), (vec) = NULL)
+#define vec_push(vec, ...) (vec_maybegrow(vec, 1), (vec)[vec_header(vec)->length++] = (__VA_ARGS__))
+#define vec_len(vec) ((vec) ? (size_t)vec_header(vec)->length : 0)
+#define vec_cap(vec) ((vec) ? vec_header(vec)->capacity : 0)
+#define vec_back(vec) ((vec)[vec_header(vec)->length - 1])
 
-typedef struct {
-	size_t num_passed_tests;
-	rktest_test_t failed_tests[RKTEST_MAX_NUM_TESTS];
-	size_t num_failed_tests;
-} rktest_report_t;
+#define vec_maybegrow(vec, n) ((!(vec) || vec_header(vec)->length + (n) > vec_header(vec)->capacity) ? (vec_grow(vec, n, 0), 0) : 0)
+#define vec_header(t) ((rk_vector_header_t*)(t)-1)
+#define vec_grow(vec, b, c) ((vec) = vec_growf((vec), sizeof *(vec), (b), (c)))
 
-/* Timer type */
+static void* vec_growf(void* vec, size_t elem_size, size_t addlen, size_t min_cap) {
+	void* new_vec;
+	size_t min_len = vec_len(vec) + addlen;
+
+	// compute the minimum capacity needed
+	if (min_len > min_cap)
+		min_cap = min_len;
+
+	if (min_cap <= vec_cap(vec))
+		return vec;
+
+	// increase needed capacity to guarantee O(1) amortized
+	if (min_cap < 2 * vec_cap(vec))
+		min_cap = 2 * vec_cap(vec);
+	else if (min_cap < 4)
+		min_cap = 4;
+
+	new_vec = realloc((vec) ? vec_header(vec) : 0, elem_size * min_cap + sizeof(rk_vector_header_t));
+	new_vec = (char*)new_vec + sizeof(rk_vector_header_t);
+	if (vec == NULL) {
+		vec_header(new_vec)->length = 0;
+		vec_header(new_vec)->hash_table = 0;
+		vec_header(new_vec)->temp = 0;
+	}
+	vec_header(new_vec)->capacity = min_cap;
+
+	return new_vec;
+}
+
+/* ------------------------- Timer implementation -------------------------- */
 typedef int rktest_millis_t;
 
 #if defined(WIN32)
@@ -115,7 +121,6 @@ typedef struct {
 } rktest_timer_t;
 #endif
 
-/* ------------------------- Timer implementation -------------------------- */
 #if defined(WIN32)
 rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
@@ -167,6 +172,49 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	return ms;
 }
 #endif
+
+/* -------------------------- Types and constants -------------------------- */
+#define RKTEST_MAX_FILTER_LENGTH 256
+
+#define foreach(type_ptr, iter, array, array_len) \
+	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
+
+typedef enum {
+	RKTEST_ENABLE_VTERM_ERROR_INVALID_HANDLE_VALUE,
+	RKTEST_ENABLE_VTERM_ERROR_GET_CONSOLE_MODE_FAILED,
+	RKTEST_ENABLE_VTERM_ERROR_ENABLE_VIRTUAL_TERMINAL_FAILED,
+	RKTEST_ENABLE_VTERM_OK,
+} rktest_enable_vterm_result_t;
+
+typedef enum {
+	RKTEST_COLOR_MODE_ON,
+	RKTEST_COLOR_MODE_OFF,
+	RKTEST_COLOR_MODE_AUTO,
+} rktest_color_mode_t;
+
+typedef struct {
+	rktest_color_mode_t color_mode;
+	char test_filter[RKTEST_MAX_FILTER_LENGTH];
+	bool print_timestamps_enabled;
+} rktest_config_t;
+
+typedef struct {
+	const char* name;
+	vec_t(rktest_test_t) tests;
+	size_t num_disabled_tests;
+} rktest_suite_t;
+
+typedef struct {
+	vec_t(rktest_suite_t) test_suites;
+	size_t total_num_filtered_suites;
+	size_t total_num_filtered_tests;
+	size_t total_num_disabled_tests;
+} rktest_environment_t;
+
+typedef struct {
+	size_t num_passed_tests;
+	vec_t(rktest_test_t) failed_tests;
+} rktest_report_t;
 
 /* ---------------------------- String utility ----------------------------- */
 static bool string_starts_with(const char* str, const char* prefix) {
@@ -415,26 +463,13 @@ static rktest_config_t initialize(int argc, const char* argv[]) {
 	return config;
 }
 
-static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
-	foreach (rktest_suite_t*, suite, suites, num_suites) {
+static rktest_suite_t* find_suite_with_name(vec_t(rktest_suite_t) suites, const char* suite_name) {
+	vec_foreach(rktest_suite_t*, suite, suites) {
 		if (strcmp(suite->name, suite_name) == 0) {
 			return suite;
 		}
 	}
 	return NULL;
-}
-
-static rktest_suite_t* add_new_suite(rktest_environment_t* env, const char* suite_name) {
-	rktest_suite_t* suite = &env->test_suites[env->num_test_suites++];
-	*suite = (rktest_suite_t) { 0 };
-	suite->name = suite_name;
-	return suite;
-}
-
-static rktest_suite_t* find_or_add_suite(rktest_environment_t* env, const char* suite_name) {
-	rktest_suite_t* suite = find_suite_with_name(env->test_suites, env->num_test_suites, suite_name);
-	suite = suite ? suite : add_new_suite(env, suite_name);
-	return suite;
 }
 
 static bool test_matches_filter(const rktest_test_t* test, const char* pattern) {
@@ -450,55 +485,45 @@ static bool test_matches_filter(const rktest_test_t* test, const char* pattern) 
 // Loop through the entirety of the `rkdata` memory section, including padding.
 // If the iterator `it` points to null, it's padding and we skip it.
 // If it's non-null, we have a test and push it into `tests`.
-static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
-	rktest_environment_t* env = malloc(sizeof(rktest_environment_t));
-	*env = (rktest_environment_t) { 0 };
+static rktest_environment_t setup_test_env(const rktest_config_t* config) {
+	rktest_environment_t env = { 0 };
 
 	for (const rktest_test_t* const* it = TEST_DATA_BEGIN; it != TEST_DATA_END; it++) {
 		if (*it == NULL) {
 			continue;
 		}
 
-		const rktest_test_t* const test = *it;
+		rktest_test_t test = **it;
 
-		if (env->num_test_suites == RKTEST_MAX_NUM_TEST_SUITES) {
-			fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES (%zu). "
-							"See the `Config variables` section of rktest.h\n",
-					RKTEST_MAX_NUM_TEST_SUITES);
-			exit(1);
-		}
-
-		rktest_suite_t* suite = find_or_add_suite(env, test->suite_name);
-
-		if (suite->total_num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
-			fprintf(stderr, "Error: number of tests in suite \"%s\" is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu). "
-							"See the `Config variables` section of rktest.h\n",
-					suite->name,
-					RKTEST_MAX_NUM_TESTS_PER_SUITE);
-			exit(1);
+		/* Find or add test suite */
+		rktest_suite_t* suite = find_suite_with_name(env.test_suites, test.suite_name);
+		if (!suite) {
+			rktest_suite_t new_suite = { 0 };
+			new_suite.name = test.suite_name;
+			vec_push(env.test_suites, new_suite);
+			suite = &vec_back(env.test_suites);
 		}
 
 		/* Add test to suite */
-		if (test_matches_filter(test, config->test_filter)) {
-			if (string_starts_with(test->test_name, "DISABLED_")) {
-				suite->test_is_disabled[suite->total_num_tests] = true;
+		if (test_matches_filter(&test, config->test_filter)) {
+			if (string_starts_with(test.test_name, "DISABLED_")) {
+				test.is_disabled = true;
 				suite->num_disabled_tests++;
-				env->total_num_disabled_tests++;
+				env.total_num_disabled_tests++;
 			} else {
-				suite->test_is_disabled[suite->total_num_tests] = false;
-				env->total_num_filtered_tests++;
+				test.is_disabled = false;
+				env.total_num_filtered_tests++;
 			}
 
 			/* Add test to suite */
-			suite->tests[suite->total_num_tests] = *test;
-			suite->total_num_tests++;
+			vec_push(suite->tests, test);
 		}
 	}
 
 	/* Count number of suites actually containing tests*/
-	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
-		if (suite->num_disabled_tests < suite->total_num_tests) {
-			env->total_num_filtered_suites++;
+	vec_foreach(const rktest_suite_t*, suite, env.test_suites) {
+		if (suite->num_disabled_tests < vec_len(suite->tests)) {
+			env.total_num_filtered_suites++;
 		}
 	}
 
@@ -530,28 +555,21 @@ static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	return test_passed;
 }
 
-static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
-	rktest_report_t* report = malloc(sizeof(rktest_report_t));
-	*report = (rktest_report_t) {
-		.failed_tests = { 0 },
-		.num_failed_tests = 0,
-		.num_passed_tests = 0,
-	};
+static rktest_report_t run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
+	rktest_report_t report = { 0 };
 
-	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
+	vec_foreach(rktest_suite_t*, suite, env->test_suites) {
 		/* Skip suite if all cases filtered out */
-		if (suite->num_disabled_tests == suite->total_num_tests) {
+		if (suite->num_disabled_tests == vec_len(suite->tests)) {
 			continue;
 		}
 
-		const size_t num_filtered_tests = suite->total_num_tests - suite->num_disabled_tests;
+		const size_t num_filtered_tests = vec_len(suite->tests) - suite->num_disabled_tests;
 		rktest_log_info("[----------] ", "%zu tests from %s\n", num_filtered_tests, suite->name);
 		rktest_timer_t suite_timer = rktest_timer_start();
-		for (size_t i = 0; i < suite->total_num_tests; i++) {
-			const rktest_test_t* test = &suite->tests[i];
-
+		vec_foreach(const rktest_test_t*, test, suite->tests) {
 			/* Check if test is disabled, skip it*/
-			if (suite->test_is_disabled[i]) {
+			if (test->is_disabled) {
 				rktest_log_warning("[ DISABLED ] ", "%s.%s\n", test->suite_name, test->test_name);
 				continue;
 			}
@@ -559,10 +577,9 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_co
 			/* Run non-disabled test */
 			const bool test_passed = run_test(test, config);
 			if (test_passed) {
-				report->num_passed_tests++;
+				report.num_passed_tests++;
 			} else {
-				report->failed_tests[report->num_failed_tests] = *test;
-				report->num_failed_tests++;
+				vec_push(report.failed_tests, *test);
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
@@ -577,51 +594,61 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_co
 }
 
 static void print_failed_tests(rktest_report_t* report) {
-	rktest_log_error("[  FAILED  ] ", "%zu tests, listed below:\n", report->num_failed_tests);
-	foreach (const rktest_test_t*, failed_test, report->failed_tests, report->num_failed_tests) {
+	rktest_log_error("[  FAILED  ] ", "%zu tests, listed below:\n", vec_len(report->failed_tests));
+	vec_foreach(const rktest_test_t*, failed_test, report->failed_tests) {
 		rktest_log_error("[  FAILED  ] ", "%s.%s\n", failed_test->suite_name, failed_test->test_name);
 	}
 	printf("\n");
-	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
+	printf(" %zu FAILED TEST%s\n", vec_len(report->failed_tests), vec_len(report->failed_tests) > 1 ? "S" : "");
+}
+
+static void free_test_report(rktest_report_t* report) {
+	vec_free(report->failed_tests);
+}
+
+static void free_test_env(rktest_environment_t* env) {
+	vec_foreach(rktest_suite_t*, suite, env->test_suites) {
+		vec_free(suite->tests);
+	}
+	vec_free(env->test_suites);
 }
 
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
-	rktest_environment_t* env = setup_test_env(&config);
+	rktest_environment_t env = setup_test_env(&config);
 
 	if (*config.test_filter) {
 		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
 	}
-
-	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env.total_num_filtered_tests, env.total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
-	rktest_report_t* report = run_all_tests(env, &config);
+	rktest_report_t report = run_all_tests(&env, &config);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env.total_num_filtered_tests, env.total_num_filtered_suites);
 	if (config.print_timestamps_enabled) {
 		printf("(%d ms total)", total_time_ms);
 	}
 	printf("\n");
-	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
+	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report.num_passed_tests);
 
-	const bool tests_failed = report->num_failed_tests > 0;
+	const bool tests_failed = vec_len(report.failed_tests) > 0;
 	if (tests_failed) {
-		print_failed_tests(report);
+		print_failed_tests(&report);
 	}
 
-	if (env->total_num_disabled_tests > 0) {
+	if (env.total_num_disabled_tests > 0) {
 		if (!tests_failed) {
 			printf("\n");
 		}
-		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "S" : "");
+		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env.total_num_disabled_tests, env.total_num_disabled_tests > 1 ? "S" : "");
 	}
 
-	free(report);
-	free(env);
+	free_test_report(&report);
+	free_test_env(&env);
 
 	return tests_failed;
 }

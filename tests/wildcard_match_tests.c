@@ -70,3 +70,7 @@ TEST(wildcard_match_tests, prefix_and_suffix_match) {
 TEST(wildcard_match_tests, infix_match) {
 	EXPECT_TRUE(string_wildcard_match("wildcard_match_tests.empty_pattern_matches_only_empty_string", "*tests*"));
 }
+
+TEST(wildcard_match_tests, double_asterisk) {
+	EXPECT_TRUE(string_wildcard_match("strawberry", "straw**berry"));
+}
