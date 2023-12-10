@@ -177,19 +177,24 @@ static bool string_starts_with(const char* str, const char* prefix) {
 // https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
 static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		if (pattern[0] == 0)
+		if (pattern[0] == 0) {
 			return (str[0] == 0);
+		}
 		if (pattern[0] == '*') {
-			if (string_wildcard_match(pattern + 1, str))
+			if (string_wildcard_match(str, pattern + 1)) {
 				return true;
-			if (str[0] == 0)
-				return 0;
+			}
+			if (str[0] == 0) {
+				return false;
+			}
 		} else {
 			if (pattern[0] == '?') {
-				if (str[0] == 0)
+				if (str[0] == 0) {
 					return false;
-			} else if (pattern[0] != str[0])
+				}
+			} else if (pattern[0] != str[0]) {
 				return false;
+			}
 			pattern++;
 		}
 		str++;

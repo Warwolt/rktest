@@ -1,22 +1,29 @@
 #include <rktest/rktest.h>
 
+// NOTE: this function should be inlined into rktest.c if changed here
+
 // Based on "EnhancedMaskTest" function in 7zip source code
 // https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
 static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		if (pattern[0] == 0)
+		if (pattern[0] == 0) {
 			return (str[0] == 0);
+		}
 		if (pattern[0] == '*') {
-			if (string_wildcard_match(pattern + 1, str))
+			if (string_wildcard_match(str, pattern + 1)) {
 				return true;
-			if (str[0] == 0)
-				return 0;
+			}
+			if (str[0] == 0) {
+				return false;
+			}
 		} else {
 			if (pattern[0] == '?') {
-				if (str[0] == 0)
+				if (str[0] == 0) {
 					return false;
-			} else if (pattern[0] != str[0])
+				}
+			} else if (pattern[0] != str[0]) {
 				return false;
+			}
 			pattern++;
 		}
 		str++;
@@ -58,4 +65,8 @@ TEST(wildcard_match_tests, asterisk_then_literal_does_suffix_match) {
 TEST(wildcard_match_tests, prefix_and_suffix_match) {
 	EXPECT_TRUE(string_wildcard_match("strawberry", "st*ry"));
 	EXPECT_FALSE(string_wildcard_match("strawberry", "s*r"));
+}
+
+TEST(wildcard_match_tests, infix_match) {
+	EXPECT_TRUE(string_wildcard_match("wildcard_match_tests.empty_pattern_matches_only_empty_string", "*tests*"));
 }
