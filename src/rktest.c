@@ -63,7 +63,7 @@ typedef struct {
 #define vec_new() NULL
 #define vec_free(vec) ((void)((vec) ? free(vec_header(vec)) : (void)0), (vec) = NULL)
 #define vec_push(vec, ...) (vec_maybegrow(vec, 1), (vec)[vec_header(vec)->length++] = (__VA_ARGS__))
-#define vec_len(vec) ((vec) ? (ptrdiff_t)vec_header(vec)->length : 0)
+#define vec_len(vec) ((vec) ? (size_t)vec_header(vec)->length : 0)
 #define vec_cap(vec) ((vec) ? vec_header(vec)->capacity : 0)
 
 #define vec_maybegrow(vec, n) ((!(vec) || vec_header(vec)->length + (n) > vec_header(vec)->capacity) ? (vec_grow(vec, n, 0), 0) : 0)
@@ -173,7 +173,8 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 #endif
 
 /* -------------------------- Types and constants -------------------------- */
-#define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
+// #define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
+#define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * 64)
 #define RKTEST_MAX_FILTER_LENGTH 256
 
 #define foreach(type_ptr, iter, array, array_len) \
@@ -200,8 +201,7 @@ typedef struct {
 
 typedef struct {
 	const char* name;
-	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	size_t total_num_tests;
+	vec_t(rktest_test_t) tests;
 	size_t num_disabled_tests;
 } rktest_suite_t;
 
@@ -521,14 +521,6 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 
 		rktest_suite_t* suite = find_or_add_suite(env, test.suite_name);
 
-		if (suite->total_num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
-			fprintf(stderr, "Error: number of tests in suite \"%s\" is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu). "
-							"See the `Config variables` section of rktest.h\n",
-					suite->name,
-					RKTEST_MAX_NUM_TESTS_PER_SUITE);
-			exit(1);
-		}
-
 		/* Add test to suite */
 		if (test_matches_filter(&test, config->test_filter)) {
 			if (string_starts_with(test.test_name, "DISABLED_")) {
@@ -541,14 +533,13 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 			}
 
 			/* Add test to suite */
-			suite->tests[suite->total_num_tests] = test;
-			suite->total_num_tests++;
+			vec_push(suite->tests, test);
 		}
 	}
 
 	/* Count number of suites actually containing tests*/
 	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
-		if (suite->num_disabled_tests < suite->total_num_tests) {
+		if (suite->num_disabled_tests < vec_len(suite->tests)) {
 			env->total_num_filtered_suites++;
 		}
 	}
@@ -591,16 +582,14 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_co
 
 	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
 		/* Skip suite if all cases filtered out */
-		if (suite->num_disabled_tests == suite->total_num_tests) {
+		if (suite->num_disabled_tests == vec_len(suite->tests)) {
 			continue;
 		}
 
-		const size_t num_filtered_tests = suite->total_num_tests - suite->num_disabled_tests;
+		const size_t num_filtered_tests = vec_len(suite->tests) - suite->num_disabled_tests;
 		rktest_log_info("[----------] ", "%zu tests from %s\n", num_filtered_tests, suite->name);
 		rktest_timer_t suite_timer = rktest_timer_start();
-		for (size_t i = 0; i < suite->total_num_tests; i++) {
-			const rktest_test_t* test = &suite->tests[i];
-
+		vec_foreach(const rktest_test_t*, test, suite->tests) {
 			/* Check if test is disabled, skip it*/
 			if (test->is_disabled) {
 				rktest_log_warning("[ DISABLED ] ", "%s.%s\n", test->suite_name, test->test_name);
@@ -636,11 +625,14 @@ static void print_failed_tests(rktest_report_t* report) {
 	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
 }
 
-static void free_report_env(rktest_report_t* report) {
+static void free_test_report(rktest_report_t* report) {
 	free(report);
 }
 
 static void free_test_env(rktest_environment_t* env) {
+	foreach (rktest_suite_t*, suite, env->test_suites, env->num_test_suites) {
+		vec_free(suite->tests);
+	}
 	free(env);
 }
 
@@ -703,7 +695,7 @@ int rktest_main(int argc, const char* argv[]) {
 		vec_free(my_struct.int_vec);
 	}
 
-	free_report_env(report);
+	free_test_report(report);
 	free_test_env(env);
 
 	return tests_failed;

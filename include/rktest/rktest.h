@@ -39,10 +39,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define RKTEST_MAX_NUM_TEST_SUITES ((size_t)64)
 #endif
 
-#ifndef RKTEST_MAX_NUM_TESTS_PER_SUITE
-#define RKTEST_MAX_NUM_TESTS_PER_SUITE ((size_t)64)
-#endif
-
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
