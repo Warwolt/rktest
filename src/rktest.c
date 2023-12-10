@@ -42,7 +42,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma GCC diagnostic ignored "-Wmissing-braces"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4996) // needed for strncpy
+#endif
+
+/* -------------------------- Types and constants -------------------------- */
 #define RKTEST_MAX_NUM_TESTS (RKTEST_MAX_NUM_TEST_SUITES * RKTEST_MAX_NUM_TESTS_PER_SUITE)
+#define RKTEST_MAX_FILTER_LENGTH 256
 
 #define foreach(type_ptr, iter, array, array_len) \
 	for (type_ptr iter = &array[0]; iter != &array[array_len]; iter++)
@@ -51,6 +57,17 @@ typedef enum {
 	RKTEST_RESULT_OK,
 	RKTEST_RESULT_ERROR,
 } rktest_result_t;
+
+typedef enum {
+	RKTEST_COLOR_MODE_ON,
+	RKTEST_COLOR_MODE_OFF,
+	RKTEST_COLOR_MODE_AUTO,
+} rktest_color_mode_t;
+
+typedef struct {
+	rktest_color_mode_t color_mode;
+	char test_filter[RKTEST_MAX_FILTER_LENGTH];
+} rktest_config_t;
 
 typedef struct {
 	const char* name;
@@ -148,7 +165,35 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 }
 #endif
 
-/* Declare memory section to store test data in */
+/* ---------------------------- String utility ----------------------------- */
+static bool string_starts_with(const char* str, const char* prefix) {
+	return strncmp(prefix, str, strlen(prefix)) == 0;
+}
+
+// Based on "EnhancedMaskTest" function in 7zip source code
+// https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
+static bool string_wildcard_match(const char* str, const char* pattern) {
+	while (true) {
+		if (pattern[0] == 0)
+			return (str[0] == 0);
+		if (pattern[0] == '*') {
+			if (string_wildcard_match(pattern + 1, str))
+				return true;
+			if (str[0] == 0)
+				return 0;
+		} else {
+			if (pattern[0] == '?') {
+				if (str[0] == 0)
+					return false;
+			} else if (pattern[0] != str[0])
+				return false;
+			pattern++;
+		}
+		str++;
+	}
+}
+
+/* ----------------------- Test case memory storage ------------------------ */
 // This is based on the following article: https://christophercrouzet.com/blog/dev/rexo-part-2
 #if defined(_MSC_VER)
 __pragma(section("rktest$begin", read));
@@ -174,7 +219,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 #define TEST_DATA_END (&__stop_rktest)
 #endif
 
-/* -------------------- Public function implementations -------------------- */
+/* -------------------- Header function implementations -------------------- */
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 
@@ -240,7 +285,53 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs) {
 	return prev_4_ulp_double(rhs) <= lhs && lhs <= next_4_ulp_double(rhs);
 }
 
-/* ------------------------ Platform initialization ------------------------ */
+/* ------------------------- RKTest implementation ------------------------- */
+static void print_usage(void) {
+	// TODO
+}
+
+static rktest_config_t parse_args(int argc, const char* argv[]) {
+	rktest_config_t config = (rktest_config_t) { 0 };
+	config.color_mode = RKTEST_COLOR_MODE_AUTO;
+
+	for (int i = 1; i < argc; i++) {
+		const char* arg = argv[i];
+
+		if (string_starts_with(arg, "--rktest_color=")) {
+			if (strcmp(arg + strlen("--rktest_color="), "yes") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_ON;
+			} else if (strcmp(arg + strlen("--rktest_color="), "no") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_OFF;
+			} else if (strcmp(arg + strlen("--rktest_color="), "auto") == 0) {
+				config.color_mode = RKTEST_COLOR_MODE_AUTO;
+			} else {
+				fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
+				print_usage();
+				exit(1);
+			}
+		}
+
+		else if (string_starts_with(arg, "--rktest_filter=")) {
+			const char* filter_pattern = arg + strlen("--rktest_filter=");
+			const size_t filter_len = strlen(filter_pattern);
+			if (filter_len > RKTEST_MAX_FILTER_LENGTH) {
+				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH);
+				fprintf(stderr, "filter pattern = \"%s\"", filter_pattern);
+				exit(1);
+			}
+			strncpy(config.test_filter, filter_pattern, filter_len);
+		}
+
+		else {
+			fprintf(stderr, "Error: Unrecognized argument %s\n", arg);
+			print_usage();
+			exit(1);
+		}
+	}
+
+	return config;
+}
+
 #ifdef _MSC_VER
 static rktest_result_t enable_windows_virtual_terminal(void) {
 	// Set output mode to handle virtual terminal sequences
@@ -266,10 +357,11 @@ static rktest_result_t enable_windows_virtual_terminal(void) {
 }
 #endif // WIN32
 
-static void initialize(int argc, const char* argv[]) {
-	g_colors_enabled = true;
+static rktest_config_t initialize(int argc, const char* argv[]) {
+	rktest_config_t config = parse_args(argc, argv);
 
-	if (argc > 1 && strcmp(argv[1], "--rktest-color=no") == 0) {
+	g_colors_enabled = true;
+	if (config.color_mode == RKTEST_COLOR_MODE_OFF) {
 		g_colors_enabled = false;
 	}
 
@@ -282,11 +374,8 @@ static void initialize(int argc, const char* argv[]) {
 		}
 	}
 #endif // WIN32
-}
 
-/* ------------------------- RKTest implementation ------------------------- */
-static bool string_is_prefixed_by(const char* str, const char* prefix) {
-	return strncmp(prefix, str, strlen(prefix)) == 0;
+	return config;
 }
 
 static rktest_suite_t* find_suite_with_name(rktest_suite_t* suites, size_t num_suites, const char* suite_name) {
@@ -311,10 +400,20 @@ static rktest_suite_t* find_or_add_suite(rktest_environment_t* env, const char* 
 	return suite;
 }
 
+static bool test_matches_filter(const rktest_test_t* test, const char* pattern) {
+	if (*pattern == '\0') {
+		return true;
+	}
+
+	char full_test_name[128];
+	snprintf(full_test_name, sizeof(full_test_name) / sizeof(char), "%s.%s", test->suite_name, test->test_name);
+	return string_wildcard_match(full_test_name, pattern);
+}
+
 // Loop through the entirety of the `rkdata` memory section, including padding.
 // If the iterator `it` points to null, it's padding and we skip it.
 // If it's non-null, we have a test and push it into `tests`.
-static rktest_environment_t* setup_test_env(void) {
+static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 	rktest_environment_t* env = malloc(sizeof(rktest_environment_t));
 	*env = (rktest_environment_t) { 0 };
 
@@ -342,19 +441,21 @@ static rktest_environment_t* setup_test_env(void) {
 			exit(1);
 		}
 
-		/* Check if test is disabled */
-		if (string_is_prefixed_by(test->test_name, "DISABLED_")) {
-			suite->test_is_disabled[suite->total_num_tests] = true;
-			suite->num_disabled_tests++;
-			env->total_num_disabled_tests++;
-		} else {
-			suite->test_is_disabled[suite->total_num_tests] = false;
-			env->total_num_filtered_tests++;
-		}
-
 		/* Add test to suite */
-		suite->tests[suite->total_num_tests] = *test;
-		suite->total_num_tests++;
+		if (test_matches_filter(test, config->test_filter)) {
+			if (string_starts_with(test->test_name, "DISABLED_")) {
+				suite->test_is_disabled[suite->total_num_tests] = true;
+				suite->num_disabled_tests++;
+				env->total_num_disabled_tests++;
+			} else {
+				suite->test_is_disabled[suite->total_num_tests] = false;
+				env->total_num_filtered_tests++;
+			}
+
+			/* Add test to suite */
+			suite->tests[suite->total_num_tests] = *test;
+			suite->total_num_tests++;
+		}
 	}
 
 	/* Count number of suites actually containing tests*/
@@ -440,9 +541,12 @@ static void print_failed_tests(rktest_report_t* report) {
 }
 
 int rktest_main(int argc, const char* argv[]) {
-	initialize(argc, argv);
+	rktest_config_t config = initialize(argc, argv);
+	rktest_environment_t* env = setup_test_env(&config);
 
-	rktest_environment_t* env = setup_test_env();
+	if (*config.test_filter) {
+		rktest_printf_yellow("Note: Test filter = %s\n", config.test_filter);
+	}
 
 	rktest_log_info("[==========] ", "Running %zu tests from %zu test suites.\n", env->total_num_filtered_tests, env->total_num_filtered_suites);
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
