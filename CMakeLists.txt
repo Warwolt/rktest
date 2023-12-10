@@ -26,23 +26,28 @@ if(UNIX)
 endif()
 
 # Tests
-set(TEST_SRC
-    tests/disabled_tests.c
-    tests/float_tests.c
-    tests/integer_tests.c
-    tests/string_tests.c
-    tests/wildcard_match_tests.c
-)
-add_executable(tests ${TEST_SRC})
-target_include_directories(tests PUBLIC include)
-target_link_libraries(tests PUBLIC ${PROJECT_NAME})
-
-add_executable(failing_tests ${TEST_SRC})
-target_include_directories(failing_tests PUBLIC include)
-target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
-target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
+if (r2ktest_build_tests)
+    set(TEST_SRC
+        tests/disabled_tests.c
+        tests/float_tests.c
+        tests/integer_tests.c
+        tests/string_tests.c
+        tests/wildcard_match_tests.c
+    )
+    # Passing tests
+    add_executable(tests ${TEST_SRC})
+    target_include_directories(tests PUBLIC include)
+    target_link_libraries(tests PUBLIC ${PROJECT_NAME})
+    # Failing tests
+    add_executable(failing_tests ${TEST_SRC})
+    target_include_directories(failing_tests PUBLIC include)
+    target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
+    target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
+endif (r2ktest_build_tests )
 
 # Samples
-add_executable(sample1 samples/sample01_factorial.c)
-target_include_directories(sample1 PUBLIC include)
-target_link_libraries(sample1 PUBLIC ${PROJECT_NAME})
+if (rktest_build_samples)
+    add_executable(sample1 samples/sample01_factorial.c)
+    target_include_directories(sample1 PUBLIC include)
+    target_link_libraries(sample1 PUBLIC ${PROJECT_NAME})
+endif (rktest_build_samples)
