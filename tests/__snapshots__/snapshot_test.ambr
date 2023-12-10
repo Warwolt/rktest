@@ -215,9 +215,6 @@
   
    21 FAILED TESTS
     YOU HAVE 3 DISABLED TESTS
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
@@ -321,9 +318,6 @@
   [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
@@ -426,9 +420,6 @@
   [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
@@ -475,9 +466,6 @@
   [----------] Global test environment tear-down.
   [==========] 16 tests from 1 test suites ran. 
   [  PASSED  ] 16 tests.
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
@@ -518,9 +506,6 @@
   [----------] Global test environment tear-down.
   [==========] 10 tests from 3 test suites ran. 
   [  PASSED  ] 10 tests.
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
@@ -624,9 +609,6 @@
   [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
-  num = 12
-  num = 34
-  num = 56
   
   '''
 # ---
