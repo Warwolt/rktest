@@ -1,8 +1,18 @@
-name: build
+name: run_tests
 on:
   push:
 jobs:
-  build-windows:
+  run_tests:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            executable: ./build/Debug/tests
+          - os: ubuntu-latest
+            executable: ./build/tests
+          - os: macos-latest
+            executable: ./build/tests
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -15,34 +25,4 @@ jobs:
         run: cmake --build build
 
       - name: Test Project
-        run: ./build/Debug/tests --rktest_color=no
-
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-
-      - name: Configure Project
-        uses: threeal/cmake-action@v1.3.0
-
-      - name: Build Project
-        run: cmake --build build
-
-      - name: Test Project
-        run: ./build/tests
-
-  build-mac:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.1.1
-
-      - name: Configure Project
-        uses: threeal/cmake-action@v1.3.0
-
-      - name: Build Project
-        run: cmake --build build
-
-      - name: Test Project
-        run: ./build/tests
+        run: ${{ matrix.executable }}
