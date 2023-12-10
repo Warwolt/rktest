@@ -14,6 +14,7 @@ add_library(${PROJECT_NAME}
     src/rktest_main.c
     src/rktest.c
 )
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
 target_include_directories(${PROJECT_NAME} PUBLIC
     include
 )
@@ -38,3 +39,7 @@ target_include_directories(failing_tests PUBLIC include)
 target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
 target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
 
+# Samples
+add_executable(sample1 samples/sample01_factorial.c)
+target_include_directories(sample1 PUBLIC include)
+target_link_libraries(sample1 PUBLIC ${PROJECT_NAME})
