@@ -423,6 +423,28 @@
   
   '''
 # ---
+# name: test_pass_bad_arg
+  '''
+  
+  This program is a unit test runner built using RK Test.
+  
+  Usage:
+  
+    --rktest_color=(yes|no|auto)
+      Enable/disable colored output. The default is auto.
+  
+    --rktest_filter=PATTERN
+      Run only the tests that matches the globbing pattern. * matches against
+      any number of characters, and ? matches any single character.
+  
+    --rktest_print_time=0
+      Disable printing out the elapsed time for test cases and test suites.
+  
+    --rktest_print_filenames=0
+      Disable printing out the filename of a test case on assert failure.
+  
+  '''
+# ---
 # name: test_prefix_match
   '''
   Note: Test filter = integer*
@@ -466,6 +488,28 @@
   [----------] Global test environment tear-down.
   [==========] 16 tests from 1 test suites ran. 
   [  PASSED  ] 16 tests.
+  
+  '''
+# ---
+# name: test_print_help
+  '''
+  
+  This program is a unit test runner built using RK Test.
+  
+  Usage:
+  
+    --rktest_color=(yes|no|auto)
+      Enable/disable colored output. The default is auto.
+  
+    --rktest_filter=PATTERN
+      Run only the tests that matches the globbing pattern. * matches against
+      any number of characters, and ? matches any single character.
+  
+    --rktest_print_time=0
+      Disable printing out the elapsed time for test cases and test suites.
+  
+    --rktest_print_filenames=0
+      Disable printing out the filename of a test case on assert failure.
   
   '''
 # ---

@@ -37,3 +37,11 @@ def test_infix_match(snapshot):
 def test_failing_tests(snapshot):
     actual = run_test_exe(FAILING_TEST_EXECUTABLE)
     assert actual == snapshot
+
+def test_print_help(snapshot):
+    actual = run_test_exe(TEST_EXECUTABLE, ['--help'])
+    assert actual == snapshot
+
+def test_pass_bad_arg(snapshot):
+    actual = run_test_exe(TEST_EXECUTABLE, ['--badargument'])
+    assert actual == snapshot
