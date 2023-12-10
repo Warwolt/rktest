@@ -345,7 +345,23 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs) {
 
 /* ------------------------- RKTest implementation ------------------------- */
 static void print_usage(void) {
-	// TODO
+	printf("\n");
+	printf("This program is a unit test runner built using RK Test.\n");
+	printf("\n");
+	printf("Usage:\n");
+	printf("\n");
+	printf("  --rktest_color=(yes|no|auto)\n");
+	printf("    Enable/disable colored output. The default is auto.\n");
+	printf("\n");
+	printf("  --rktest_filter=PATTERN\n");
+	printf("    Run only the tests that matches the globbing pattern. * matches against\n");
+	printf("    any number of characters, and ? matches any single character.\n");
+	printf("\n");
+	printf("  --rktest_print_time=0\n");
+	printf("    Disable printing out the elapsed time for test cases and test suites.\n");
+	printf("\n");
+	printf("  --rktest_print_filenames=0\n");
+	printf("    Disable printing out the filename of a test case on assert failure.\n");
 }
 
 static rktest_config_t parse_args(int argc, const char* argv[]) {
@@ -356,7 +372,12 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 	for (int i = 1; i < argc; i++) {
 		const char* arg = argv[i];
 
-		if (string_starts_with(arg, "--rktest_color=")) {
+		if (strcmp(arg, "--help") == 0 || strcmp(arg, "-h") == 0) {
+			print_usage();
+			exit(1);
+		}
+
+		else if (string_starts_with(arg, "--rktest_color=")) {
 			if (strcmp(arg + strlen("--rktest_color="), "yes") == 0) {
 				config.color_mode = RKTEST_COLOR_MODE_ON;
 			} else if (strcmp(arg + strlen("--rktest_color="), "no") == 0) {
