@@ -26,7 +26,7 @@ if(UNIX)
 endif()
 
 # Tests
-if (r2ktest_build_tests)
+if (rktest_build_tests)
     set(TEST_SRC
         tests/disabled_tests.c
         tests/float_tests.c
@@ -43,7 +43,7 @@ if (r2ktest_build_tests)
     target_include_directories(failing_tests PUBLIC include)
     target_link_libraries(failing_tests PUBLIC ${PROJECT_NAME})
     target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
-endif (r2ktest_build_tests)
+endif (rktest_build_tests)
 
 # Samples
 if (rktest_build_samples)
