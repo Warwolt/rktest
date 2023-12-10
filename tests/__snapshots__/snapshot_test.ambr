@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 36 tests from 5 test suites.
+  [==========] Running 37 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -168,7 +168,7 @@
   [       OK ] string_tests.strings_case_not_equal_info 
   [----------] 8 tests from string_tests 
   
-  [----------] 7 tests from wildcard_match_tests
+  [----------] 8 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
@@ -183,11 +183,13 @@
   [       OK ] wildcard_match_tests.prefix_and_suffix_match 
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
-  [----------] 7 tests from wildcard_match_tests 
+  [ RUN      ] wildcard_match_tests.double_asterisk 
+  [       OK ] wildcard_match_tests.double_asterisk 
+  [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 36 tests from 5 test suites ran. 
-  [  PASSED  ] 15 tests.
+  [==========] 37 tests from 5 test suites ran. 
+  [  PASSED  ] 16 tests.
   [  FAILED  ] 21 tests, listed below:
   [  FAILED  ] float_tests.float_equal
   [  FAILED  ] float_tests.float_equal_info
@@ -213,13 +215,16 @@
   
    21 FAILED TESTS
     YOU HAVE 3 DISABLED TESTS
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 36 tests from 5 test suites.
+  [==========] Running 37 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -292,7 +297,7 @@
   [       OK ] string_tests.strings_case_not_equal_info 
   [----------] 8 tests from string_tests 
   
-  [----------] 7 tests from wildcard_match_tests
+  [----------] 8 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
@@ -307,19 +312,24 @@
   [       OK ] wildcard_match_tests.prefix_and_suffix_match 
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
-  [----------] 7 tests from wildcard_match_tests 
+  [ RUN      ] wildcard_match_tests.double_asterisk 
+  [       OK ] wildcard_match_tests.double_asterisk 
+  [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 36 tests from 5 test suites ran. 
-  [  PASSED  ] 36 tests.
+  [==========] 37 tests from 5 test suites ran. 
+  [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
 # name: test_no_args
   '''
-  [==========] Running 36 tests from 5 test suites.
+  [==========] Running 37 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -392,7 +402,7 @@
   [       OK ] string_tests.strings_case_not_equal_info 
   [----------] 8 tests from string_tests 
   
-  [----------] 7 tests from wildcard_match_tests
+  [----------] 8 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
@@ -407,13 +417,18 @@
   [       OK ] wildcard_match_tests.prefix_and_suffix_match 
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
-  [----------] 7 tests from wildcard_match_tests 
+  [ RUN      ] wildcard_match_tests.double_asterisk 
+  [       OK ] wildcard_match_tests.double_asterisk 
+  [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 36 tests from 5 test suites ran. 
-  [  PASSED  ] 36 tests.
+  [==========] 37 tests from 5 test suites ran. 
+  [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
@@ -460,6 +475,9 @@
   [----------] Global test environment tear-down.
   [==========] 16 tests from 1 test suites ran. 
   [  PASSED  ] 16 tests.
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
@@ -500,13 +518,16 @@
   [----------] Global test environment tear-down.
   [==========] 10 tests from 3 test suites ran. 
   [  PASSED  ] 10 tests.
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 36 tests from 5 test suites.
+  [==========] Running 37 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -579,7 +600,7 @@
   [       OK ] string_tests.strings_case_not_equal_info 
   [----------] 8 tests from string_tests 
   
-  [----------] 7 tests from wildcard_match_tests
+  [----------] 8 tests from wildcard_match_tests
   [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
   [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
@@ -594,13 +615,18 @@
   [       OK ] wildcard_match_tests.prefix_and_suffix_match 
   [ RUN      ] wildcard_match_tests.infix_match 
   [       OK ] wildcard_match_tests.infix_match 
-  [----------] 7 tests from wildcard_match_tests 
+  [ RUN      ] wildcard_match_tests.double_asterisk 
+  [       OK ] wildcard_match_tests.double_asterisk 
+  [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 36 tests from 5 test suites ran. 
-  [  PASSED  ] 36 tests.
+  [==========] 37 tests from 5 test suites ran. 
+  [  PASSED  ] 37 tests.
   
     YOU HAVE 3 DISABLED TESTS
+  num = 12
+  num = 34
+  num = 56
   
   '''
 # ---
