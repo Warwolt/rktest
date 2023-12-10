@@ -155,7 +155,7 @@ Here's a list of other unit test frameworks built on similar techniques:
 The files in the `tests` and `samples` are by default not built, but can be enabled by passing the following when generating the CMake build:
 
 ```
-cmake -B build -Drktest_build_tests=ON -Drktest_build_samples=ON
+cmake -B build -D rktest_build_tests=ON -D rktest_build_samples=ON
 ```
 
 ## Running the snapshot tests of RK Test
