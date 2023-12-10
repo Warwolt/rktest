@@ -212,7 +212,7 @@
   [  FAILED  ] string_tests.strings_case_equal_info
   
    21 FAILED TESTS
-    YOU HAVE 2 DISABLED TESTS
+    YOU HAVE 3 DISABLED TESTS
   
   '''
 # ---
@@ -313,7 +313,7 @@
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 2 DISABLED TESTS
+    YOU HAVE 3 DISABLED TESTS
   
   '''
 # ---
@@ -413,7 +413,7 @@
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 2 DISABLED TESTS
+    YOU HAVE 3 DISABLED TESTS
   
   '''
 # ---
@@ -600,7 +600,7 @@
   [==========] 36 tests from 5 test suites ran. 
   [  PASSED  ] 36 tests.
   
-    YOU HAVE 2 DISABLED TESTS
+    YOU HAVE 3 DISABLED TESTS
   
   '''
 # ---
