@@ -1,8 +1,7 @@
 # serializer version: 1
-# name: test_infix_match
+# name: test_failing_tests
   '''
-  Note: Test filter = *tests*
-  [==========] Running 22 tests from 5 test suites.
+  [==========] Running 30 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -17,24 +16,84 @@
   [       OK ] float_tests.double_equal 
   [----------] 2 tests from float_tests 
   
-  [----------] 8 tests from integer_tests
+  [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
-  [       OK ] integer_tests.expect_true 
+  D:\dev\c\rktest\tests\integer_tests.c(23): error: Value of: `int_sum1 == 3`:
+    Actual: false
+  Expected: true
+   
+  [  FAILED  ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_true_info 
+  D:\dev\c\rktest\tests\integer_tests.c(28): error: Value of: `int_sum2 == 7`:
+    Actual: false
+  Expected: true
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_true_info 
   [ RUN      ] integer_tests.expect_false 
-  [       OK ] integer_tests.expect_false 
+  D:\dev\c\rktest\tests\integer_tests.c(33): error: Value of: `int_sum1 == 1 + 2 + 50`:
+    Actual: true
+  Expected: false
+   
+  [  FAILED  ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_false_info 
+  [       OK ] integer_tests.expect_false_info 
   [ RUN      ] integer_tests.expect_equal 
-  [       OK ] integer_tests.expect_equal 
+  D:\dev\c\rktest\tests\integer_tests.c(44): error: Expected equality of these values:
+    int_sum1
+      Which is: 53
+    3
+   
+  [  FAILED  ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_equal_info 
+  D:\dev\c\rktest\tests\integer_tests.c(54): error: Expected equality of these values:
+    int_sum2
+      Which is: 17
+    7
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_equal_info 
   [ RUN      ] integer_tests.expect_not_equal 
   [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_not_equal_info 
+  [       OK ] integer_tests.expect_not_equal_info 
   [ RUN      ] integer_tests.expect_less_than 
-  [       OK ] integer_tests.expect_less_than 
+  D:\dev\c\rktest\tests\integer_tests.c(85): error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
+   
+  [  FAILED  ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_info 
+  D:\dev\c\rktest\tests\integer_tests.c(95): error: Expected (int_sum1) < (int_sum2), actual: 53 vs 17
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_less_than_info 
   [ RUN      ] integer_tests.expect_less_than_equal 
-  [       OK ] integer_tests.expect_less_than_equal 
+  D:\dev\c\rktest\tests\integer_tests.c(105): error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
+   
+  [  FAILED  ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal_info 
+  D:\dev\c\rktest\tests\integer_tests.c(115): error: Expected (int_sum1) <= (int_sum2), actual: 53 vs 17
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_less_than_equal_info 
   [ RUN      ] integer_tests.expect_greater_than 
-  [       OK ] integer_tests.expect_greater_than 
+  D:\dev\c\rktest\tests\integer_tests.c(125): error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
+   
+  [  FAILED  ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_info 
+  D:\dev\c\rktest\tests\integer_tests.c(135): error: Expected (int_sum2) > (int_sum1), actual: 17 vs 53
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_greater_than_info 
   [ RUN      ] integer_tests.expect_greater_than_equal 
-  [       OK ] integer_tests.expect_greater_than_equal 
-  [----------] 8 tests from integer_tests 
+  D:\dev\c\rktest\tests\integer_tests.c(145): error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
+   
+  [  FAILED  ] integer_tests.expect_greater_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than_equal_info 
+  D:\dev\c\rktest\tests\integer_tests.c(155): error: Expected (int_sum2) >= (int_sum1), actual: 17 vs 53
+  int_sum2 = 17
+  
+  [  FAILED  ] integer_tests.expect_greater_than_equal_info 
+  [----------] 16 tests from integer_tests 
   
   [----------] 4 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
@@ -65,8 +124,112 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 22 tests from 5 test suites ran. 
-  [  PASSED  ] 22 tests.
+  [==========] 30 tests from 5 test suites ran. 
+  [  PASSED  ] 17 tests.
+  [  FAILED  ] 13 tests, listed below:
+  [  FAILED  ] integer_tests.expect_true
+  [  FAILED  ] integer_tests.expect_true_info
+  [  FAILED  ] integer_tests.expect_false
+  [  FAILED  ] integer_tests.expect_equal
+  [  FAILED  ] integer_tests.expect_equal_info
+  [  FAILED  ] integer_tests.expect_less_than
+  [  FAILED  ] integer_tests.expect_less_than_info
+  [  FAILED  ] integer_tests.expect_less_than_equal
+  [  FAILED  ] integer_tests.expect_less_than_equal_info
+  [  FAILED  ] integer_tests.expect_greater_than
+  [  FAILED  ] integer_tests.expect_greater_than_info
+  [  FAILED  ] integer_tests.expect_greater_than_equal
+  [  FAILED  ] integer_tests.expect_greater_than_equal_info
+  
+   13 FAILED TESTs
+    YOU HAVE 1 DISABLED TEST
+  
+  '''
+# ---
+# name: test_infix_match
+  '''
+  Note: Test filter = *tests*
+  [==========] Running 30 tests from 5 test suites.
+  [----------] Global test environment set-up.
+  [----------] 1 tests from disabled_tests
+  [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
+  [ RUN      ] disabled_tests.this_test_should_run 
+  [       OK ] disabled_tests.this_test_should_run 
+  [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from float_tests
+  [ RUN      ] float_tests.float_equal 
+  [       OK ] float_tests.float_equal 
+  [ RUN      ] float_tests.double_equal 
+  [       OK ] float_tests.double_equal 
+  [----------] 2 tests from float_tests 
+  
+  [----------] 16 tests from integer_tests
+  [ RUN      ] integer_tests.expect_true 
+  [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_true_info 
+  [       OK ] integer_tests.expect_true_info 
+  [ RUN      ] integer_tests.expect_false 
+  [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_false_info 
+  [       OK ] integer_tests.expect_false_info 
+  [ RUN      ] integer_tests.expect_equal 
+  [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_equal_info 
+  [       OK ] integer_tests.expect_equal_info 
+  [ RUN      ] integer_tests.expect_not_equal 
+  [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_not_equal_info 
+  [       OK ] integer_tests.expect_not_equal_info 
+  [ RUN      ] integer_tests.expect_less_than 
+  [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_info 
+  [       OK ] integer_tests.expect_less_than_info 
+  [ RUN      ] integer_tests.expect_less_than_equal 
+  [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal_info 
+  [       OK ] integer_tests.expect_less_than_equal_info 
+  [ RUN      ] integer_tests.expect_greater_than 
+  [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_info 
+  [       OK ] integer_tests.expect_greater_than_info 
+  [ RUN      ] integer_tests.expect_greater_than_equal 
+  [       OK ] integer_tests.expect_greater_than_equal 
+  [ RUN      ] integer_tests.expect_greater_than_equal_info 
+  [       OK ] integer_tests.expect_greater_than_equal_info 
+  [----------] 16 tests from integer_tests 
+  
+  [----------] 4 tests from string_tests
+  [ RUN      ] string_tests.strings_equal 
+  [       OK ] string_tests.strings_equal 
+  [ RUN      ] string_tests.strings_not_equal 
+  [       OK ] string_tests.strings_not_equal 
+  [ RUN      ] string_tests.strings_case_equal 
+  [       OK ] string_tests.strings_case_equal 
+  [ RUN      ] string_tests.strings_case_not_equal 
+  [       OK ] string_tests.strings_case_not_equal 
+  [----------] 4 tests from string_tests 
+  
+  [----------] 7 tests from wildcard_match_tests
+  [ RUN      ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [       OK ] wildcard_match_tests.empty_pattern_matches_only_empty_string 
+  [ RUN      ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [       OK ] wildcard_match_tests.literal_pattern_matches_only_exact_literal 
+  [ RUN      ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [       OK ] wildcard_match_tests.single_asterisk_matches_any_string 
+  [ RUN      ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [       OK ] wildcard_match_tests.literal_then_asterisk_does_prefix_match 
+  [ RUN      ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [       OK ] wildcard_match_tests.asterisk_then_literal_does_suffix_match 
+  [ RUN      ] wildcard_match_tests.prefix_and_suffix_match 
+  [       OK ] wildcard_match_tests.prefix_and_suffix_match 
+  [ RUN      ] wildcard_match_tests.infix_match 
+  [       OK ] wildcard_match_tests.infix_match 
+  [----------] 7 tests from wildcard_match_tests 
+  
+  [----------] Global test environment tear-down.
+  [==========] 30 tests from 5 test suites ran. 
+  [  PASSED  ] 30 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -74,7 +237,7 @@
 # ---
 # name: test_no_args
   '''
-  [==========] Running 22 tests from 5 test suites.
+  [==========] Running 30 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -89,24 +252,40 @@
   [       OK ] float_tests.double_equal 
   [----------] 2 tests from float_tests 
   
-  [----------] 8 tests from integer_tests
+  [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
   [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_true_info 
+  [       OK ] integer_tests.expect_true_info 
   [ RUN      ] integer_tests.expect_false 
   [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_false_info 
+  [       OK ] integer_tests.expect_false_info 
   [ RUN      ] integer_tests.expect_equal 
   [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_equal_info 
+  [       OK ] integer_tests.expect_equal_info 
   [ RUN      ] integer_tests.expect_not_equal 
   [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_not_equal_info 
+  [       OK ] integer_tests.expect_not_equal_info 
   [ RUN      ] integer_tests.expect_less_than 
   [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_info 
+  [       OK ] integer_tests.expect_less_than_info 
   [ RUN      ] integer_tests.expect_less_than_equal 
   [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal_info 
+  [       OK ] integer_tests.expect_less_than_equal_info 
   [ RUN      ] integer_tests.expect_greater_than 
   [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_info 
+  [       OK ] integer_tests.expect_greater_than_info 
   [ RUN      ] integer_tests.expect_greater_than_equal 
   [       OK ] integer_tests.expect_greater_than_equal 
-  [----------] 8 tests from integer_tests 
+  [ RUN      ] integer_tests.expect_greater_than_equal_info 
+  [       OK ] integer_tests.expect_greater_than_equal_info 
+  [----------] 16 tests from integer_tests 
   
   [----------] 4 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
@@ -137,8 +316,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 22 tests from 5 test suites ran. 
-  [  PASSED  ] 22 tests.
+  [==========] 30 tests from 5 test suites ran. 
+  [  PASSED  ] 30 tests.
   
     YOU HAVE 1 DISABLED TEST
   
@@ -147,30 +326,46 @@
 # name: test_prefix_match
   '''
   Note: Test filter = integer*
-  [==========] Running 8 tests from 1 test suites.
+  [==========] Running 16 tests from 1 test suites.
   [----------] Global test environment set-up.
-  [----------] 8 tests from integer_tests
+  [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
   [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_true_info 
+  [       OK ] integer_tests.expect_true_info 
   [ RUN      ] integer_tests.expect_false 
   [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_false_info 
+  [       OK ] integer_tests.expect_false_info 
   [ RUN      ] integer_tests.expect_equal 
   [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_equal_info 
+  [       OK ] integer_tests.expect_equal_info 
   [ RUN      ] integer_tests.expect_not_equal 
   [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_not_equal_info 
+  [       OK ] integer_tests.expect_not_equal_info 
   [ RUN      ] integer_tests.expect_less_than 
   [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_info 
+  [       OK ] integer_tests.expect_less_than_info 
   [ RUN      ] integer_tests.expect_less_than_equal 
   [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal_info 
+  [       OK ] integer_tests.expect_less_than_equal_info 
   [ RUN      ] integer_tests.expect_greater_than 
   [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_info 
+  [       OK ] integer_tests.expect_greater_than_info 
   [ RUN      ] integer_tests.expect_greater_than_equal 
   [       OK ] integer_tests.expect_greater_than_equal 
-  [----------] 8 tests from integer_tests 
+  [ RUN      ] integer_tests.expect_greater_than_equal_info 
+  [       OK ] integer_tests.expect_greater_than_equal_info 
+  [----------] 16 tests from integer_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 8 tests from 1 test suites ran. 
-  [  PASSED  ] 8 tests.
+  [==========] 16 tests from 1 test suites ran. 
+  [  PASSED  ] 16 tests.
   
   '''
 # ---
@@ -217,7 +412,7 @@
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 22 tests from 5 test suites.
+  [==========] Running 30 tests from 5 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
@@ -232,24 +427,40 @@
   [       OK ] float_tests.double_equal 
   [----------] 2 tests from float_tests 
   
-  [----------] 8 tests from integer_tests
+  [----------] 16 tests from integer_tests
   [ RUN      ] integer_tests.expect_true 
   [       OK ] integer_tests.expect_true 
+  [ RUN      ] integer_tests.expect_true_info 
+  [       OK ] integer_tests.expect_true_info 
   [ RUN      ] integer_tests.expect_false 
   [       OK ] integer_tests.expect_false 
+  [ RUN      ] integer_tests.expect_false_info 
+  [       OK ] integer_tests.expect_false_info 
   [ RUN      ] integer_tests.expect_equal 
   [       OK ] integer_tests.expect_equal 
+  [ RUN      ] integer_tests.expect_equal_info 
+  [       OK ] integer_tests.expect_equal_info 
   [ RUN      ] integer_tests.expect_not_equal 
   [       OK ] integer_tests.expect_not_equal 
+  [ RUN      ] integer_tests.expect_not_equal_info 
+  [       OK ] integer_tests.expect_not_equal_info 
   [ RUN      ] integer_tests.expect_less_than 
   [       OK ] integer_tests.expect_less_than 
+  [ RUN      ] integer_tests.expect_less_than_info 
+  [       OK ] integer_tests.expect_less_than_info 
   [ RUN      ] integer_tests.expect_less_than_equal 
   [       OK ] integer_tests.expect_less_than_equal 
+  [ RUN      ] integer_tests.expect_less_than_equal_info 
+  [       OK ] integer_tests.expect_less_than_equal_info 
   [ RUN      ] integer_tests.expect_greater_than 
   [       OK ] integer_tests.expect_greater_than 
+  [ RUN      ] integer_tests.expect_greater_than_info 
+  [       OK ] integer_tests.expect_greater_than_info 
   [ RUN      ] integer_tests.expect_greater_than_equal 
   [       OK ] integer_tests.expect_greater_than_equal 
-  [----------] 8 tests from integer_tests 
+  [ RUN      ] integer_tests.expect_greater_than_equal_info 
+  [       OK ] integer_tests.expect_greater_than_equal_info 
+  [----------] 16 tests from integer_tests 
   
   [----------] 4 tests from string_tests
   [ RUN      ] string_tests.strings_equal 
@@ -280,8 +491,8 @@
   [----------] 7 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 22 tests from 5 test suites ran. 
-  [  PASSED  ] 22 tests.
+  [==========] 30 tests from 5 test suites ran. 
+  [  PASSED  ] 30 tests.
   
     YOU HAVE 1 DISABLED TEST
   
