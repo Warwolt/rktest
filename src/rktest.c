@@ -201,7 +201,6 @@ typedef struct {
 typedef struct {
 	const char* name;
 	rktest_test_t tests[RKTEST_MAX_NUM_TESTS_PER_SUITE];
-	bool test_is_disabled[RKTEST_MAX_NUM_TESTS_PER_SUITE];
 	size_t total_num_tests;
 	size_t num_disabled_tests;
 } rktest_suite_t;
@@ -511,7 +510,7 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 			continue;
 		}
 
-		const rktest_test_t* const test = *it;
+		rktest_test_t test = **it;
 
 		if (env->num_test_suites == RKTEST_MAX_NUM_TEST_SUITES) {
 			fprintf(stderr, "Error: number of test suites is greater than RKTEST_MAX_NUM_TEST_SUITES (%zu). "
@@ -520,7 +519,7 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 			exit(1);
 		}
 
-		rktest_suite_t* suite = find_or_add_suite(env, test->suite_name);
+		rktest_suite_t* suite = find_or_add_suite(env, test.suite_name);
 
 		if (suite->total_num_tests == RKTEST_MAX_NUM_TESTS_PER_SUITE) {
 			fprintf(stderr, "Error: number of tests in suite \"%s\" is greater than RKTEST_MAX_NUM_TESTS_PER_SUITE (%zu). "
@@ -531,18 +530,18 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 		}
 
 		/* Add test to suite */
-		if (test_matches_filter(test, config->test_filter)) {
-			if (string_starts_with(test->test_name, "DISABLED_")) {
-				suite->test_is_disabled[suite->total_num_tests] = true;
+		if (test_matches_filter(&test, config->test_filter)) {
+			if (string_starts_with(test.test_name, "DISABLED_")) {
+				test.is_disabled = true;
 				suite->num_disabled_tests++;
 				env->total_num_disabled_tests++;
 			} else {
-				suite->test_is_disabled[suite->total_num_tests] = false;
+				test.is_disabled = false;
 				env->total_num_filtered_tests++;
 			}
 
 			/* Add test to suite */
-			suite->tests[suite->total_num_tests] = *test;
+			suite->tests[suite->total_num_tests] = test;
 			suite->total_num_tests++;
 		}
 	}
@@ -603,7 +602,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_co
 			const rktest_test_t* test = &suite->tests[i];
 
 			/* Check if test is disabled, skip it*/
-			if (suite->test_is_disabled[i]) {
+			if (test->is_disabled) {
 				rktest_log_warning("[ DISABLED ] ", "%s.%s\n", test->suite_name, test->test_name);
 				continue;
 			}
@@ -649,6 +648,10 @@ static void print_int_vec(const vec_t(int) * int_vec) {
 	}
 }
 
+typedef struct {
+	vec_t(int) int_vec;
+} my_struct_t;
+
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
 	rktest_environment_t* env = setup_test_env(&config);
@@ -686,10 +689,10 @@ int rktest_main(int argc, const char* argv[]) {
 
 	// CHECK
 	{
-		vec_t(int) int_vec = vec_new();
-		push_int_vec(&int_vec);
-		print_int_vec(&int_vec);
-		vec_free(int_vec);
+		my_struct_t my_struct = { 0 };
+		push_int_vec(&my_struct.int_vec);
+		print_int_vec(&my_struct.int_vec);
+		vec_free(my_struct.int_vec);
 	}
 
 	free(report);

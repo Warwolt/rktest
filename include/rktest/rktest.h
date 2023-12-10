@@ -199,6 +199,7 @@ typedef struct {
 	const char* suite_name;
 	const char* test_name;
 	void (*run)(void);
+	bool is_disabled;
 } rktest_test_t;
 
 /* Assertions */
