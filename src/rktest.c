@@ -69,6 +69,7 @@ typedef enum {
 typedef struct {
 	rktest_color_mode_t color_mode;
 	char test_filter[RKTEST_MAX_FILTER_LENGTH];
+	bool print_timestamp_enabled;
 } rktest_config_t;
 
 typedef struct {
@@ -295,6 +296,7 @@ static void print_usage(void) {
 static rktest_config_t parse_args(int argc, const char* argv[]) {
 	rktest_config_t config = (rktest_config_t) { 0 };
 	config.color_mode = RKTEST_COLOR_MODE_AUTO;
+	config.print_timestamp_enabled = true;
 
 	for (int i = 1; i < argc; i++) {
 		const char* arg = argv[i];
@@ -322,6 +324,14 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 				exit(1);
 			}
 			strncpy(config.test_filter, filter_pattern, filter_len);
+		}
+
+		else if (string_starts_with(arg, "--rktest_print_time=")) {
+			if (strcmp(arg + strlen("--rktest_print_time="), "0") == 0) {
+				config.print_timestamp_enabled = false;
+			} else {
+				config.print_timestamp_enabled = true;
+			}
 		}
 
 		else {
@@ -478,7 +488,7 @@ static rktest_environment_t* setup_test_env(const rktest_config_t* config) {
 	return env;
 }
 
-static bool run_test(const rktest_test_t* test) {
+static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
 	rktest_timer_t test_timer = rktest_timer_start();
@@ -489,15 +499,20 @@ static bool run_test(const rktest_test_t* test) {
 	g_current_test_failed = false;
 
 	if (test_passed) {
-		rktest_log_info("[       OK ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
+		rktest_printf_green("[       OK ] ");
 	} else {
-		rktest_log_error("[  FAILED  ] ", "%s.%s (%d ms)\n", test->suite_name, test->test_name, test_time_ms);
+		rktest_printf_red("[  FAILED  ] ");
 	}
+	printf("%s.%s ", test->suite_name, test->test_name);
+	if (config->print_timestamp_enabled) {
+		printf("(%d ms)", test_time_ms);
+	}
+	printf("\n");
 
 	return test_passed;
 }
 
-static rktest_report_t* run_all_tests(rktest_environment_t* env) {
+static rktest_report_t* run_all_tests(rktest_environment_t* env, const rktest_config_t* config) {
 	rktest_report_t* report = malloc(sizeof(rktest_report_t));
 	*report = (rktest_report_t) {
 		.failed_tests = { 0 },
@@ -524,7 +539,7 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 
 			/* Run non-disabled test */
-			const bool test_passed = run_test(test);
+			const bool test_passed = run_test(test, config);
 			if (test_passed) {
 				report->num_passed_tests++;
 			} else {
@@ -533,8 +548,11 @@ static rktest_report_t* run_all_tests(rktest_environment_t* env) {
 			}
 		}
 		rktest_millis_t suite_time_ms = rktest_timer_stop(&suite_timer);
-		rktest_log_info("[----------] ", "%zu tests from %s (%d ms total)\n", num_filtered_tests, suite->name, suite_time_ms);
-		printf("\n");
+		rktest_log_info("[----------] ", "%zu tests from %s ", num_filtered_tests, suite->name);
+		if (config->print_timestamp_enabled) {
+			printf("(%d ms total)", suite_time_ms);
+		}
+		printf("\n\n");
 	}
 
 	return report;
@@ -561,11 +579,15 @@ int rktest_main(int argc, const char* argv[]) {
 	rktest_log_info("[----------] ", "Global test environment set-up.\n");
 
 	rktest_timer_t total_time_timer = rktest_timer_start();
-	rktest_report_t* report = run_all_tests(env);
+	rktest_report_t* report = run_all_tests(env, &config);
 	rktest_millis_t total_time_ms = rktest_timer_stop(&total_time_timer);
 
 	rktest_log_info("[----------] ", "Global test environment tear-down.\n");
-	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. (%d ms total)\n", env->total_num_filtered_tests, env->total_num_filtered_suites, total_time_ms);
+	rktest_log_info("[==========] ", "%zu tests from %zu test suites ran. ", env->total_num_filtered_tests, env->total_num_filtered_suites);
+	if (config.print_timestamp_enabled) {
+		printf("(%d ms total)", total_time_ms);
+	}
+	printf("\n");
 	rktest_log_info("[  PASSED  ] ", "%zu tests.\n", report->num_passed_tests);
 
 	const bool tests_failed = report->num_failed_tests > 0;
