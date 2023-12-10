@@ -23,10 +23,10 @@ endif()
 
 # Tests
 add_executable(tests
-    # tests/disabled_tests.c
-    # tests/float_tests.c
-    # tests/integer_tests.c
-    # tests/string_tests.c
+    tests/disabled_tests.c
+    tests/float_tests.c
+    tests/integer_tests.c
+    tests/string_tests.c
     tests/wildcard_match_tests.c
 )
 target_include_directories(tests PUBLIC include)

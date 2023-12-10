@@ -170,64 +170,27 @@ static bool string_starts_with(const char* str, const char* prefix) {
 	return strncmp(prefix, str, strlen(prefix)) == 0;
 }
 
-// Wildcard matching, originally by Stephen Mathieson
-// https://github.com/clibs/wildcardcmp/blob/master/wildcardcmp.c
-bool string_wildcard_match(const char* string, const char* pattern) {
-	const char* wildcard_char = NULL; // last `*`
-	const char* string_char = NULL; // last checked char
-
-	// malformed
-	if (!pattern || !string) {
-		return false;
-	}
-
-	// loop 1 char at a time
+// Based on "EnhancedMaskTest" function in 7zip source code
+// https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
+static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		if (*string == '\0') {
-			// FIXME: this returns true for the following case:
-			//  string  = "integer_tests.expect_true"
-			//  pattern = "*tests"
-			//
-			//  This should NOT match! The pattern means that we should be able
-			//  to find a suffix that is exactly "tests" but no such suffix
-			//  exists, so  there's a bug.
-			if (*pattern == '\0' || *pattern == '*') {
+		if (pattern[0] == 0)
+			return (str[0] == 0);
+		if (pattern[0] == '*') {
+			if (string_wildcard_match(pattern + 1, str))
 				return true;
-			}
-
-			if (*string_char == '\0') {
-				return false;
-			}
-
-			string = string_char++;
-			pattern = wildcard_char;
-			continue;
+			if (str[0] == 0)
+				return 0;
 		} else {
-			if (*pattern != *string) {
-				if (*pattern == '*') {
-					wildcard_char = ++pattern;
-					string_char = string;
-					// "*" -> "foobar"
-					if (*pattern) {
-						continue;
-					}
-
-					return true;
-				} else if (wildcard_char) {
-					string++;
-					// "*ooba*" -> "foobar"
-					continue;
-				}
-
+			if (pattern[0] == '?') {
+				if (str[0] == 0)
+					return false;
+			} else if (pattern[0] != str[0])
 				return false;
-			}
+			pattern++;
 		}
-
-		string++;
-		pattern++;
+		str++;
 	}
-
-	return true;
 }
 
 /* ----------------------- Test case memory storage ------------------------ */

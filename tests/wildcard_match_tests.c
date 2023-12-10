@@ -1,23 +1,21 @@
 #include <rktest/rktest.h>
 
-// Based on wildcard matching in 7zip source code
-// https://github.com/mcmilk/7-Zip/blob/826145b86107fc0a778ac673348226db180e4532/CPP/Common/Wildcard.cpp#L124
+// Based on "EnhancedMaskTest" function in 7zip source code
+// https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
 static bool string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
-		char m = *pattern;
-		char c = *str;
-		if (m == 0)
-			return (c == 0);
-		if (m == '*') {
+		if (pattern[0] == 0)
+			return (str[0] == 0);
+		if (pattern[0] == '*') {
 			if (string_wildcard_match(pattern + 1, str))
 				return true;
-			if (c == 0)
+			if (str[0] == 0)
 				return 0;
 		} else {
-			if (m == '?') {
-				if (c == 0)
+			if (pattern[0] == '?') {
+				if (str[0] == 0)
 					return false;
-			} else if (m != c)
+			} else if (pattern[0] != str[0])
 				return false;
 			pattern++;
 		}
