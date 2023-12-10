@@ -94,7 +94,60 @@ typedef struct {
 	size_t num_failed_tests;
 } rktest_report_t;
 
-/* Timer type */
+/* ------------------------- Vector implementation ------------------------- */
+// Based on https://github.com/Warwolt/rkvec/blob/main/include/rkvec/rkvec.h
+// Which in turn is based on https://github.com/nothings/stb/blob/master/stb_ds.h
+typedef struct {
+	size_t length;
+	size_t capacity;
+	void* hash_table;
+	ptrdiff_t temp;
+} rk_vector_header_t;
+
+#define vec_foreach(type_ptr, iter, vec) \
+	for (type_ptr iter = &vec[0]; iter != &vec[vec_len(vec)]; iter++)
+
+#define vec_t(type) type*
+#define vec_new() NULL
+#define vec_free(vec) ((void)((vec) ? free(vec_header(vec)) : (void)0), (vec) = NULL)
+#define vec_push(vec, ...) (vec_maybegrow(vec, 1), (vec)[vec_header(vec)->length++] = (__VA_ARGS__))
+#define vec_len(vec) ((vec) ? (ptrdiff_t)vec_header(vec)->length : 0)
+#define vec_cap(vec) ((vec) ? vec_header(vec)->capacity : 0)
+
+#define vec_maybegrow(vec, n) ((!(vec) || vec_header(vec)->length + (n) > vec_header(vec)->capacity) ? (vec_grow(vec, n, 0), 0) : 0)
+#define vec_header(t) ((rk_vector_header_t*)(t)-1)
+#define vec_grow(vec, b, c) ((vec) = vec_growf((vec), sizeof *(vec), (b), (c)))
+
+static void* vec_growf(void* vec, size_t elem_size, size_t addlen, size_t min_cap) {
+	void* new_vec;
+	size_t min_len = vec_len(vec) + addlen;
+
+	// compute the minimum capacity needed
+	if (min_len > min_cap)
+		min_cap = min_len;
+
+	if (min_cap <= vec_cap(vec))
+		return vec;
+
+	// increase needed capacity to guarantee O(1) amortized
+	if (min_cap < 2 * vec_cap(vec))
+		min_cap = 2 * vec_cap(vec);
+	else if (min_cap < 4)
+		min_cap = 4;
+
+	new_vec = realloc((vec) ? vec_header(vec) : 0, elem_size * min_cap + sizeof(rk_vector_header_t));
+	new_vec = (char*)new_vec + sizeof(rk_vector_header_t);
+	if (vec == NULL) {
+		vec_header(new_vec)->length = 0;
+		vec_header(new_vec)->hash_table = 0;
+		vec_header(new_vec)->temp = 0;
+	}
+	vec_header(new_vec)->capacity = min_cap;
+
+	return new_vec;
+}
+
+/* ------------------------- Timer implementation -------------------------- */
 typedef int rktest_millis_t;
 
 #if defined(WIN32)
@@ -115,7 +168,6 @@ typedef struct {
 } rktest_timer_t;
 #endif
 
-/* ------------------------- Timer implementation -------------------------- */
 #if defined(WIN32)
 rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
@@ -585,6 +637,12 @@ static void print_failed_tests(rktest_report_t* report) {
 	printf(" %zu FAILED TEST%s\n", report->num_failed_tests, report->num_failed_tests > 1 ? "S" : "");
 }
 
+static void print_int_vec(const vec_t(int) int_vec) {
+	vec_foreach(const int*, num, int_vec) {
+		printf("num = %d\n", *num);
+	}
+}
+
 int rktest_main(int argc, const char* argv[]) {
 	rktest_config_t config = initialize(argc, argv);
 	rktest_environment_t* env = setup_test_env(&config);
@@ -618,6 +676,16 @@ int rktest_main(int argc, const char* argv[]) {
 			printf("\n");
 		}
 		rktest_printf_yellow("  YOU HAVE %zu DISABLED TEST%s\n", env->total_num_disabled_tests, env->total_num_disabled_tests > 1 ? "S" : "");
+	}
+
+	// CHECK
+	{
+		vec_t(int) int_vec = vec_new();
+		vec_push(int_vec, 12);
+		vec_push(int_vec, 34);
+		vec_push(int_vec, 56);
+		print_int_vec(int_vec);
+		vec_free(int_vec);
 	}
 
 	free(report);
