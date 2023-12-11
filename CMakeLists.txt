@@ -43,11 +43,9 @@ if (rktest_build_tests)
     )
     # Passing tests
     add_executable(tests ${TEST_SRC})
-    target_include_directories(tests PUBLIC include)
     target_link_libraries(tests PUBLIC ${RKTEST_MAIN})
     # Failing tests
     add_executable(failing_tests ${TEST_SRC})
-    target_include_directories(failing_tests PUBLIC include)
     target_link_libraries(failing_tests PUBLIC ${RKTEST_MAIN})
     target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
 endif (rktest_build_tests)
@@ -55,6 +53,5 @@ endif (rktest_build_tests)
 # Samples
 if (rktest_build_samples)
     add_executable(sample1 samples/sample01_factorial.c)
-    target_include_directories(sample1 PUBLIC include)
     target_link_libraries(sample1 PUBLIC ${RKTEST_MAIN})
 endif (rktest_build_samples)
