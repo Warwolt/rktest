@@ -52,8 +52,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 typedef struct {
 	size_t length;
 	size_t capacity;
-	void* hash_table;
-	ptrdiff_t temp;
 } rk_vector_header_t;
 
 #define vec_foreach(type_ptr, iter, vec) \
@@ -92,8 +90,6 @@ static void* vec_growf(void* vec, size_t elem_size, size_t addlen, size_t min_ca
 	new_vec = (char*)new_vec + sizeof(rk_vector_header_t);
 	if (vec == NULL) {
 		vec_header(new_vec)->length = 0;
-		vec_header(new_vec)->hash_table = 0;
-		vec_header(new_vec)->temp = 0;
 	}
 	vec_header(new_vec)->capacity = min_cap;
 
