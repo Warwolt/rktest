@@ -18,7 +18,7 @@ Roadmap:
 - Parameterized tests
 - Death tests (tests that can verify `assert()`, `abort()`, and other program exits)
 
-For a motivation for why to consider RK Test in favor of Google Test, see [Why use RK test](https://github.com/Warwolt/rktest/blob/main/README.md#why-use-rk-test-instead-of-google-test).
+For a motivation for why to consider RK Test in favor of Google Test, see [Why use RK Test](https://github.com/Warwolt/rktest/blob/main/README.md#why-use-rk-test-instead-of-google-test).
 
 ## Usage
 Due to the similarities between RK Test and Google Test, it may be helpful to read the [Google Test primer](https://google.github.io/googletest/primer.html.).
@@ -161,7 +161,9 @@ regarding Units in Last Place):
 
 ## Why use RK Test instead of Google Test?
 
-While Google Test is a much more mature test library, it's written in C++. This means that when testing C code, it requires calling that C code from C++ code, which can be awkward due to requiring `extern C` or lacking C99-style designated initializers.
+While Google Test is a much more mature test library, it's written in C++. This means 
+that when testing C code, it requires calling that C code from C++ code, which can be 
+awkward due to requiring `extern C` or lacking C99-style designated initializers.
 
 Additionally, the Google Test source is many thousands of lines long, which
 makes it a non-trivial dependency to add to a project.
@@ -171,6 +173,9 @@ one `*.c` file and one `*.h` and is written in C, so both code under test and
 the test cases are written in the same language. This allows RK Test to easily
 be integrated into other C projects, while keeping largely the same development
 experience as Google Test.
+
+If you want a Google Test written in C, and can live with some missing features
+and appreciate a small footprint, consider using RK Test.
 
 ## See also
 
