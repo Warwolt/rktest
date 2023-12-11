@@ -27,7 +27,10 @@ Due to the similarities between RK Test and Google Test, it may be helpful to re
 
 To set up a simple test suite, create a source file that includes `rktest.h` and link against the `rktest_main` library.
 
-Test cases are then defined with the `TEST()` macro, which takes to arguments: the name of the test suite, and the name of the test case. A body is then given, which will be executed like a function. The `EXPECT_EQ` takes two integral types and compares them, and fails the test in case they are not equal.
+Test cases are then defined with the `TEST()` macro, which takes two arguments:
+the name of the test suite, and the name of the test case. A body is then given,
+which will be executed like a function. The `EXPECT_EQ` takes two integral types
+and compares them, and fails the test in case they are not equal.
 
 ```C
 #include <rktest/rktest.h>
