@@ -6,9 +6,6 @@ include(CheckCCompilerFlag)
 option(rktest_build_tests "Build rktest tests" OFF)
 option(rktest_build_samples "Build rktest samples" OFF)
 
-set(RKTEST "rktest")
-set(RKTEST_MAIN "rktest_main")
-
 if(MSVC)
     add_compile_options(/W4 /WX)
 else()
@@ -16,20 +13,20 @@ else()
 endif()
 
 # Test Library
-add_library(${RKTEST} src/rktest.c)
-add_library(${RKTEST_MAIN} src/rktest.c)
+add_library(rktest src/rktest.c)
+add_library(rktest_main src/rktest.c)
 
-target_compile_definitions(${RKTEST_MAIN} PRIVATE RKTEST_DEFINE_MAIN=1)
+target_include_directories(rktest PUBLIC include)
+target_include_directories(rktest_main PUBLIC include)
 
-set_property(TARGET ${RKTEST} PROPERTY C_STANDARD 99)
-set_property(TARGET ${RKTEST_MAIN} PROPERTY C_STANDARD 99)
+target_compile_definitions(rktest_main PRIVATE RKTEST_DEFINE_MAIN=1)
 
-target_include_directories(${RKTEST} PUBLIC include)
-target_include_directories(${RKTEST_MAIN} PUBLIC include)
+set_property(TARGET rktest PROPERTY C_STANDARD 99)
+set_property(TARGET rktest_main PROPERTY C_STANDARD 99)
 
 if(UNIX)
-    target_link_libraries(${RKTEST} PUBLIC m)
-    target_link_libraries(${RKTEST_MAIN} PUBLIC m)
+    target_link_libraries(rktest PUBLIC m)
+    target_link_libraries(rktest_main PUBLIC m)
 endif()
 
 # Tests
@@ -43,15 +40,15 @@ if (rktest_build_tests)
     )
     # Passing tests
     add_executable(tests ${TEST_SRC})
-    target_link_libraries(tests PUBLIC ${RKTEST_MAIN})
+    target_link_libraries(tests PUBLIC rktest_main)
     # Failing tests
     add_executable(failing_tests ${TEST_SRC})
-    target_link_libraries(failing_tests PUBLIC ${RKTEST_MAIN})
+    target_link_libraries(failing_tests PUBLIC rktest_main)
     target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
 endif (rktest_build_tests)
 
 # Samples
 if (rktest_build_samples)
     add_executable(sample1 samples/sample01_factorial.c)
-    target_link_libraries(sample1 PUBLIC ${RKTEST_MAIN})
+    target_link_libraries(sample1 PUBLIC rktest_main)
 endif (rktest_build_samples)
