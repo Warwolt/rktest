@@ -22,6 +22,12 @@ Roadmap:
 
 For a motivation for why to consider RK Test in favor of Google Test, see [Why use RK Test](https://github.com/Warwolt/rktest/blob/main/README.md#why-use-rk-test-instead-of-google-test).
 
+Roadmap:
+- Parameterized tests
+- Death tests (tests that can verify `assert()`, `abort()`, and other program exits)
+
+For a motivation for why to consider RK Test in favor of Google Test, see [Why use RK Test](https://github.com/Warwolt/rktest/blob/main/README.md#why-use-rk-test-instead-of-google-test).
+
 ## Usage
 Due to the similarities between RK Test and Google Test, it may be helpful to read the [Google Test primer](https://google.github.io/googletest/primer.html.).
 
