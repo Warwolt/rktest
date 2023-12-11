@@ -9,7 +9,7 @@ of only a single source and single header file.
 
 ## Features
 RK Test has the following features:
-- Small and easy to integrate, one '\*.c' file and one '\*.h' file
+- Small and easy to integrate, the source is just `rktest.c` and `rktest.h`
 - Supports Windows, MacOS and Linux.
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
