@@ -14,6 +14,10 @@ RK Test has the following features:
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
 
+Roadmap:
+- Parameterized tests
+- Death tests (tests that can verify `assert()`, `abort()`, and other program exits)
+
 ## Usage
 Due to the similarities between RK Test and Google Test, it may be helpful to read the [Google Test primer](https://google.github.io/googletest/primer.html.).
 
