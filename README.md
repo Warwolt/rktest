@@ -71,14 +71,34 @@ Rerunning the test suite now gives:
 ![Sample1 failing output](/samples/sample01_output_failing.png)
 
 ## Integrating
-RK Test consists of two files, `rktest.c` and `rktest.h`. The easiest way to integrate RK Test into your project is to just add these two files to your source tree.
+RK Test consists of two files, `rktest.c` and `rktest.h`. The easiest way to integrate RK Test into your project is to just add these two files to your source tree and build them into a library `rktest`.
 
-Build `rktest.c` and `rktest.h` into a library `rktest`, and then build an executable from your unit test files that links against this library. A `main.c` test runner main file should be added that calls `rktest_main`, or alternatively you can use the existing `rktest_main.c` file.
+When building, if you define the `RKTEST_DEFINE_MAIN` symbol you will get a main function defined in the library. Alternatively, you can add your own test runner `main.c` and call `rktest_main()` from that file.
 
-All the `TEST()` tests in your unit test files will automatically be discovered by RK Test and executed.
+The `CMakeLists.txt` in this repository already does this and builds two libraries, `rktest` and `rktest_main`.
+
+All the `TEST()` tests in your unit test files will automatically be discovered by RK Test and executed once `rktest_main` is called (either by your `main.c` file or automatically if you linked against `rktest_main`).
 
 ### CMake
 In case your project is using CMake, you can easily integrate RK Test by adding this repository into your source tree and then including the RK Test `CMakeLists.txt` from your own.
+
+There's an example repository available here:
+https://github.com/Warwolt/rktest_example
+
+In short, to integrate RK Test into your CMake project, first add this repository into your file structure either by copying it or by using `git add submodule` to add a git submodule.
+
+Then, update your `CMakeLists.txt` with a `add_subdirectory` and add a test runner executable that links against `rktest_main`. Example:
+
+```cmake
+add_subdirectory(external/rktest)
+
+add_executable(tests
+    src/hello_world.c
+    tests/hello_world_tests.c
+)
+target_include_directories(tests PRIVATE src)
+target_link_libraries(tests PRIVATE rktest_main)
+```
 
 ## Assertions
 All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPEC_*` continues to execute the remaining test on failure, whereas `ASSERT_*` aborts the current test case on failure.
