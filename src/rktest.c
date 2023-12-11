@@ -666,3 +666,9 @@ int rktest_main(int argc, const char* argv[]) {
 
 	return tests_failed;
 }
+
+#ifdef RKTEST_DEFINE_MAIN
+int main(int argc, const char* argv[]) {
+	return rktest_main(argc, argv);
+}
+#endif
