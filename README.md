@@ -9,10 +9,12 @@ of only a single source and single header file.
 
 ## Features
 RK Test has the following features:
-- Small and easy to integrate, one '\*.c' file and one '\*.h' file
+- Small and easy to integrate, the source is just `rktest.c` and `rktest.h`
 - Supports Windows, MacOS and Linux.
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
+- Filter tests using `--rktest_filter=PATTERN` where the pattern uses [glob syntax](https://en.wikipedia.org/wiki/Glob_(programming))
+- Disable tests with by prefixing test names with `DISABLED_`
 
 Roadmap:
 - Parameterized tests
@@ -25,7 +27,10 @@ Due to the similarities between RK Test and Google Test, it may be helpful to re
 
 To set up a simple test suite, create a source file that includes `rktest.h` and link against the `rktest_main` library.
 
-Test cases are then defined with the `TEST()` macro, which takes to arguments: the name of the test suite, and the name of the test case. A body is then given, which will be executed like a function. The `EXPECT_EQ` takes two integral types and compares them, and fails the test in case they are not equal.
+Test cases are then defined with the `TEST()` macro, which takes two arguments:
+the name of the test suite, and the name of the test case. A body is then given,
+which will be executed like a function. The `EXPECT_EQ` takes two integral types
+and compares them, and fails the test in case they are not equal.
 
 ```C
 #include <rktest/rktest.h>
@@ -159,10 +164,28 @@ regarding Units in Last Place):
 | EXPECT_FLOAT_EQ(actual, expected)  | `actual` and `expected` are within 4 ULP of each other |
 | EXPECT_DOUBLE_EQ(actual, expected) | `actual` and `expected` are within 4 ULP of each other |
 
+## Filtering tests
+
+It's possible to run only some specific tests, which is useful when trying to
+debug why a given test or set of tests are failing.
+
+By passing the argument `--rktest_filter=PATTERN`, where `PATTERN` uses
+[glob syntax](https://en.wikipedia.org/wiki/Glob_(programming)), only tests that
+matches the pattern will be executed.
+
+Glob syntax matches `*` to any number of characters, and `?` to a single
+character. The matching will be done to the full test name, e.g.
+`factorial_tests.factorial_of_negative_is_one`.
+
+Example, if you run `./tests --rktest_filter="float_tests*"` then all tests whos
+full name starts with `float_tests` will be ran:
+
+![Filtered tests](./docs/filtered_tests.png)
+
 ## Why use RK Test instead of Google Test?
 
-While Google Test is a much more mature test library, it's written in C++. This means 
-that when testing C code, it requires calling that C code from C++ code, which can be 
+While Google Test is a much more mature test library, it's written in C++. This means
+that when testing C code, it requires calling that C code from C++ code, which can be
 awkward due to requiring `extern C` or lacking C99-style designated initializers.
 
 Additionally, the Google Test source is many thousands of lines long, which
@@ -177,6 +200,28 @@ experience as Google Test.
 If you want a Google Test written in C, and can live with some missing features
 and appreciate a small footprint, consider using RK Test.
 
+## Disabling tests
+
+Instead of commenting out tests that for some reason are desired to exclude from
+the test execution, it's possible to disable them, which will still compile
+them.
+
+To disable a test, just prefix the test name with `DISABLED_`. Such a test will
+show up during test execution with a `[ DISABLED ]` prefix, and reminder text
+will be printed to inform that tests were disabled during test execution.
+
+For example, the following test is disabled:
+
+```c
+TEST(disabled_tests, DISABLED_this_test_should_not_run) {
+	EXPECT_EQ(1 + 1, 3);
+}
+```
+
+Running this test gives:
+
+![Disabled tests](./docs/disabled_tests.png)
+
 ## See also
 
 Here's a list of other unit test frameworks built on similar techniques:
@@ -185,7 +230,11 @@ Here's a list of other unit test frameworks built on similar techniques:
 - [Criterion](https://github.com/Snaipe/Criterion/)
 - [Rexo](https://github.com/christophercrouzet/rexo/)
 
-## Building the test and sample files
+## For maintainers
+
+The following is useful for maintainers of RK Test.
+
+### Building the test and sample files
 
 The files in the `tests` and `samples` are by default not built, but can be enabled by passing the following when generating the CMake build:
 
@@ -193,7 +242,7 @@ The files in the `tests` and `samples` are by default not built, but can be enab
 cmake -B build -D rktest_build_tests=ON -D rktest_build_samples=ON
 ```
 
-## Running the snapshot tests of RK Test
+### Running the snapshot tests of RK Test
 
 RK Test uses python and snapshot tests to test the output from the library. To run the snapshot tests, first install python:
 
