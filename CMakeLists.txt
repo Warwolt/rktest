@@ -6,6 +6,7 @@ include(CheckCCompilerFlag)
 option(rktest_build_tests "Build rktest tests" OFF)
 option(rktest_build_samples "Build rktest samples" OFF)
 
+set(RKTEST "rktest")
 set(RKTEST_MAIN "rktest_main")
 
 if(MSVC)
@@ -15,14 +16,19 @@ else()
 endif()
 
 # Test Library
-add_library(${RKTEST_MAIN}
-    src/rktest.c
-)
+add_library(${RKTEST} src/rktest.c)
+add_library(${RKTEST_MAIN} src/rktest.c)
+
+target_compile_definitions(${RKTEST_MAIN} PRIVATE RKTEST_DEFINE_MAIN=1)
+
+set_property(TARGET ${RKTEST} PROPERTY C_STANDARD 99)
 set_property(TARGET ${RKTEST_MAIN} PROPERTY C_STANDARD 99)
-target_include_directories(${RKTEST_MAIN} PUBLIC
-    include
-)
+
+target_include_directories(${RKTEST} PUBLIC include)
+target_include_directories(${RKTEST_MAIN} PUBLIC include)
+
 if(UNIX)
+    target_link_libraries(${RKTEST} PUBLIC m)
     target_link_libraries(${RKTEST_MAIN} PUBLIC m)
 endif()
 
