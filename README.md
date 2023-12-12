@@ -112,7 +112,7 @@ target_link_libraries(tests PRIVATE rktest_main)
 ```
 
 ## Assertions
-All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPEC_*` continues to execute the remaining test on failure, whereas `ASSERT_*` aborts the current test case on failure.
+All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPECT_*` continues to execute the remaining test on failure, whereas `ASSERT_*` aborts the current test case on failure.
 
 Additionally, all macros has `*_INFO` variants, which allows passing a
 printf-style formatting string that will be printed if the assertion fails to
