@@ -2,13 +2,10 @@
 
 # RK Test
 
-RK Test is a small test library for C99 programs, written to closely mimick
+RK Test is a small [STB-style](https://github.com/nothings/stb/tree/master) single
+header unit testing library for C99, written to closely mimick
 [Google Test](https://github.com/google/googletest). RK Test is lightweight and
 easy to integrate into a C project to add testing capabilities.
-
-RK Test is a [STB-style](https://github.com/nothings/stb/tree/master) single
-header library, which means it can be integrated into a project by just copying
-rktest.h into your source tree.
 
 ## Features
 RK Test has the following features:
