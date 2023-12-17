@@ -14,19 +14,12 @@ endif()
 
 # Test Library
 add_library(rktest src/rktest.c)
-add_library(rktest_main src/rktest.c)
-
 target_include_directories(rktest PUBLIC include)
-target_include_directories(rktest_main PUBLIC include)
-
-target_compile_definitions(rktest_main PRIVATE RKTEST_DEFINE_MAIN=1)
-
+target_compile_definitions(rktest PRIVATE RKTEST_DEFINE_MAIN=1)
 set_property(TARGET rktest PROPERTY C_STANDARD 99)
-set_property(TARGET rktest_main PROPERTY C_STANDARD 99)
 
 if(UNIX)
     target_link_libraries(rktest PUBLIC m)
-    target_link_libraries(rktest_main PUBLIC m)
 endif()
 
 # Tests
@@ -40,15 +33,15 @@ if (rktest_build_tests)
     )
     # Passing tests
     add_executable(tests ${TEST_SRC})
-    target_link_libraries(tests PUBLIC rktest_main)
+    target_link_libraries(tests PUBLIC rktest)
     # Failing tests
     add_executable(failing_tests ${TEST_SRC})
-    target_link_libraries(failing_tests PUBLIC rktest_main)
+    target_link_libraries(failing_tests PUBLIC rktest)
     target_compile_definitions(failing_tests PRIVATE RKTEST_FAILING_TESTS=1)
 endif (rktest_build_tests)
 
 # Samples
 if (rktest_build_samples)
     add_executable(sample1 samples/sample01_factorial.c)
-    target_link_libraries(sample1 PUBLIC rktest_main)
+    target_link_libraries(sample1 PUBLIC rktest)
 endif (rktest_build_samples)

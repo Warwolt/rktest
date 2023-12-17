@@ -1,24 +1,145 @@
-/*
-------------------------------------------------------------------------------
-Public Domain (www.unlicense.org)
-This is free and unencumbered software released into the public domain.
-Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
-software, either in source code form or as a compiled binary, for any purpose,
-commercial or non-commercial, and by any means.
-In jurisdictions that recognize copyright laws, the author or authors of this
-software dedicate any and all copyright interest in the software to the public
-domain. We make this dedication for the benefit of the public at large and to
-the detriment of our heirs and successors. We intend this dedication to be an
-overt act of relinquishment in perpetuity of all present and future rights to
-this software under copyright law.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-------------------------------------------------------------------------------
-*/
+// rktest.h - v1.0.0 - public domain authored 2023 by Rasmus Källqvist
+//
+// RK Test is a small unit test library for C99 with an interface heavily based
+// on Google Test, featuring self registering tests.
+//
+// Automatic test registration is implemented using compiler extensions common
+// to Microsoft MSVC, AppleClang, and GCC, where data can be put in a dedicated
+// memory section in the binary when compiled and retreived at run time.
+//
+// VERSION HISTORY
+//
+//   1.0.0 (2023-12-17) First release of RK Test
+//
+// LICENSE
+//
+//   See end of file for license information. RK Test is in the public domain.
+//
+// DEPENDENCIES
+//
+//    RK Test dependens on the standard math library.
+//    Link to it by passing `-lm` to the compiler.
+//
+// USAGE
+//
+//   Include this file in whatever places need to refer to it. In EXACLTY ONE
+//   source file, include the header with `DEFINE_RKTEST_IMPLEMENTATION` defined:
+//
+//      // rktest.c
+//      #define DEFINE_RKTEST_IMPLEMENTATION
+//      #include <rktest/rktest.h>
+//
+//      int main(int argc, const char* argv[]) {
+//          return rktest_main(arc, argv);
+//      }
+//
+//   This will define the implementation of RK Test.
+//
+// DEFINING TESTS
+//
+//   To define a test, create a source file e.g. `factorial_tests.c`, and
+//   include `rktest.h` and use the TEST() macro.
+//
+//   TEST() takes two arguments, the name of the test suite (a collection of
+//   tests) and the name of the current test. Typically, the test suite name
+//   will be the same as the file name.
+//
+//      // factorial_tests.c
+//      #include <rktest/rktest.h>
+//
+//      TEST(simple_tests, factorial_of_negative_is_one) {
+//          EXPECT_EQ(factorial(-1), 1);
+//          EXPECT_EQ(factorial(-42), 1);
+//      }
+//
+//      TEST(simple_tests, factorial_of_zero_is_one) {
+//          EXPECT_EQ(factorial(0), 1);
+//      }
+//
+//      TEST(simple_tests, factorial_of_positive_numbers) {
+//          EXPECT_EQ(factorial(3), 6);
+//          EXPECT_EQ(factorial(4), 24);
+//      }
+//
+//   Assuming that a file `rktest.c` defines `DEFINE_RKTEST_IMPLEMENTATION`, a
+//   file `factorial.c` defines the code under test, and that the rktest header
+//   is in a directory `rktest/include`, we can compile the above program with:
+//
+//       gcc -lm rktest.c factorial.c factorial_tests.c -Irktest/include -o unit_tests
+//
+// ASSERTIONS
+//
+//   RK Test comes with a set of assertion macros that are used in TEST() macros
+//   to define what the test is testing.
+//
+//   Each kind of assertion comes in two flavors, EXPECT_* macros which fails
+//   the test if its conditions is not met but continous running the test.
+//
+//   Additionally, every assertion has a *_INFO variant that allows printing a
+//   user defined string on test failure.
+//
+//   Bool assertions:
+//   | Macro name           | Assertion               |
+//   | -------------------- | ----------------------- |
+//   | EXPECT_TRUE(actual)  | `actual` equals `true`  |
+//   | EXPECT_FALSE(actual) | `actual` equals `false` |
+//
+//   Integer assertions:
+//   | Macro name                  | Assertion              |
+//   | --------------------------- | ---------------------- |
+//   | EXPECT_EQ(actual, expected) | `actual` == `expected` |
+//   | EXPECT_NE(actual, expected) | `actual` != `expected` |
+//   | EXPECT_LT(actual, expected) | `actual` < `expected`  |
+//   | EXPECT_LE(actual, expected) | `actual `<= `expected` |
+//   | EXPECT_GT(actual, expected) | `actual `> `expected`  |
+//   | EXPECT_GE(actual, expected) | `actual `>= `expected` |
+//
+//   Long assertions:
+//   | Macro name                       | Assertion              |
+//   | -------------------------------- | ---------------------- |
+//   | EXPECT_LONG_EQ(actual, expected) | `actual` == `expected` |
+//   | EXPECT_LONG_NE(actual, expected) | `actual` != `expected` |
+//   | EXPECT_LONG_LT(actual, expected) | `actual` < `expected`  |
+//   | EXPECT_LONG_LE(actual, expected) | `actual `<= `expected` |
+//   | EXPECT_LONG_GT(actual, expected) | `actual `> `expected`  |
+//   | EXPECT_LONG_GE(actual, expected) | `actual `>= `expected` |
+//
+//   String assertions:
+//   | Macro name                          | Assertion                                                     |
+//   | ----------------------------------- | ------------------------------------------------------------- |
+//   | EXPECT_STREQ(actual, expected)      | `actual` is the same string as `expected`                     |
+//   | EXPECT_STRNE(actual, expected)      | `actual` is NOT the same string as `expected`                 |
+//   | EXPECT_CASE_STREQ(actual, expected) | `actual` is the same string as `expected` (ignoring case)     |
+//   | EXPECT_CASE_STRNE(actual, expected) | `actual` is NOT the same string as `expected` (ignoring case) |
+//
+//   Floating point assertions:
+//   | Macro name                         | Assertion                                              |
+//   | ---------------------------------- | ------------------------------------------------------ |
+//   | EXPECT_FLOAT_EQ(actual, expected)  | `actual` and `expected` are within 4 ULP of each other |
+//   | EXPECT_DOUBLE_EQ(actual, expected) | `actual` and `expected` are within 4 ULP of each other |
+//
+//   NOTE: See https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+//   for more information about units in the last place.
+//
+// OPTIONS
+//
+//   The unit test binary built with RK Test can take command line arguments:
+//
+//      -h, --help
+//        Display this information.
+//
+//      --rktest_color=(yes|no|auto)
+//        Enable/disable colored output. The default is auto.
+//
+//      --rktest_filter=PATTERN
+//        Run only the tests that matches the globbing pattern. * matches against
+//        any number of characters, and ? matches any single character.
+//
+//      --rktest_print_time=0
+//        Disable printing out the elapsed time for test cases and test suites.
+//
+//      --rktest_print_filenames=0
+//        Disable printing out the filename of a test case on assert failure.
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -27,9 +148,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #ifndef RKTEST_H
 #define RKTEST_H
-
-// RK Test is a small unit test library for C99 with an interface heavily based
-// on Google Test, featuring self registering tests.
 
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
@@ -1023,12 +1141,28 @@ int rktest_main(int argc, const char* argv[]) {
 	return tests_failed;
 }
 
-#ifdef RKTEST_DEFINE_MAIN
-int main(int argc, const char* argv[]) {
-	return rktest_main(argc, argv);
-}
-#endif /* RKTEST_DEFINE_MAIN */
-
 #endif /* DEFINE_RKTEST_IMPLEMENTATION */
 
 #endif /* RKTEST_H */
+
+/*
+------------------------------------------------------------------------------
+Public Domain (www.unlicense.org)
+This is free and unencumbered software released into the public domain.
+Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
+software, either in source code form or as a compiled binary, for any purpose,
+commercial or non-commercial, and by any means.
+In jurisdictions that recognize copyright laws, the author or authors of this
+software dedicate any and all copyright interest in the software to the public
+domain. We make this dedication for the benefit of the public at large and to
+the detriment of our heirs and successors. We intend this dedication to be an
+overt act of relinquishment in perpetuity of all present and future rights to
+this software under copyright law.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+------------------------------------------------------------------------------
+*/
