@@ -28,7 +28,7 @@ For a motivation for why to consider RK Test in favor of Google Test, see [Why u
 ## Usage
 Due to the similarities between RK Test and Google Test, it may be helpful to read the [Google Test primer](https://google.github.io/googletest/primer.html.).
 
-To set up a simple test suite, create a source file that includes `rktest.h` and link against the `rktest_main` library.
+For instruction on building, see [Integrating](#integrating).
 
 Test cases are then defined with the `TEST()` macro, which takes two arguments:
 the name of the test suite, and the name of the test case. A body is then given,
@@ -120,7 +120,7 @@ repository into your file structure either by copying it or by using `git add
 submodule` to add a git submodule.
 
 Then, update your `CMakeLists.txt` with a `add_subdirectory` and add a test
-runner executable that links against `rktest_main`. Example:
+runner executable that links against `rktest`. Example:
 
 ```cmake
 add_subdirectory(external/rktest)
@@ -130,7 +130,7 @@ add_executable(tests
     tests/hello_world_tests.c
 )
 target_include_directories(tests PRIVATE src)
-target_link_libraries(tests PRIVATE rktest_main)
+target_link_libraries(tests PRIVATE rktest)
 ```
 
 ## Assertions
