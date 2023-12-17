@@ -83,8 +83,8 @@ Rerunning the test suite now gives:
 
 ## Integrating
 RK Test consists of a single header file `rktest.h`. The easiest way to
-integrate RK Test is to just copy that header file into your source tree, but
-you can optionally include RK Test as a
+integrate RK Test is to just copy that header file into your source tree.
+Alternatively, RK Test can be built as a CMake project.
 
 ### STB STyle
 
