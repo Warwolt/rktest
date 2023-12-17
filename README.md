@@ -4,12 +4,15 @@
 
 RK Test is a small test library for C99 programs, written to closely mimick
 [Google Test](https://github.com/google/googletest). RK Test is lightweight and
-easy to integrate into a C project to add testing capabilities,  as it consists
-of only a single source and single header file.
+easy to integrate into a C project to add testing capabilities.
+
+RK Test is a [STB-style](https://github.com/nothings/stb/tree/master) single
+header library, which means it can be integrated into a project by just copying
+rktest.h into your source tree.
 
 ## Features
 RK Test has the following features:
-- Small and easy to integrate, the source is just `rktest.c` and `rktest.h`
+- Small and easy to integrate
 - Supports Windows, MacOS and Linux.
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
@@ -82,23 +85,42 @@ Rerunning the test suite now gives:
 ![Sample1 failing output](/samples/sample01_output_failing.png)
 
 ## Integrating
-RK Test consists of two files, `rktest.c` and `rktest.h`. The easiest way to integrate RK Test into your project is to just add these two files to your source tree and build them into a library `rktest`.
+RK Test consists of a single header file `rktest.h`. The easiest way to
+integrate RK Test is to just copy that header file into your source tree, but
+you can optionally include RK Test as a
 
-When building, if you define the `RKTEST_DEFINE_MAIN` symbol you will get a main function defined in the library. Alternatively, you can add your own test runner `main.c` and call `rktest_main()` from that file.
+### STB STyle
 
-The `CMakeLists.txt` in this repository already does this and builds two libraries, `rktest` and `rktest_main`.
+To integrate RK Test as a single header library, copy `rktest.h` into your
+source tree, and then in EXACTLY ONE source file define
+`DEFINE_RKTEST_IMPLEMENTATION` before including the header.
 
-All the `TEST()` tests in your unit test files will automatically be discovered by RK Test and executed once `rktest_main` is called (either by your `main.c` file or automatically if you linked against `rktest_main`).
+Additionally, this source file can define the main function:
+
+```C
+// rktest.c
+#define DEFINE_RKTEST_IMPLEMENTATION
+#include <rktest/rktest.h>
+
+int main(int argc, const char* argv[]) {
+	return rktest_main(argc, argv);
+}
+```
 
 ### CMake
-In case your project is using CMake, you can easily integrate RK Test by adding this repository into your source tree and then including the RK Test `CMakeLists.txt` from your own.
+In case your project is using CMake, you can easily integrate RK Test by adding
+this repository into your source tree and then including the RK Test
+`CMakeLists.txt` from your own.
 
 There's an example repository available here:
 https://github.com/Warwolt/rktest_example
 
-In short, to integrate RK Test into your CMake project, first add this repository into your file structure either by copying it or by using `git add submodule` to add a git submodule.
+In short, to integrate RK Test into your CMake project, first add this
+repository into your file structure either by copying it or by using `git add
+submodule` to add a git submodule.
 
-Then, update your `CMakeLists.txt` with a `add_subdirectory` and add a test runner executable that links against `rktest_main`. Example:
+Then, update your `CMakeLists.txt` with a `add_subdirectory` and add a test
+runner executable that links against `rktest_main`. Example:
 
 ```cmake
 add_subdirectory(external/rktest)
@@ -112,7 +134,9 @@ target_link_libraries(tests PRIVATE rktest_main)
 ```
 
 ## Assertions
-All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPEC_*` continues to execute the remaining test on failure, whereas `ASSERT_*` aborts the current test case on failure.
+All assertion macros come in `EXPECT_*` and `ASSERT_*` variants, where `EXPEC_*`
+continues to execute the remaining test on failure, whereas `ASSERT_*` aborts
+the current test case on failure.
 
 Additionally, all macros has `*_INFO` variants, which allows passing a
 printf-style formatting string that will be printed if the assertion fails to
