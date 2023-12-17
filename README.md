@@ -100,7 +100,7 @@ Additionally, this source file can define the main function:
 #include <rktest/rktest.h>
 
 int main(int argc, const char* argv[]) {
-	return rktest_main(argc, argv);
+    return rktest_main(argc, argv);
 }
 ```
 
