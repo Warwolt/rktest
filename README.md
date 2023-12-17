@@ -27,8 +27,8 @@ Due to the similarities between RK Test and Google Test, it may be helpful to re
 
 For instruction on building, see [Integrating](#integrating).
 
-Test cases are then defined with the `TEST()` macro, which takes two arguments:
-the name of the test suite, and the name of the test case. A body is then given,
+Test cases are defined with the `TEST()` macro, which takes two arguments: the
+name of the test suite, and the name of the test case. A body is then given,
 which will be executed like a function. The `EXPECT_EQ` takes two integral types
 and compares them, and fails the test in case they are not equal.
 
