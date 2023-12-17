@@ -203,24 +203,6 @@ full name starts with `float_tests` will be ran:
 
 ![Filtered tests](./docs/filtered_tests.png)
 
-## Why use RK Test instead of Google Test?
-
-While Google Test is a much more mature test library, it's written in C++. This means
-that when testing C code, it requires calling that C code from C++ code, which can be
-awkward due to requiring `extern C` or lacking C99-style designated initializers.
-
-Additionally, the Google Test source is many thousands of lines long, which
-makes it a non-trivial dependency to add to a project.
-
-Comparatively, RK Test is lightweight at just around 1k lines of code in just
-one `*.c` file and one `*.h` and is written in C, so both code under test and
-the test cases are written in the same language. This allows RK Test to easily
-be integrated into other C projects, while keeping largely the same development
-experience as Google Test.
-
-If you want a Google Test written in C, and can live with some missing features
-and appreciate a small footprint, consider using RK Test.
-
 ## Disabling tests
 
 Instead of commenting out tests that for some reason are desired to exclude from
@@ -242,6 +224,24 @@ TEST(disabled_tests, DISABLED_this_test_should_not_run) {
 Running this test gives:
 
 ![Disabled tests](./docs/disabled_tests.png)
+
+## Why use RK Test instead of Google Test?
+
+While Google Test is a much more mature test library, it's written in C++. This means
+that when testing C code, it requires calling that C code from C++ code, which can be
+awkward due to requiring `extern C` or lacking C99-style designated initializers.
+
+Additionally, the Google Test source is many thousands of lines long, which
+makes it a non-trivial dependency to add to a project.
+
+Comparatively, RK Test is lightweight at just around 1k lines of code in just
+one `*.c` file and one `*.h` and is written in C, so both code under test and
+the test cases are written in the same language. This allows RK Test to easily
+be integrated into other C projects, while keeping largely the same development
+experience as Google Test.
+
+If you want a Google Test written in C, and can live with some missing features
+and appreciate a small footprint, consider using RK Test.
 
 ## See also
 
