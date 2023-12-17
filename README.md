@@ -86,7 +86,7 @@ RK Test consists of a single header file `rktest.h`. The easiest way to
 integrate RK Test is to just copy that header file into your source tree.
 Alternatively, RK Test can be built as a CMake project.
 
-### STB STyle
+### STB Style
 
 To integrate RK Test as a single header library, copy `rktest.h` into your
 source tree, and then in EXACTLY ONE source file define
