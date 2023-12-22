@@ -164,6 +164,28 @@ int rktest_main(int argc, const char* argv[]);
 	ADD_TO_MEMORY_SECTION_END                                                          \
 	void SUITE##_##NAME##_impl(void)
 
+#define TEST_SETUP(SUITE)                                                            \
+	void SUITE##_##setup(void);                                                      \
+	const rktest_test_t SUITE##_##setup##_data = {                                   \
+		.suite_name = #SUITE,                                                        \
+		.setup = &SUITE##_##setup                                                    \
+	};                                                                               \
+	ADD_TO_MEMORY_SECTION_BEGIN                                                      \
+	const rktest_test_t* const SUITE##_##setup##_data##_##ptr = &SUITE##_setup_data; \
+	ADD_TO_MEMORY_SECTION_END                                                        \
+	void SUITE##_setup(void)
+
+#define TEST_TEARDOWN(SUITE)                                                               \
+	void SUITE##_##teardown(void);                                                         \
+	const rktest_test_t SUITE##_##teardown##_data = {                                      \
+		.suite_name = #SUITE,                                                              \
+		.teardown = &SUITE##_##teardown                                                    \
+	};                                                                                     \
+	ADD_TO_MEMORY_SECTION_BEGIN                                                            \
+	const rktest_test_t* const SUITE##_##teardown##_data##_##ptr = &SUITE##_teardown_data; \
+	ADD_TO_MEMORY_SECTION_END                                                              \
+	void SUITE##_teardown(void)
+
 /* Bool checks */
 #define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, " ")
 #define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, " ")
@@ -305,6 +327,8 @@ typedef struct {
 	const char* suite_name;
 	const char* test_name;
 	void (*run)(void);
+	void (*setup)(void);
+	void (*teardown)(void);
 	bool is_disabled;
 } rktest_test_t;
 
@@ -669,6 +693,8 @@ typedef struct {
 	const char* name;
 	vec_t(rktest_test_t) tests;
 	size_t num_disabled_tests;
+	void (*setup)(void);
+	void (*teardown)(void);
 } rktest_suite_t;
 
 typedef struct {
@@ -992,8 +1018,14 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 			suite = &vec_back(env.test_suites);
 		}
 
-		/* Add test to suite */
-		if (test_matches_filter(&test, config->test_filter)) {
+		/* Check if setup/teardown */
+		if (test.setup) {
+			suite->setup = test.setup;
+		} else if (test.teardown) {
+			suite->teardown = test.teardown;
+		}
+		/* Else: Add test to suite */
+		else if (test_matches_filter(&test, config->test_filter)) {
 			if (string_starts_with(test.test_name, "DISABLED_")) {
 				test.is_disabled = true;
 				suite->num_disabled_tests++;
@@ -1015,6 +1047,14 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 		}
 	}
 
+	/* Set setup/teardown pointers in tests */
+	vec_foreach(const rktest_suite_t*, suite, env.test_suites) {
+		vec_foreach(rktest_test_t*, test, suite->tests) {
+			test->setup = suite->setup;
+			test->teardown = suite->teardown;
+		}
+	}
+
 	// return env;
 	return env;
 }
@@ -1022,10 +1062,22 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
 
+	/* Run setup if exists */
+	if (test->setup) {
+		test->setup();
+	}
+
+	/* Run test */
 	rktest_timer_t test_timer = rktest_timer_start();
 	test->run();
 	rktest_millis_t test_time_ms = rktest_timer_stop(&test_timer);
 
+	/* Run teardown if exists*/
+	if (test->teardown) {
+		test->teardown();
+	}
+
+	/* Handle test failure */
 	const bool test_passed = !g_current_test_failed;
 	g_current_test_failed = false;
 
