@@ -225,6 +225,35 @@ Running this test gives:
 
 ![Disabled tests](./docs/disabled_tests.png)
 
+## Setup and Teardown
+
+When testing using resources with state that persists between tests, like
+accessing files on disk, it may be helpful to be able to setup/teardown those
+resources before tests run.
+
+The `TEST_SETUP(suite_name)` and `TEST_TEARDOWN(suite_name)` macros can assist
+in these situations.
+
+If we have a test file `foo_tests.c` that defines a test suite `foo_tests`, we
+can add setup and teardown functions to this test suite:
+
+```C
+// foo_tests.c
+TEST_SETUP(foo_test) {
+	// do some setup
+}
+
+TEST_TEARDOWN(foo_tests) {
+	// do some teardown
+}
+
+TEST(foo_tests, some_test) {
+	// run test
+}
+```
+
+The `TEST_SETUP()` and `TEST_TEARDOWN()` functions will run before _each_ test in the test suite, if they are defined.
+
 ## Why use RK Test instead of Google Test?
 
 While Google Test is a much more mature test library, it's written in C++. This means
