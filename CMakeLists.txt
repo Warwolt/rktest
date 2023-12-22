@@ -26,6 +26,7 @@ endif()
 if (rktest_build_tests)
     set(TEST_SRC
         tests/disabled_tests.c
+        tests/fixture_tests.c
         tests/float_tests.c
         tests/integer_tests.c
         tests/string_tests.c

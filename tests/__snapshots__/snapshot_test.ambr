@@ -1,13 +1,24 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 37 tests from 5 test suites.
+  [==========] Running 39 tests from 6 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from fixture_tests
+  [ RUN      ] fixture_tests.increment_number 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number 
+  [ RUN      ] fixture_tests.increment_number_again 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number_again 
+  [----------] 2 tests from fixture_tests 
   
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
@@ -188,8 +199,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 37 tests from 5 test suites ran. 
-  [  PASSED  ] 16 tests.
+  [==========] 39 tests from 6 test suites ran. 
+  [  PASSED  ] 18 tests.
   [  FAILED  ] 21 tests, listed below:
   [  FAILED  ] float_tests.float_equal
   [  FAILED  ] float_tests.float_equal_info
@@ -221,13 +232,24 @@
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 37 tests from 5 test suites.
+  [==========] Running 39 tests from 6 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from fixture_tests
+  [ RUN      ] fixture_tests.increment_number 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number 
+  [ RUN      ] fixture_tests.increment_number_again 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number_again 
+  [----------] 2 tests from fixture_tests 
   
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
@@ -314,8 +336,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 37 tests from 5 test suites ran. 
-  [  PASSED  ] 37 tests.
+  [==========] 39 tests from 6 test suites ran. 
+  [  PASSED  ] 39 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
@@ -323,13 +345,24 @@
 # ---
 # name: test_no_args
   '''
-  [==========] Running 37 tests from 5 test suites.
+  [==========] Running 39 tests from 6 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from fixture_tests
+  [ RUN      ] fixture_tests.increment_number 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number 
+  [ RUN      ] fixture_tests.increment_number_again 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number_again 
+  [----------] 2 tests from fixture_tests 
   
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
@@ -416,8 +449,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 37 tests from 5 test suites ran. 
-  [  PASSED  ] 37 tests.
+  [==========] 39 tests from 6 test suites ran. 
+  [  PASSED  ] 39 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
@@ -557,13 +590,24 @@
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 37 tests from 5 test suites.
+  [==========] Running 39 tests from 6 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
+  
+  [----------] 2 tests from fixture_tests
+  [ RUN      ] fixture_tests.increment_number 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number 
+  [ RUN      ] fixture_tests.increment_number_again 
+  Test Setup
+  Test TearDown
+  [       OK ] fixture_tests.increment_number_again 
+  [----------] 2 tests from fixture_tests 
   
   [----------] 4 tests from float_tests
   [ RUN      ] float_tests.float_equal 
@@ -650,8 +694,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 37 tests from 5 test suites ran. 
-  [  PASSED  ] 37 tests.
+  [==========] 39 tests from 6 test suites ran. 
+  [  PASSED  ] 39 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
