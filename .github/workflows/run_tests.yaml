@@ -70,4 +70,5 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           options: rktest_build_tests=ON rktes§t_build_samples=ON
+          c-compiler: gcc-8
 
