@@ -72,3 +72,6 @@ jobs:
           options: rktest_build_tests=ON rktes§t_build_samples=ON
           c-compiler: gcc-8
 
+      - name: Build
+        run: cmake --build build
+
