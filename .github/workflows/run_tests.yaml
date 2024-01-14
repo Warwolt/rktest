@@ -43,3 +43,22 @@ jobs:
 
       - name: Run snapshot tests
         run: pytest -vv
+
+
+  build_gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install GCC 8.5
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test ; sudo apt-get update ; sudo apt-get install gcc-8
+
+      - name: debug
+        run: gcc-8 --version
+
+      # - name: Checkout
+      #   uses: actions/checkout@v4.1.1
+
+      # - name: Setup CMake
+      #   uses: threeal/cmake-action@v1.3.0
+      #   with:
+      #     options: rktest_build_tests=ON rktest_build_samples=ON
+
