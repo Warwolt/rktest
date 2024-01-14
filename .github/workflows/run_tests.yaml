@@ -48,7 +48,7 @@ jobs:
   build_gcc:
     runs-on: ubuntu-latest
     steps:
-      - name: install GCC 8.5
+      - name: install GCC 8.4
         # based on: https://askubuntu.com/a/1446899
         run: |
           sudo apt update
@@ -63,11 +63,11 @@ jobs:
       - name: debug
         run: gcc-8 --version
 
-      # - name: Checkout
-      #   uses: actions/checkout@v4.1.1
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
-      # - name: Setup CMake
-      #   uses: threeal/cmake-action@v1.3.0
-      #   with:
-      #     options: rktest_build_tests=ON rktes§t_build_samples=ON
+      - name: Setup CMake
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          options: rktest_build_tests=ON rktes§t_build_samples=ON
 
