@@ -111,6 +111,7 @@
 //   | EXPECT_STRNE(actual, expected)      | `actual` is NOT the same string as `expected`                 |
 //   | EXPECT_CASE_STREQ(actual, expected) | `actual` is the same string as `expected` (ignoring case)     |
 //   | EXPECT_CASE_STRNE(actual, expected) | `actual` is NOT the same string as `expected` (ignoring case) |
+//   | EXPECT_CHAR_EQ(actual, expected)    | `actual` is the same ascii character as `expected`            |
 //
 //   Floating point assertions:
 //   | Macro name                         | Assertion                                              |
