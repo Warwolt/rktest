@@ -111,6 +111,7 @@
 //   | EXPECT_STRNE(actual, expected)      | `actual` is NOT the same string as `expected`                 |
 //   | EXPECT_CASE_STREQ(actual, expected) | `actual` is the same string as `expected` (ignoring case)     |
 //   | EXPECT_CASE_STRNE(actual, expected) | `actual` is NOT the same string as `expected` (ignoring case) |
+//   | EXPECT_CHAR_EQ(actual, expected)    | `actual` is the same ascii character as `expected`            |
 //
 //   Floating point assertions:
 //   | Macro name                         | Assertion                                              |
@@ -279,21 +280,25 @@ int rktest_main(int argc, const char* argv[]);
 #define EXPECT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, " ")
 #define EXPECT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, " ")
 #define EXPECT_CASE_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, " ")
+#define EXPECT_CHAR_EQ(lhs, rhs) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_EXPECT, " ")
 
 #define EXPECT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
 #define EXPECT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_MATCH_CASE, __VA_ARGS__)
 #define EXPECT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 #define EXPECT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_EXPECT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+#define EXPECT_CHAR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 
 #define ASSERT_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
 #define ASSERT_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, " ")
 #define ASSERT_CASE_STREQ(lhs, rhs) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, " ")
 #define ASSERT_CASE_STRNE(lhs, rhs) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, " ")
+#define ASSERT_CHAR_EQ(lhs, rhs) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, " ")
 
 #define ASSERT_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
 #define ASSERT_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_MATCH_CASE, __VA_ARGS__)
 #define ASSERT_CASE_STREQ_INFO(lhs, rhs, ...) RKTEST_CHECK_STREQ(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 #define ASSERT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
+#define ASSERT_CHAR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
@@ -478,6 +483,32 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 				return;                                                                                  \
 			}                                                                                            \
 		}                                                                                                \
+	} while (0)
+
+#define RKTEST_CHECK_CHAR_EQ(lhs, rhs, is_assert, ...)                 \
+	do {                                                               \
+		const char lhs_val = lhs;                                      \
+		const char rhs_val = rhs;                                      \
+		if (lhs_val != rhs_val) {                                      \
+			if (rktest_filenames_enabled()) {                          \
+				printf("%s(%d): ", __FILE__, __LINE__);                \
+			}                                                          \
+			printf("error: Expected equality of these values:\n");     \
+			printf("  %s\n", #lhs);                                    \
+			const bool lhs_is_literal = (#lhs)[0] == '\'';             \
+			if (!lhs_is_literal)                                       \
+				printf("    Which is: '%c' (%d)\n", lhs_val, lhs_val); \
+			printf("  %s\n", #rhs);                                    \
+			const bool rhs_is_literal = (#rhs)[0] == '\'';             \
+			if (!rhs_is_literal)                                       \
+				printf("    Which is: '%c' (%d)\n", rhs_val, rhs_val); \
+			printf(__VA_ARGS__);                                       \
+			printf("\n");                                              \
+			rktest_fail_current_test();                                \
+			if (is_assert) {                                           \
+				return;                                                \
+			}                                                          \
+		}                                                              \
 	} while (0)
 
 /* Logging */
