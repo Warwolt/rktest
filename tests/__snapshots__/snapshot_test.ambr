@@ -1,8 +1,18 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 39 tests from 6 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from char_tests
+  [ RUN      ] char_tests.expect_equal 
+  error: Expected equality of these values:
+    a
+      Which is: 'd' (100)
+    'a'
+   
+  [  FAILED  ] char_tests.expect_equal 
+  [----------] 1 tests from char_tests 
+  
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
@@ -199,9 +209,10 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 39 tests from 6 test suites ran. 
+  [==========] 40 tests from 7 test suites ran. 
   [  PASSED  ] 18 tests.
-  [  FAILED  ] 21 tests, listed below:
+  [  FAILED  ] 22 tests, listed below:
+  [  FAILED  ] char_tests.expect_equal
   [  FAILED  ] float_tests.float_equal
   [  FAILED  ] float_tests.float_equal_info
   [  FAILED  ] float_tests.double_equal
@@ -224,7 +235,7 @@
   [  FAILED  ] string_tests.strings_case_equal
   [  FAILED  ] string_tests.strings_case_equal_info
   
-   21 FAILED TESTS
+   22 FAILED TESTS
     YOU HAVE 3 DISABLED TESTS
   
   '''
@@ -232,8 +243,13 @@
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 39 tests from 6 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from char_tests
+  [ RUN      ] char_tests.expect_equal 
+  [       OK ] char_tests.expect_equal 
+  [----------] 1 tests from char_tests 
+  
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
@@ -336,8 +352,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 39 tests from 6 test suites ran. 
-  [  PASSED  ] 39 tests.
+  [==========] 40 tests from 7 test suites ran. 
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
@@ -345,8 +361,13 @@
 # ---
 # name: test_no_args
   '''
-  [==========] Running 39 tests from 6 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from char_tests
+  [ RUN      ] char_tests.expect_equal 
+  [       OK ] char_tests.expect_equal 
+  [----------] 1 tests from char_tests 
+  
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
@@ -449,8 +470,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 39 tests from 6 test suites ran. 
-  [  PASSED  ] 39 tests.
+  [==========] 40 tests from 7 test suites ran. 
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
@@ -550,8 +571,13 @@
 # name: test_suffix_match
   '''
   Note: Test filter = *equal
-  [==========] Running 10 tests from 3 test suites.
+  [==========] Running 11 tests from 4 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from char_tests
+  [ RUN      ] char_tests.expect_equal 
+  [       OK ] char_tests.expect_equal 
+  [----------] 1 tests from char_tests 
+  
   [----------] 2 tests from float_tests
   [ RUN      ] float_tests.float_equal 
   [       OK ] float_tests.float_equal 
@@ -582,16 +608,21 @@
   [----------] 4 tests from string_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 10 tests from 3 test suites ran. 
-  [  PASSED  ] 10 tests.
+  [==========] 11 tests from 4 test suites ran. 
+  [  PASSED  ] 11 tests.
   
   '''
 # ---
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 39 tests from 6 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
+  [----------] 1 tests from char_tests
+  [ RUN      ] char_tests.expect_equal 
+  [       OK ] char_tests.expect_equal 
+  [----------] 1 tests from char_tests 
+  
   [----------] 1 tests from disabled_tests
   [ DISABLED ] disabled_tests.DISABLED_this_test_should_not_run
   [ RUN      ] disabled_tests.this_test_should_run 
@@ -694,8 +725,8 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 39 tests from 6 test suites ran. 
-  [  PASSED  ] 39 tests.
+  [==========] 40 tests from 7 test suites ran. 
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   
