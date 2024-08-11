@@ -30,7 +30,7 @@
 //      #include <rktest/rktest.h>
 //
 //      int main(int argc, const char* argv[]) {
-//          return rktest_main(arc, argv);
+//          return rktest_main(argc, argv);
 //      }
 //
 //   This will define the implementation of RK Test.
