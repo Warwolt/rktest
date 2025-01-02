@@ -921,12 +921,29 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 		else if (string_starts_with(arg, "--rktest_filter=")) {
 			const char* filter_pattern = arg + strlen("--rktest_filter=");
 			const size_t filter_len = strlen(filter_pattern);
-			if (filter_len > RKTEST_MAX_FILTER_LENGTH) {
-				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH);
+			const size_t max_filter_len = RKTEST_MAX_FILTER_LENGTH - 1;
+			if (filter_len > max_filter_len) {
+				fprintf(stderr, "Error: filter pattern too long. Max length is (%lu)", max_filter_len);
 				fprintf(stderr, "filter pattern = \"%s\"", filter_pattern);
 				exit(1);
 			}
-			strncpy(config.test_filter, filter_pattern, filter_len);
+			// strncpy will copy all bytes up to a NULL in the source or until it
+			// reaches the size in the third param.
+			//
+			// This means if the source string is equal to or greater than the length,
+			// it will not add a NULL to the end of the destination.
+			//
+			// Examples from the strncpy man page are useful,
+			//
+			// strncpy(buf, "1", 5);       // { '1',  0,   0,   0,   0  }
+			// strncpy(buf, "1234", 5);    // { '1', '2', '3', '4',  0  }
+			// strncpy(buf, "12345", 5);   // { '1', '2', '3', '4', '5' }
+			// strncpy(buf, "123456", 5);  // { '1', '2', '3', '4', '5' }
+			//
+			// So if test_filter is a char[256], then max_filter_len will be 255 and if
+			// filter_pattern is also 255, then it will have one character left which
+			// strncpy will make a NULL.
+			strncpy(config.test_filter, filter_pattern, max_filter_len);
 		}
 
 		else if (string_starts_with(arg, "--rktest_print_time=")) {
