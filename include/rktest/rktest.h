@@ -553,6 +553,11 @@ bool rktest_filenames_enabled(void);
 #include <ctype.h>
 #include <float.h>
 #include <math.h>
+
+#if _POSIX_C_SOURCE < 200112L
+#include "nextafterf.h"
+#endif
+
 #include <memory.h>
 #include <stdint.h>
 #include <stdio.h>
