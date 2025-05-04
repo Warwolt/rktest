@@ -14,7 +14,7 @@ RK Test has the following features:
 - Self registering tests (relying on a compiler extension common to MSVC, AppleClang and GCC)
 - xUnit style assertions and test reporting very close to Google Test
 - Filter tests using `--rktest_filter=PATTERN` where the pattern uses [glob syntax](https://en.wikipedia.org/wiki/Glob_(programming))
-- Disable tests with by prefixing test names with `DISABLED_`
+- Disable tests by prefixing test names with `DISABLED_`
 
 Roadmap:
 - Parameterized tests
