@@ -920,9 +920,8 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 
 		else if (string_starts_with(arg, "--rktest_filter=")) {
 			const char* filter_pattern = arg + strlen("--rktest_filter=");
-			const size_t filter_len = strlen(filter_pattern);
 			if (strlen(filter_pattern) > RKTEST_MAX_FILTER_LENGTH - 1) {
-				fprintf(stderr, "Error: filter pattern too long. Max length is (%lu)", RKTEST_MAX_FILTER_LENGTH - 1));
+				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH - 1);
 				fprintf(stderr, "filter pattern = \"%s\"", filter_pattern);
 				exit(1);
 			}
