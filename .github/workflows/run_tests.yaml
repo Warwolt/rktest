@@ -1,6 +1,7 @@
 name: run_tests
 on:
   push:
+  pull_request:
 jobs:
   run_tests:
     strategy:
