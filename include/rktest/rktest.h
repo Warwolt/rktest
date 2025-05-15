@@ -920,13 +920,12 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 
 		else if (string_starts_with(arg, "--rktest_filter=")) {
 			const char* filter_pattern = arg + strlen("--rktest_filter=");
-			const size_t filter_len = strlen(filter_pattern);
-			if (filter_len > RKTEST_MAX_FILTER_LENGTH) {
-				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH);
+			if (strlen(filter_pattern) > RKTEST_MAX_FILTER_LENGTH - 1) {
+				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH - 1);
 				fprintf(stderr, "filter pattern = \"%s\"", filter_pattern);
 				exit(1);
 			}
-			strncpy(config.test_filter, filter_pattern, filter_len);
+			strncpy(config.test_filter, filter_pattern, RKTEST_MAX_FILTER_LENGTH - 1);
 		}
 
 		else if (string_starts_with(arg, "--rktest_print_time=")) {
