@@ -188,9 +188,9 @@ int rktest_main(int argc, const char* argv[]);
 	void SUITE##_teardown(void)
 
 /* Failure macro */
-#define FAIL() RKTEST_FAIL(true, "")
+#define FAIL() RKTEST_FAIL(true, " ")
 #define FAIL_INFO(...) RKTEST_FAIL(true, __VA_ARGS__)
-#define ADD_FAILURE() RKTEST_FAIL(false, "")
+#define ADD_FAILURE() RKTEST_FAIL(false, " ")
 #define ADD_FAILURE_INFO(...) RKTEST_FAIL(false, __VA_ARGS__)
 
 /* Bool checks */
