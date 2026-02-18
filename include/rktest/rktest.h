@@ -187,6 +187,10 @@ int rktest_main(int argc, const char* argv[]);
 	ADD_TO_MEMORY_SECTION_END                                                              \
 	void SUITE##_teardown(void)
 
+/* Failure macro */
+#define FAIL() RKTEST_FAIL("")
+#define FAIL_INFO(...) RKTEST_FAIL(__VA_ARGS__)
+
 /* Bool checks */
 #define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, " ")
 #define EXPECT_FALSE(lhs) RKTEST_CHECK_BOOL(lhs, false, RKTEST_CHECK_EXPECT, " ")
@@ -349,6 +353,18 @@ bool rktest_string_is_number(const char* str);
 int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
+
+#define RKTEST_FAIL(...)                            \
+	do {                                            \
+		if (rktest_filenames_enabled()) {           \
+			printf("%s(%d): ", __FILE__, __LINE__); \
+		}                                           \
+		printf("Failed\n");                           \
+		printf(__VA_ARGS__);                        \
+		printf("\n");                               \
+		rktest_fail_current_test();                 \
+		return;                                     \
+	} while (0)
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)            \
 	do {                                                               \
