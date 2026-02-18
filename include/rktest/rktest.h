@@ -188,8 +188,10 @@ int rktest_main(int argc, const char* argv[]);
 	void SUITE##_teardown(void)
 
 /* Failure macro */
-#define FAIL() RKTEST_FAIL("")
-#define FAIL_INFO(...) RKTEST_FAIL(__VA_ARGS__)
+#define FAIL() RKTEST_FAIL(true, "")
+#define FAIL_INFO(...) RKTEST_FAIL(true, __VA_ARGS__)
+#define ADD_FAILURE() RKTEST_FAIL(false, "")
+#define ADD_FAILURE_INFO(...) RKTEST_FAIL(false, __VA_ARGS__)
 
 /* Bool checks */
 #define EXPECT_TRUE(expr) RKTEST_CHECK_BOOL(expr, true, RKTEST_CHECK_EXPECT, " ")
@@ -354,16 +356,18 @@ int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
-#define RKTEST_FAIL(...)                            \
+#define RKTEST_FAIL(is_assert, ...)                 \
 	do {                                            \
 		if (rktest_filenames_enabled()) {           \
 			printf("%s(%d): ", __FILE__, __LINE__); \
 		}                                           \
-		printf("Failed\n");                           \
+		printf("Failed\n");                         \
 		printf(__VA_ARGS__);                        \
 		printf("\n");                               \
 		rktest_fail_current_test();                 \
-		return;                                     \
+		if (is_assert) {                            \
+			return;                                 \
+		}                                           \
 	} while (0)
 
 #define RKTEST_CHECK_BOOL(actual, expected, is_assert, ...)            \
@@ -611,7 +615,7 @@ typedef struct {
 #define vec_back(vec) ((vec)[vec_header(vec)->length - 1])
 
 #define vec_maybegrow(vec, n) ((!(vec) || vec_header(vec)->length + (n) > vec_header(vec)->capacity) ? (vec_grow(vec, n, 0), 0) : 0)
-#define vec_header(t) ((rk_vector_header_t*)(t)-1)
+#define vec_header(t) ((rk_vector_header_t*)(t) - 1)
 #define vec_grow(vec, b, c) ((vec) = vec_growf((vec), sizeof *(vec), (b), (c)))
 
 static void* vec_growf(void* vec, size_t elem_size, size_t addlen, size_t min_cap) {

@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 40 tests from 7 test suites.
+  [==========] Running 44 tests from 8 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal 
@@ -18,6 +18,37 @@
   [ RUN      ] disabled_tests.this_test_should_run 
   [       OK ] disabled_tests.this_test_should_run 
   [----------] 1 tests from disabled_tests 
+  
+  [----------] 4 tests from fail_tests
+  [ RUN      ] fail_tests.fail_test 
+  Failed
+  
+  [  FAILED  ] fail_tests.fail_test 
+  [ RUN      ] fail_tests.fail_info_test 
+  Failed
+  Hello world
+  
+  [  FAILED  ] fail_tests.fail_info_test 
+  [ RUN      ] fail_tests.add_failiure_test 
+  Failed
+  
+  error: Expected equality of these values:
+    2 + 2
+      Which is: 4
+    5
+   
+  [  FAILED  ] fail_tests.add_failiure_test 
+  [ RUN      ] fail_tests.add_failiure_info_test 
+  Failed
+  Hello world
+  
+  error: Expected equality of these values:
+    2 + 2
+      Which is: 4
+    5
+   
+  [  FAILED  ] fail_tests.add_failiure_info_test 
+  [----------] 4 tests from fail_tests 
   
   [----------] 2 tests from fixture_tests
   [ RUN      ] fixture_tests.increment_number 
@@ -209,10 +240,14 @@
   [----------] 8 tests from wildcard_match_tests 
   
   [----------] Global test environment tear-down.
-  [==========] 40 tests from 7 test suites ran. 
+  [==========] 44 tests from 8 test suites ran. 
   [  PASSED  ] 18 tests.
-  [  FAILED  ] 22 tests, listed below:
+  [  FAILED  ] 26 tests, listed below:
   [  FAILED  ] char_tests.expect_equal
+  [  FAILED  ] fail_tests.fail_test
+  [  FAILED  ] fail_tests.fail_info_test
+  [  FAILED  ] fail_tests.add_failiure_test
+  [  FAILED  ] fail_tests.add_failiure_info_test
   [  FAILED  ] float_tests.float_equal
   [  FAILED  ] float_tests.float_equal_info
   [  FAILED  ] float_tests.double_equal
@@ -235,7 +270,7 @@
   [  FAILED  ] string_tests.strings_case_equal
   [  FAILED  ] string_tests.strings_case_equal_info
   
-   22 FAILED TESTS
+   26 FAILED TESTS
     YOU HAVE 3 DISABLED TESTS
   
   '''
