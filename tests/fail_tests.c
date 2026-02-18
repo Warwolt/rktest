@@ -12,12 +12,12 @@ TEST(fail_tests, fail_info_test) {
 
 TEST(fail_tests, add_failiure_test) {
 	ADD_FAILURE();
-	EXPECT_EQ(2 + 2, 5); // this should run
+	EXPECT_EQ(2 + 2, 5); // this should run and fail
 }
 
 TEST(fail_tests, add_failiure_info_test) {
 	ADD_FAILURE_INFO("Hello world\n");
-	EXPECT_EQ(2 + 2, 5); // this should run
+	EXPECT_EQ(2 + 2, 5); // this should run and fail
 }
 
 #endif // RKTEST_FAILING_TESTS
