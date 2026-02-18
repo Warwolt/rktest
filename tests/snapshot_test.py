@@ -9,7 +9,7 @@ def run_test_exe(exe, args: [str] = []) -> str:
     result = subprocess.run([exe, '--rktest_print_time=0', '--rktest_print_filenames=0',
                             '--rktest_color=no'] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     print('cmd:', ' '.join(result.args))
-    return result.stdout
+    return "\n".join(line.rstrip() for line in result.stdout.splitlines())
 
 
 def test_no_args(snapshot):
