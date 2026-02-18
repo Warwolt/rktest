@@ -186,6 +186,13 @@ regarding Units in Last Place):
 | EXPECT_FLOAT_EQ(actual, expected)  | `actual` and `expected` are within 4 ULP of each other |
 | EXPECT_DOUBLE_EQ(actual, expected) | `actual` and `expected` are within 4 ULP of each other |
 
+Failure assertions:
+
+| Macro name    | Assertion                                                                        |
+| ------------- | -------------------------------------------------------------------------------- |
+| FAIL()        | Generates a fatal failure, which returns from the current test.                  |
+| ADD_FAILURE() | Generates a nonfatal failure, which allows the current test to continue running. |
+
 ## Filtering tests
 
 It's possible to run only some specific tests, which is useful when trying to
