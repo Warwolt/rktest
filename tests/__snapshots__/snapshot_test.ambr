@@ -22,7 +22,7 @@
   [----------] 4 tests from fail_tests
   [ RUN      ] fail_tests.fail_test 
   Failed
-  
+    
   [  FAILED  ] fail_tests.fail_test 
   [ RUN      ] fail_tests.fail_info_test 
   Failed
