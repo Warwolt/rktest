@@ -168,6 +168,13 @@ Long integer assertions:
 | EXPECT_LONG_GT(actual, expected) | `actual `> `expected`  |
 | EXPECT_LONG_GE(actual, expected) | `actual `>= `expected` |
 
+Pointer assertions:
+
+| Macro name                      | Assertion              |
+| ------------------------------- | ---------------------- |
+| EXPECT_PTR_EQ(actual, expected) | `actual` == `expected` |
+| EXPECT_PTR_NE(actual, expected) | `actual` != `expected` |
+
 String assertions:
 
 | Macro name                          | Assertion                                                     |

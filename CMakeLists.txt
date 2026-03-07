@@ -31,6 +31,7 @@ if (rktest_build_tests)
         tests/fixture_tests.c
         tests/float_tests.c
         tests/integer_tests.c
+        tests/pointer_tests.c
         tests/string_tests.c
         tests/wildcard_match_tests.c
     )
