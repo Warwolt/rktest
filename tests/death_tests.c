@@ -3,12 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const bool should_run_death_test = true;
-
-static int g_death_test_line = 20;
-
 #define ASSERT_DEATH(expr, message)                \
-	if (__LINE__ == g_death_test_line) {           \
+	if (__LINE__ == rktest_death_test_line()) {    \
 		printf("%s %d\n", __FUNCTION__, __LINE__); \
 		expr;                                      \
 	}

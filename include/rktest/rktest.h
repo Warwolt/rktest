@@ -560,6 +560,7 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 /* Logging */
 bool rktest_colors_enabled(void);
 bool rktest_filenames_enabled(void);
+int rktest_death_test_line(void);
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
@@ -849,6 +850,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 static bool g_filenames_enabled = true;
+static int g_death_test_line = 16;
 
 bool rktest_colors_enabled(void) {
 	return g_colors_enabled;
@@ -856,6 +858,10 @@ bool rktest_colors_enabled(void) {
 
 bool rktest_filenames_enabled(void) {
 	return g_filenames_enabled;
+}
+
+int rktest_death_test_line(void) {
+	return g_death_test_line;
 }
 
 void rktest_fail_current_test(void) {
