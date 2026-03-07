@@ -278,17 +278,17 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Pointer assertions */
-#define EXPECT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", lhs, rhs, RKTEST_CHECK_EXPECT, " ")
-#define EXPECT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", lhs, rhs, !=, RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_EXPECT, " ")
 
-#define ASSERT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", lhs, rhs, RKTEST_CHECK_ASSERT, " ")
-#define ASSERT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", lhs, rhs, !=, RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_ASSERT, " ")
 
-#define EXPECT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", lhs, rhs, RKTEST_CHECK_EXPECT, __VA_ARGS__)
-#define EXPECT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", lhs, rhs, !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
 
-#define ASSERT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
-#define ASSERT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", lhs, rhs, !=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+#define ASSERT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_ASSERT, __VA_ARGS__)
+#define ASSERT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Floating point checks */
 // Checks that two floats are within 4 Units in the Last Place
