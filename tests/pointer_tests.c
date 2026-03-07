@@ -18,8 +18,8 @@ TEST(pointer_tests, expect_equal) {
 }
 
 TEST(pointer_tests, expect_equal_info) {
-	ASSERT_PTR_EQ_INFO(ptr1, &value1, "ptr1 = %p\n", ptr1);
-	EXPECT_PTR_EQ_INFO(ptr2, &value2, "ptr2 = %p\n", ptr1);
+	ASSERT_PTR_EQ_INFO(ptr1, &value1, "ptr1 = %p\n", (void*)ptr1);
+	EXPECT_PTR_EQ_INFO(ptr2, &value2, "ptr2 = %p\n", (void*)ptr1);
 }
 
 TEST(pointer_tests, expect_not_equal) {
@@ -28,6 +28,6 @@ TEST(pointer_tests, expect_not_equal) {
 }
 
 TEST(pointer_tests, expect_not_equal_info) {
-	ASSERT_PTR_EQ_INFO(ptr1, &value1, "ptr1 = %p\n", ptr1);
-	EXPECT_PTR_EQ_INFO(ptr2, &value2, "ptr2 = %p\n", ptr1);
+	ASSERT_PTR_EQ_INFO(ptr1, &value1, "ptr1 = %p\n", (void*)ptr1);
+	EXPECT_PTR_EQ_INFO(ptr2, &value2, "ptr2 = %p\n", (void*)ptr1);
 }
