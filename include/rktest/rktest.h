@@ -787,19 +787,19 @@ typedef struct {
 } rktest_report_t;
 
 /* ---------------------------- String utility ----------------------------- */
-static bool string_starts_with(const char* str, const char* prefix) {
+static bool rktest_string_starts_with(const char* str, const char* prefix) {
 	return strncmp(prefix, str, strlen(prefix)) == 0;
 }
 
 // Based on "EnhancedMaskTest" function in 7zip source code
 // https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
-static bool string_wildcard_match(const char* str, const char* pattern) {
+static bool rktest_string_wildcard_match(const char* str, const char* pattern) {
 	while (true) {
 		if (pattern[0] == 0) {
 			return (str[0] == 0);
 		}
 		if (pattern[0] == '*') {
-			if (string_wildcard_match(str, pattern + 1)) {
+			if (rktest_string_wildcard_match(str, pattern + 1)) {
 				return true;
 			}
 			if (str[0] == 0) {
@@ -950,7 +950,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			exit(1);
 		}
 
-		else if (string_starts_with(arg, "--rktest_color=")) {
+		else if (rktest_string_starts_with(arg, "--rktest_color=")) {
 			if (strcmp(arg + strlen("--rktest_color="), "yes") == 0) {
 				config.color_mode = RKTEST_COLOR_MODE_ON;
 			} else if (strcmp(arg + strlen("--rktest_color="), "no") == 0) {
@@ -964,7 +964,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			}
 		}
 
-		else if (string_starts_with(arg, "--rktest_filter=")) {
+		else if (rktest_string_starts_with(arg, "--rktest_filter=")) {
 			const char* filter_pattern = arg + strlen("--rktest_filter=");
 			if (strlen(filter_pattern) > RKTEST_MAX_FILTER_LENGTH - 1) {
 				fprintf(stderr, "Error: filter pattern too long. Max length is (%d)", RKTEST_MAX_FILTER_LENGTH - 1);
@@ -974,7 +974,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			strncpy(config.test_filter, filter_pattern, RKTEST_MAX_FILTER_LENGTH - 1);
 		}
 
-		else if (string_starts_with(arg, "--rktest_print_time=")) {
+		else if (rktest_string_starts_with(arg, "--rktest_print_time=")) {
 			if (strcmp(arg + strlen("--rktest_print_time="), "0") == 0) {
 				config.print_timestamps_enabled = false;
 			} else {
@@ -982,7 +982,7 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			}
 		}
 
-		else if (string_starts_with(arg, "--rktest_print_filenames=")) {
+		else if (rktest_string_starts_with(arg, "--rktest_print_filenames=")) {
 			if (strcmp(arg + strlen("--rktest_print_filenames="), "0") == 0) {
 				g_filenames_enabled = false;
 			} else {
@@ -1069,7 +1069,7 @@ static bool test_matches_filter(const rktest_test_t* test, const char* pattern) 
 
 	char full_test_name[128];
 	snprintf(full_test_name, sizeof(full_test_name) / sizeof(char), "%s.%s", test->suite_name, test->test_name);
-	return string_wildcard_match(full_test_name, pattern);
+	return rktest_string_wildcard_match(full_test_name, pattern);
 }
 
 // Loop through the entirety of the `rkdata` memory section, including padding.
@@ -1102,7 +1102,7 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 		}
 		/* Else: Add test to suite */
 		else if (test_matches_filter(&test, config->test_filter)) {
-			if (string_starts_with(test.test_name, "DISABLED_")) {
+			if (rktest_string_starts_with(test.test_name, "DISABLED_")) {
 				test.is_disabled = true;
 				suite->num_disabled_tests++;
 				env.total_num_disabled_tests++;
