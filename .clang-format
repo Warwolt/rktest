@@ -110,3 +110,6 @@ SpacesInSquareBrackets: false
 Standard: Latest
 TabWidth: 4
 UseTab: ForContinuationAndIndentation
+WhitespaceSensitiveMacros:
+  - ASSERT_DEATH
+  - EXPECT_DEATH

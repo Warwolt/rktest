@@ -1131,7 +1131,6 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 		}
 	}
 
-	// return env;
 	return env;
 }
 
