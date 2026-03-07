@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: test_failing_tests
   '''
-  [==========] Running 48 tests from 9 test suites.
+  [==========] Running 44 tests from 8 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal
@@ -177,43 +177,6 @@
   [  FAILED  ] integer_tests.expect_greater_than_equal_info
   [----------] 16 tests from integer_tests
   
-  [----------] 4 tests from pointer_tests
-  [ RUN      ] pointer_tests.expect_equal
-  error: Expected equality of these values:
-    (void*)(ptr1)
-      Which is: 0000000000001234
-    (void*)(0x1000)
-      Which is: 0000000000001000
-  
-  [  FAILED  ] pointer_tests.expect_equal
-  [ RUN      ] pointer_tests.expect_equal_info
-  error: Expected equality of these values:
-    (void*)(ptr1)
-      Which is: 0000000000001234
-    (void*)(0x1000)
-      Which is: 0000000000001000
-  ptr1 = 0000000000001234
-  
-  [  FAILED  ] pointer_tests.expect_equal_info
-  [ RUN      ] pointer_tests.expect_not_equal
-  error: Expected equality of these values:
-    (void*)(ptr1)
-      Which is: 0000000000001234
-    (void*)(0x1000)
-      Which is: 0000000000001000
-  
-  [  FAILED  ] pointer_tests.expect_not_equal
-  [ RUN      ] pointer_tests.expect_not_equal_info
-  error: Expected equality of these values:
-    (void*)(ptr1)
-      Which is: 0000000000001234
-    (void*)(0x1000)
-      Which is: 0000000000001000
-  ptr1 = 0000000000001234
-  
-  [  FAILED  ] pointer_tests.expect_not_equal_info
-  [----------] 4 tests from pointer_tests
-  
   [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal
   error: Expected equality of these values:
@@ -277,9 +240,9 @@
   [----------] 8 tests from wildcard_match_tests
   
   [----------] Global test environment tear-down.
-  [==========] 48 tests from 9 test suites ran.
+  [==========] 44 tests from 8 test suites ran.
   [  PASSED  ] 18 tests.
-  [  FAILED  ] 30 tests, listed below:
+  [  FAILED  ] 26 tests, listed below:
   [  FAILED  ] char_tests.expect_equal
   [  FAILED  ] fail_tests.fail_test
   [  FAILED  ] fail_tests.fail_info_test
@@ -302,23 +265,19 @@
   [  FAILED  ] integer_tests.expect_greater_than_info
   [  FAILED  ] integer_tests.expect_greater_than_equal
   [  FAILED  ] integer_tests.expect_greater_than_equal_info
-  [  FAILED  ] pointer_tests.expect_equal
-  [  FAILED  ] pointer_tests.expect_equal_info
-  [  FAILED  ] pointer_tests.expect_not_equal
-  [  FAILED  ] pointer_tests.expect_not_equal_info
   [  FAILED  ] string_tests.strings_equal
   [  FAILED  ] string_tests.strings_equal_info
   [  FAILED  ] string_tests.strings_case_equal
   [  FAILED  ] string_tests.strings_case_equal_info
   
-   30 FAILED TESTS
+   26 FAILED TESTS
     YOU HAVE 3 DISABLED TESTS
   '''
 # ---
 # name: test_infix_match
   '''
   Note: Test filter = *tests*
-  [==========] Running 44 tests from 8 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal
@@ -388,17 +347,6 @@
   [       OK ] integer_tests.expect_greater_than_equal_info
   [----------] 16 tests from integer_tests
   
-  [----------] 4 tests from pointer_tests
-  [ RUN      ] pointer_tests.expect_equal
-  [       OK ] pointer_tests.expect_equal
-  [ RUN      ] pointer_tests.expect_equal_info
-  [       OK ] pointer_tests.expect_equal_info
-  [ RUN      ] pointer_tests.expect_not_equal
-  [       OK ] pointer_tests.expect_not_equal
-  [ RUN      ] pointer_tests.expect_not_equal_info
-  [       OK ] pointer_tests.expect_not_equal_info
-  [----------] 4 tests from pointer_tests
-  
   [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal
   [       OK ] string_tests.strings_equal
@@ -438,15 +386,15 @@
   [----------] 8 tests from wildcard_match_tests
   
   [----------] Global test environment tear-down.
-  [==========] 44 tests from 8 test suites ran.
-  [  PASSED  ] 44 tests.
+  [==========] 40 tests from 7 test suites ran.
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   '''
 # ---
 # name: test_no_args
   '''
-  [==========] Running 44 tests from 8 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal
@@ -516,17 +464,6 @@
   [       OK ] integer_tests.expect_greater_than_equal_info
   [----------] 16 tests from integer_tests
   
-  [----------] 4 tests from pointer_tests
-  [ RUN      ] pointer_tests.expect_equal
-  [       OK ] pointer_tests.expect_equal
-  [ RUN      ] pointer_tests.expect_equal_info
-  [       OK ] pointer_tests.expect_equal_info
-  [ RUN      ] pointer_tests.expect_not_equal
-  [       OK ] pointer_tests.expect_not_equal
-  [ RUN      ] pointer_tests.expect_not_equal_info
-  [       OK ] pointer_tests.expect_not_equal_info
-  [----------] 4 tests from pointer_tests
-  
   [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal
   [       OK ] string_tests.strings_equal
@@ -566,8 +503,8 @@
   [----------] 8 tests from wildcard_match_tests
   
   [----------] Global test environment tear-down.
-  [==========] 44 tests from 8 test suites ran.
-  [  PASSED  ] 44 tests.
+  [==========] 40 tests from 7 test suites ran.
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   '''
@@ -663,7 +600,7 @@
 # name: test_suffix_match
   '''
   Note: Test filter = *equal
-  [==========] Running 13 tests from 5 test suites.
+  [==========] Running 11 tests from 4 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal
@@ -688,13 +625,6 @@
   [       OK ] integer_tests.expect_greater_than_equal
   [----------] 4 tests from integer_tests
   
-  [----------] 2 tests from pointer_tests
-  [ RUN      ] pointer_tests.expect_equal
-  [       OK ] pointer_tests.expect_equal
-  [ RUN      ] pointer_tests.expect_not_equal
-  [       OK ] pointer_tests.expect_not_equal
-  [----------] 2 tests from pointer_tests
-  
   [----------] 4 tests from string_tests
   [ RUN      ] string_tests.strings_equal
   [       OK ] string_tests.strings_equal
@@ -707,14 +637,14 @@
   [----------] 4 tests from string_tests
   
   [----------] Global test environment tear-down.
-  [==========] 13 tests from 5 test suites ran.
-  [  PASSED  ] 13 tests.
+  [==========] 11 tests from 4 test suites ran.
+  [  PASSED  ] 11 tests.
   '''
 # ---
 # name: test_wildcard_match
   '''
   Note: Test filter = *
-  [==========] Running 44 tests from 8 test suites.
+  [==========] Running 40 tests from 7 test suites.
   [----------] Global test environment set-up.
   [----------] 1 tests from char_tests
   [ RUN      ] char_tests.expect_equal
@@ -784,17 +714,6 @@
   [       OK ] integer_tests.expect_greater_than_equal_info
   [----------] 16 tests from integer_tests
   
-  [----------] 4 tests from pointer_tests
-  [ RUN      ] pointer_tests.expect_equal
-  [       OK ] pointer_tests.expect_equal
-  [ RUN      ] pointer_tests.expect_equal_info
-  [       OK ] pointer_tests.expect_equal_info
-  [ RUN      ] pointer_tests.expect_not_equal
-  [       OK ] pointer_tests.expect_not_equal
-  [ RUN      ] pointer_tests.expect_not_equal_info
-  [       OK ] pointer_tests.expect_not_equal_info
-  [----------] 4 tests from pointer_tests
-  
   [----------] 8 tests from string_tests
   [ RUN      ] string_tests.strings_equal
   [       OK ] string_tests.strings_equal
@@ -834,8 +753,8 @@
   [----------] 8 tests from wildcard_match_tests
   
   [----------] Global test environment tear-down.
-  [==========] 44 tests from 8 test suites ran.
-  [  PASSED  ] 44 tests.
+  [==========] 40 tests from 7 test suites ran.
+  [  PASSED  ] 40 tests.
   
     YOU HAVE 3 DISABLED TESTS
   '''
