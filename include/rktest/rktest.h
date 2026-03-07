@@ -850,7 +850,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 static bool g_filenames_enabled = true;
-static int g_death_test_line = 16;
+static int g_death_test_line = 0;
 
 bool rktest_colors_enabled(void) {
 	return g_colors_enabled;
@@ -994,6 +994,15 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			} else {
 				g_filenames_enabled = true;
 			}
+		}
+
+		else if (string_starts_with(arg, "--rktest_death_line=")) {
+			int line_number = atoi(arg + strlen("--rktest_death_line="));
+			if (line_number == 0) {
+				fprintf(stderr, "Error: argument must be the line number to run the death test for, but was %s\n", arg);
+				exit(1);
+			}
+			g_death_test_line = line_number;
 		}
 
 		else {
