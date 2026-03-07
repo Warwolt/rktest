@@ -104,6 +104,12 @@
 //   | EXPECT_LONG_GT(actual, expected) | `actual `> `expected`  |
 //   | EXPECT_LONG_GE(actual, expected) | `actual `>= `expected` |
 //
+//   Pointer assertions:
+//   | Macro name                      | Assertion              |
+//   | ------------------------------- | ---------------------- |
+//   | EXPECT_PTR_EQ(actual, expected) | `actual` == `expected` |
+//   | EXPECT_PTR_NE(actual, expected) | `actual` != `expected` |
+//
 //   String assertions:
 //   | Macro name                          | Assertion                                                     |
 //   | ----------------------------------- | ------------------------------------------------------------- |
@@ -121,6 +127,13 @@
 //
 //   NOTE: See https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 //   for more information about units in the last place.
+//
+//   Failure assertions:
+//
+//   | Macro name    | Assertion                                                                        |
+//   | ------------- | -------------------------------------------------------------------------------- |
+//   | FAIL()        | Generates a fatal failure, which returns from the current test.                  |
+//   | ADD_FAILURE() | Generates a nonfatal failure, which allows the current test to continue running. |
 //
 // OPTIONS
 //
@@ -263,6 +276,19 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_LONG_LE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, <=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GT_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 #define ASSERT_LONG_GE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(long, "%ld", lhs, rhs, >=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
+
+/* Pointer assertions */
+#define EXPECT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_EXPECT, " ")
+#define EXPECT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_EXPECT, " ")
+
+#define ASSERT_PTR_EQ(lhs, rhs) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_ASSERT, " ")
+#define ASSERT_PTR_NE(lhs, rhs) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_ASSERT, " ")
+
+#define EXPECT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_EXPECT, __VA_ARGS__)
+#define EXPECT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_EXPECT, __VA_ARGS__)
+
+#define ASSERT_PTR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_EQ(void*, "%p", (void*)(lhs), (void*)(rhs), RKTEST_CHECK_ASSERT, __VA_ARGS__)
+#define ASSERT_PTR_NE_INFO(lhs, rhs, ...) RKTEST_CHECK_CMP(void*, "%p", (void*)(lhs), (void*)(rhs), !=, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
 /* Floating point checks */
 // Checks that two floats are within 4 Units in the Last Place
