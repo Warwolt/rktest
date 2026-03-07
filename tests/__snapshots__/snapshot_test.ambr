@@ -180,36 +180,36 @@
   [----------] 4 tests from pointer_tests
   [ RUN      ] pointer_tests.expect_equal
   error: Expected equality of these values:
-    ptr1
-      Which is: 00007FF642F093FC
-    &value1
-      Which is: 00007FF642F093F8
+    (void*)(ptr1)
+      Which is: 0000000000001234
+    (void*)(0x1000)
+      Which is: 0000000000001000
   
   [  FAILED  ] pointer_tests.expect_equal
   [ RUN      ] pointer_tests.expect_equal_info
   error: Expected equality of these values:
-    ptr1
-      Which is: 00007FF642F093FC
-    &value1
-      Which is: 00007FF642F093F8
-  ptr1 = 00007FF642F093FC
+    (void*)(ptr1)
+      Which is: 0000000000001234
+    (void*)(0x1000)
+      Which is: 0000000000001000
+  ptr1 = 0000000000001234
   
   [  FAILED  ] pointer_tests.expect_equal_info
   [ RUN      ] pointer_tests.expect_not_equal
   error: Expected equality of these values:
-    ptr1
-      Which is: 00007FF642F093FC
-    &value1
-      Which is: 00007FF642F093F8
+    (void*)(ptr1)
+      Which is: 0000000000001234
+    (void*)(0x1000)
+      Which is: 0000000000001000
   
   [  FAILED  ] pointer_tests.expect_not_equal
   [ RUN      ] pointer_tests.expect_not_equal_info
   error: Expected equality of these values:
-    ptr1
-      Which is: 00007FF642F093FC
-    &value1
-      Which is: 00007FF642F093F8
-  ptr1 = 00007FF642F093FC
+    (void*)(ptr1)
+      Which is: 0000000000001234
+    (void*)(0x1000)
+      Which is: 0000000000001000
+  ptr1 = 0000000000001234
   
   [  FAILED  ] pointer_tests.expect_not_equal_info
   [----------] 4 tests from pointer_tests
