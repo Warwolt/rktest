@@ -589,8 +589,8 @@ bool rktest_run_death_test(const char* test_file, int test_line, const char* exp
 bool rktest_colors_enabled(void);
 bool rktest_filenames_enabled(void);
 int rktest_death_test_line(void);
-const char* rktest_current_suite_name();
-const char* rktest_current_test_name();
+const char* rktest_current_suite_name(void);
+const char* rktest_current_test_name(void);
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
@@ -892,11 +892,11 @@ int rktest_death_test_line(void) {
 	return g_death_test_line;
 }
 
-const char* rktest_current_suite_name() {
+const char* rktest_current_suite_name(void) {
 	return g_current_suite_name;
 }
 
-const char* rktest_current_test_name() {
+const char* rktest_current_test_name(void) {
 	return g_current_test_name;
 }
 
