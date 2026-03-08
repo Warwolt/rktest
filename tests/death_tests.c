@@ -5,6 +5,8 @@
 
 #include <windows.h>
 
+#pragma warning(disable: 4996) // needed for strncpy
+
 #define ASSERT_DEATH(expr, message)                \
 	if (rktest_death_test_line() == __LINE__) {    \
 		printf("%s %d\n", __FUNCTION__, __LINE__); \
@@ -91,52 +93,78 @@ static void run_command(const char* command, int* exit_code, char* stderr_buf, i
 	CloseHandle(process_info.hThread);
 }
 
-TEST(death_tests, foo) {
+void rktest_run_death_test(int test_line, bool is_assert, const char* expected_stderr_in) {
+	/* Build command */
+	char test_exe[MAX_PATH];
+	GetModuleFileName(NULL, test_exe, MAX_PATH);
+	char command[MAX_PATH];
+	snprintf(command, MAX_PATH, "%s --rktest_filter=\"%s.%s\" --rktest_death_line=%d", test_exe, rktest_current_suite_name(), rktest_current_test_name(), test_line);
+
+	/* Run command */
+	char actual_stderr[1024];
+	int exit_code = 0;
+	run_command(command, &exit_code, actual_stderr, sizeof(actual_stderr));
+
+	/* Check that process died */
+	if (exit_code == 0) {
+		rktest_fail_current_test();
+		if (rktest_filenames_enabled()) {
+			printf("%s(%d): ", __FILE__, __LINE__);
+		}
+		printf("error: EXPECT_DEATH failed.\n");
+		printf("Expected non-zero exit code, but got 0\n");
+		if (is_assert) {
+			return;
+		}
+	}
+
+	/* Strip newline characters from both expected and actual */
+	// Windows will output \r\n for newlines, but usually the user is just using \n.
+	// To make it saner to compare stderr, we just ignore the newline characters.
+	char expected_stderr[1024];
+	strncpy(expected_stderr, expected_stderr_in, sizeof(expected_stderr));
+	size_t actual_stderr_length = strlen(actual_stderr);
+	size_t expected_stderr_length = strlen(expected_stderr);
+	if (actual_stderr_length > 0 && actual_stderr[actual_stderr_length - 1] == '\n') {
+		actual_stderr[actual_stderr_length - 1] = '\0';
+	}
+	if (actual_stderr_length > 1 && actual_stderr[actual_stderr_length - 2] == '\r') {
+		actual_stderr[actual_stderr_length - 2] = '\0';
+	}
+	if (expected_stderr_length > 0 && expected_stderr[expected_stderr_length - 1] == '\n') {
+		expected_stderr[expected_stderr_length - 1] = '\0';
+	}
+	if (expected_stderr_length > 1 && expected_stderr[expected_stderr_length - 2] == '\r') {
+		expected_stderr[expected_stderr_length - 2] = '\0';
+	}
+
+	/* Check expected stderr */
+	if (strcmp(actual_stderr, expected_stderr) != 0) {
+		rktest_fail_current_test();
+		if (rktest_filenames_enabled()) {
+			printf("%s(%d): ", __FILE__, __LINE__);
+		}
+		printf("error: EXPECT_DEATH failed.\n");
+		printf("Expected stderr output to be:\n");
+		printf("  %s\n", expected_stderr);
+		printf("But received:\n");
+		printf("  %s\n", actual_stderr);
+		if (is_assert) {
+			return;
+		}
+	}
+}
+
+TEST(death_tests, bar) {
 	const int line = 23; // __LINE__
 	if (rktest_death_test_line() == line) {
 		// run death test block
 		printf("%s %d\n", __FUNCTION__, line);
 		{
-			fprintf(stderr, "Hello world?\n");
+			fprintf(stderr, "Hello world!\n");
 			exit(1);
 		};
 	} else if (rktest_death_test_line() == 0) {
-		char test_exe[MAX_PATH];
-		GetModuleFileName(NULL, test_exe, MAX_PATH);
-
-		char command[MAX_PATH];
-		snprintf(command, MAX_PATH, "%s --rktest_filter=\"%s.%s\" --rktest_death_line=%d", test_exe, rktest_current_suite_name(), rktest_current_test_name(), line);
-
-		char stderr_buf[1024];
-		int exit_code = 0;
-		run_command(command, &exit_code, stderr_buf, sizeof(stderr_buf));
-
-		bool is_assert = false;
-		if (exit_code == 0) {
-			rktest_fail_current_test();
-			if (rktest_filenames_enabled()) {
-				printf("%s(%d): ", __FILE__, __LINE__);
-			}
-			printf("error: EXPECT_DEATH failed.\n");
-			printf("Expected non-zero exit code, but got 0\n");
-			if (is_assert) {
-				return;
-			}
-		}
-
-		if (strcmp(stderr_buf, "Hello world!\n") != 0) {
-			rktest_fail_current_test();
-			if (rktest_filenames_enabled()) {
-				printf("%s(%d): ", __FILE__, __LINE__);
-			}
-			printf("error: EXPECT_DEATH failed.\n");
-			printf("Expected stderr output to be:\n");
-			printf("  %s\n", "Hello world!\n");
-			printf("But received:\n");
-			printf("  %s\n", stderr_buf);
-			if (is_assert) {
-				return;
-			}
-		}
+		rktest_run_death_test(line, false, "Hello world!\n");
 	}
 }
