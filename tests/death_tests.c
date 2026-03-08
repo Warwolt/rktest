@@ -1,7 +1,12 @@
 #include <rktest/rktest.h>
 
 // TODO: implement death test support on Linux / MacOS
-#if defined(WIN32)
+// snapshot tests have to run the same on all three platforms,
+// so for now we keep these tests disabled.
+//
+// #define ENABLE_DEATH_TEST_TESTS
+
+#if defined(ENABLE_DEATH_TEST_TESTS)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,4 +32,4 @@ TEST(death_tests, expect_death) {
 	}, expected_stderr2);
 }
 
-#endif // defined(WIN32)
+#endif // defined(ENABLE_DEATH_TEST_TESTS)
