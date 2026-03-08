@@ -332,6 +332,12 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 #define ASSERT_CHAR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
+#if defined(WIN32)
+// TODO: implement death test support on Linux / MacOS
+#define EXPECT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_EXPECT)
+#define ASSERT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_ASSERT)
+#endif
+
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
 #if defined(_MSC_VER)
@@ -382,7 +388,7 @@ int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
-#ifdef _MSC_VER
+#if defined(WIN32)
 // TODO: implement death test support on Linux / MacOS
 bool rktest_run_death_test(const char* test_file, int test_line, const char* expected_stderr);
 #endif
@@ -561,6 +567,16 @@ bool rktest_run_death_test(const char* test_file, int test_line, const char* exp
 			}                                                          \
 		}                                                              \
 	} while (0)
+
+#define RKTEST_CHECK_DEATH(expr, expected_stderr, is_assert)                        \
+	if (rktest_death_test_line() == __LINE__) {                                     \
+		expr;                                                                       \
+	} else if (rktest_death_test_line() == 0) {                                     \
+		bool did_pass = rktest_run_death_test(__FILE__, __LINE__, expected_stderr); \
+		if (!did_pass && is_assert) {                                               \
+			return;                                                                 \
+		}                                                                           \
+	}
 
 /* Logging */
 bool rktest_colors_enabled(void);

@@ -3,26 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define RKTEST_CHECK_DEATH(expr, expected_stderr, is_assert)                        \
-	if (rktest_death_test_line() == __LINE__) {                                     \
-		expr;                                                                       \
-	} else if (rktest_death_test_line() == 0) {                                     \
-		bool did_pass = rktest_run_death_test(__FILE__, __LINE__, expected_stderr); \
-		if (!did_pass && is_assert) {                                               \
-			return;                                                                 \
-		}                                                                           \
-	}
-
-#define EXPECT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_EXPECT)
-#define ASSERT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_ASSERT)
+#ifndef RKTEST_FAILING_TESTS
+static const int exit_code = 1;
+static const char* expected_stderr1 = "Error!";
+static const char* expected_stderr2 = "Error?";
+#else
+static const int exit_code = 0;
+static const char* expected_stderr1 = "Error!!";
+static const char* expected_stderr2 = "Error??";
+#endif
 
 TEST(death_tests, expect_death) {
 	ASSERT_DEATH({
 		fprintf(stderr, "Error!\n");
-		exit(0);
-	}, "Error!!");
+		exit(exit_code);
+	}, expected_stderr1);
 	EXPECT_DEATH({
 		fprintf(stderr, "Error?\n");
-		exit(1);
-	}, "Error??");
+		exit(exit_code);
+	}, expected_stderr2);
 }
