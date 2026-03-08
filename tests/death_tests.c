@@ -20,6 +20,34 @@
 //     }, "Error!");
 // }
 
+// Based on "EnhancedMaskTest" function in 7zip source code
+// https://github.com/mcmilk/7-Zip/blob/master/CPP/Common/Wildcard.cpp
+static bool string_wildcard_match(const char* str, const char* pattern) {
+	while (true) {
+		if (pattern[0] == 0) {
+			return (str[0] == 0);
+		}
+		if (pattern[0] == '*') {
+			if (string_wildcard_match(str, pattern + 1)) {
+				return true;
+			}
+			if (str[0] == 0) {
+				return false;
+			}
+		} else {
+			if (pattern[0] == '?') {
+				if (str[0] == 0) {
+					return false;
+				}
+			} else if (pattern[0] != str[0]) {
+				return false;
+			}
+			pattern++;
+		}
+		str++;
+	}
+}
+
 static void run_command(const char* command, int* exit_code, char* stderr_buf, int stderr_buf_size) {
 	/* Setup pipes for stdout and stderr */
 	HANDLE stderr_read = NULL;
@@ -139,7 +167,7 @@ void rktest_run_death_test(int test_line, bool is_assert, const char* expected_s
 	}
 
 	/* Check expected stderr */
-	if (strcmp(actual_stderr, expected_stderr) != 0) {
+	if (!string_wildcard_match(actual_stderr, expected_stderr)) {
 		rktest_fail_current_test();
 		if (rktest_filenames_enabled()) {
 			printf("%s(%d): ", __FILE__, __LINE__);
@@ -165,6 +193,6 @@ TEST(death_tests, bar) {
 			exit(1);
 		};
 	} else if (rktest_death_test_line() == 0) {
-		rktest_run_death_test(line, false, "Hello world!\n");
+		rktest_run_death_test(line, false, "Hell*!\n");
 	}
 }
