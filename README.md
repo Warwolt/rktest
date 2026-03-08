@@ -19,6 +19,7 @@ RK Test has the following features:
 Roadmap:
 - Parameterized tests
 - Death tests (tests that can verify `assert()`, `abort()`, and other program exits)
+  - Supported on Windows, but not yet on Linux / MacOS
 
 For a motivation for why to consider RK Test in favor of Google Test, see [Why use RK Test](https://github.com/Warwolt/rktest/blob/main/README.md#why-use-rk-test-instead-of-google-test).
 
@@ -199,6 +200,12 @@ Failure assertions:
 | ------------- | -------------------------------------------------------------------------------- |
 | FAIL()        | Generates a fatal failure, which returns from the current test.                  |
 | ADD_FAILURE() | Generates a nonfatal failure, which allows the current test to continue running. |
+
+Death tests:
+
+| Macro name                       | Assertion                                                                              |
+| -------------------------------- | -------------------------------------------------------------------------------------- |
+| EXPECT_DEATH(statement, message) | Expects `statement` to result in non-zero prorgam exit with `message` as stderr output |
 
 ## Filtering tests
 

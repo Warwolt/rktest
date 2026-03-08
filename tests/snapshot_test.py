@@ -1,5 +1,7 @@
 import os
 import subprocess
+import pytest
+import sys
 
 TEST_EXECUTABLE = './build/Debug/tests' if os.name == 'nt' else './build/tests'
 FAILING_TEST_EXECUTABLE = './build/Debug/failing_tests' if os.name == 'nt' else './build/failing_tests'

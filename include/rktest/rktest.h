@@ -135,6 +135,13 @@
 //   | FAIL()        | Generates a fatal failure, which returns from the current test.                  |
 //   | ADD_FAILURE() | Generates a nonfatal failure, which allows the current test to continue running. |
 //
+//   Death tests:
+//
+//   | Macro name                       | Assertion                                                                              |
+//   | -------------------------------- | -------------------------------------------------------------------------------------- |
+//   | EXPECT_DEATH(statement, message) | Expects `statement` to result in non-zero prorgam exit with `message` as stderr output |
+//
+//
 // OPTIONS
 //
 //   The unit test binary built with RK Test can take command line arguments:
@@ -332,6 +339,12 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 #define ASSERT_CHAR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
+#if defined(WIN32)
+// TODO: implement death test support on Linux / MacOS
+#define EXPECT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_EXPECT)
+#define ASSERT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_ASSERT)
+#endif
+
 /* Test runner internals ---------------------------------------------------- */
 /* Test registration */
 #if defined(_MSC_VER)
@@ -381,6 +394,11 @@ bool rktest_string_is_number(const char* str);
 int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
+
+#if defined(WIN32)
+// TODO: implement death test support on Linux / MacOS
+bool rktest_run_death_test(const char* test_file, int test_line, const char* expected_stderr);
+#endif
 
 #define RKTEST_FAIL(is_assert, ...)                 \
 	do {                                            \
@@ -557,9 +575,22 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 		}                                                              \
 	} while (0)
 
+#define RKTEST_CHECK_DEATH(expr, expected_stderr, is_assert)                        \
+	if (rktest_death_test_line() == __LINE__) {                                     \
+		expr;                                                                       \
+	} else if (rktest_death_test_line() == 0) {                                     \
+		bool did_pass = rktest_run_death_test(__FILE__, __LINE__, expected_stderr); \
+		if (!did_pass && is_assert) {                                               \
+			return;                                                                 \
+		}                                                                           \
+	}
+
 /* Logging */
 bool rktest_colors_enabled(void);
 bool rktest_filenames_enabled(void);
+int rktest_death_test_line(void);
+const char* rktest_current_suite_name(void);
+const char* rktest_current_test_name(void);
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
@@ -806,11 +837,7 @@ static bool string_wildcard_match(const char* str, const char* pattern) {
 				return false;
 			}
 		} else {
-			if (pattern[0] == '?') {
-				if (str[0] == 0) {
-					return false;
-				}
-			} else if (pattern[0] != str[0]) {
+			if (pattern[0] != str[0]) {
 				return false;
 			}
 			pattern++;
@@ -849,6 +876,9 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 static bool g_filenames_enabled = true;
+static int g_death_test_line = 0;
+static const char* g_current_suite_name = "";
+static const char* g_current_test_name = "";
 
 bool rktest_colors_enabled(void) {
 	return g_colors_enabled;
@@ -856,6 +886,18 @@ bool rktest_colors_enabled(void) {
 
 bool rktest_filenames_enabled(void) {
 	return g_filenames_enabled;
+}
+
+int rktest_death_test_line(void) {
+	return g_death_test_line;
+}
+
+const char* rktest_current_suite_name(void) {
+	return g_current_suite_name;
+}
+
+const char* rktest_current_test_name(void) {
+	return g_current_test_name;
 }
 
 void rktest_fail_current_test(void) {
@@ -988,6 +1030,15 @@ static rktest_config_t parse_args(int argc, const char* argv[]) {
 			} else {
 				g_filenames_enabled = true;
 			}
+		}
+
+		else if (string_starts_with(arg, "--rktest_death_line=")) {
+			int line_number = atoi(arg + strlen("--rktest_death_line="));
+			if (line_number == 0) {
+				fprintf(stderr, "Error: argument must be the line number to run the death test for, but was %s\n", arg);
+				exit(1);
+			}
+			g_death_test_line = line_number;
 		}
 
 		else {
@@ -1131,12 +1182,15 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 		}
 	}
 
-	// return env;
 	return env;
 }
 
 static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
+
+	/* Set test info */
+	g_current_suite_name = test->suite_name;
+	g_current_test_name = test->test_name;
 
 	/* Run setup if exists */
 	if (test->setup) {
@@ -1268,6 +1322,147 @@ int rktest_main(int argc, const char* argv[]) {
 
 	return tests_failed;
 }
+
+/* ---------------------- Death test implementation ------------------------ */
+// TODO: implement death test support on Linux / MacOS
+#if defined(WIN32)
+static void run_command(const char* command, int* exit_code, char* stderr_buf, int stderr_buf_size) {
+	/* Setup pipes for stdout and stderr */
+	HANDLE stderr_read = NULL;
+	HANDLE stderr_write = NULL;
+	SECURITY_ATTRIBUTES security_attributes = {
+		.nLength = sizeof(SECURITY_ATTRIBUTES),
+		.lpSecurityDescriptor = NULL,
+		.bInheritHandle = TRUE,
+	};
+	BOOL pipe_was_created = CreatePipe(&stderr_read, &stderr_write, &security_attributes, 0);
+	if (!pipe_was_created) {
+		fprintf(stderr, "%s:%d CreatePipe failed\n", __FILE__, __LINE__);
+		return;
+	}
+
+	/* Ensure the read handle to the pipe is not inherited. */
+	SetHandleInformation(stderr_read, HANDLE_FLAG_INHERIT, 0);
+
+	/* Create process */
+	PROCESS_INFORMATION process_info = { 0 };
+	STARTUPINFOA startup_info = {
+		.cb = sizeof(STARTUPINFOA),
+		.dwFlags = STARTF_USESTDHANDLES,
+		.hStdInput = NULL,
+		.hStdOutput = NULL,
+		.hStdError = stderr_write,
+	};
+	BOOL process_was_created = CreateProcessA(
+		NULL, // lpApplicationName
+		(LPSTR)(command), // lpCommandLine
+		NULL, // lpProcessAttributes
+		NULL, // lpThreadAttributes
+		TRUE, // bInheritHandles
+		0, // dwCreationFlags
+		NULL, // lpEnvironment
+		NULL, // lpCurrentDirectory
+		&startup_info, // lpStartupInfo
+		&process_info // lpProcessInformation
+	);
+
+	if (!process_was_created) {
+		fprintf(stderr, "%s:%d CreateProcess failed: %d\n", __FILE__, __LINE__, GetLastError());
+	}
+
+	/* Close write end of the pipe in the parent process */
+	CloseHandle(stderr_write);
+
+	/* Read stderr output */
+	if (stderr_buf && stderr_buf_size > 0) {
+		DWORD bytes_read = 0;
+		int total_read = 0;
+		while (total_read < stderr_buf_size - 1) {
+			DWORD bytes_to_read = stderr_buf_size - 1 - total_read;
+
+			if (!ReadFile(stderr_read, stderr_buf + total_read, bytes_to_read, &bytes_read, NULL) || bytes_read == 0) {
+				break;
+			}
+
+			total_read += bytes_read;
+		}
+		stderr_buf[total_read] = '\0';
+	}
+
+	/* Wait for process to finish, then get exit code */
+	WaitForSingleObject(process_info.hProcess, INFINITE);
+	GetExitCodeProcess(process_info.hProcess, (LPDWORD)exit_code);
+
+	/* Cleanup */
+	CloseHandle(stderr_read);
+	CloseHandle(process_info.hProcess);
+	CloseHandle(process_info.hThread);
+}
+
+bool rktest_run_death_test(const char* test_file, int test_line, const char* expected_stderr_in) {
+	bool did_pass = true;
+
+	/* Build command */
+	char test_exe[MAX_PATH];
+	GetModuleFileName(NULL, test_exe, MAX_PATH);
+	char command[MAX_PATH];
+	snprintf(command, MAX_PATH, "%s --rktest_filter=\"%s.%s\" --rktest_death_line=%d", test_exe, rktest_current_suite_name(), rktest_current_test_name(), test_line);
+
+	/* Run command */
+	char actual_stderr[1024];
+	int exit_code = 0;
+	run_command(command, &exit_code, actual_stderr, sizeof(actual_stderr));
+
+	/* Check that process died */
+	if (exit_code == 0) {
+		did_pass = false;
+		rktest_fail_current_test();
+		if (rktest_filenames_enabled()) {
+			printf("%s(%d): ", test_file, test_line);
+		}
+		printf("error: death test failed.\n");
+		printf("Expected non-zero exit code, but got 0\n");
+		printf("\n");
+	}
+
+	/* Strip newline characters from both expected and actual */
+	// Windows will output \r\n for newlines, but usually the user is just using \n.
+	// To make it saner to compare stderr, we just ignore the newline characters.
+	char expected_stderr[1024];
+	strncpy(expected_stderr, expected_stderr_in, sizeof(expected_stderr));
+	size_t actual_stderr_length = strlen(actual_stderr);
+	size_t expected_stderr_length = strlen(expected_stderr);
+	if (actual_stderr_length > 0 && actual_stderr[actual_stderr_length - 1] == '\n') {
+		actual_stderr[actual_stderr_length - 1] = '\0';
+	}
+	if (actual_stderr_length > 1 && actual_stderr[actual_stderr_length - 2] == '\r') {
+		actual_stderr[actual_stderr_length - 2] = '\0';
+	}
+	if (expected_stderr_length > 0 && expected_stderr[expected_stderr_length - 1] == '\n') {
+		expected_stderr[expected_stderr_length - 1] = '\0';
+	}
+	if (expected_stderr_length > 1 && expected_stderr[expected_stderr_length - 2] == '\r') {
+		expected_stderr[expected_stderr_length - 2] = '\0';
+	}
+
+	/* Check expected stderr */
+	if (!string_wildcard_match(actual_stderr, expected_stderr)) {
+		did_pass = false;
+		rktest_fail_current_test();
+		if (rktest_filenames_enabled()) {
+			printf("%s(%d): ", test_file, test_line);
+		}
+		printf("error: death test failed.\n");
+		printf("Expected stderr output to be:\n");
+		printf("  %s\n", expected_stderr);
+		printf("But received:\n");
+		printf("  %s\n", actual_stderr);
+		printf("\n");
+	}
+
+	return did_pass;
+}
+#endif // defined(WIN32)
 
 #endif /* DEFINE_RKTEST_IMPLEMENTATION */
 
