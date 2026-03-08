@@ -66,18 +66,20 @@ static void run_command(const char* command, int* exit_code, char* stderr_buf, i
 	CloseHandle(stderr_write);
 
 	/* Read stderr output */
-	DWORD bytes_read = 0;
-	int total_read = 0;
-	while (total_read < stderr_buf_size - 1) {
-		DWORD bytes_to_read = stderr_buf_size - 1 - total_read;
+	if (stderr_buf && stderr_buf_size > 0) {
+		DWORD bytes_read = 0;
+		int total_read = 0;
+		while (total_read < stderr_buf_size - 1) {
+			DWORD bytes_to_read = stderr_buf_size - 1 - total_read;
 
-		if (!ReadFile(stderr_read, stderr_buf + total_read, bytes_to_read, &bytes_read, NULL) || bytes_read == 0) {
-			break;
+			if (!ReadFile(stderr_read, stderr_buf + total_read, bytes_to_read, &bytes_read, NULL) || bytes_read == 0) {
+				break;
+			}
+
+			total_read += bytes_read;
 		}
-
-		total_read += bytes_read;
+		stderr_buf[total_read] = '\0';
 	}
-	stderr_buf[total_read] = '\0';
 
 	/* Wait for process to finish, then get exit code */
 	WaitForSingleObject(process_info.hProcess, INFINITE);
@@ -95,7 +97,7 @@ TEST(death_tests, foo) {
 		// run death test block
 		printf("%s %d\n", __FUNCTION__, line);
 		{
-			fprintf((__acrt_iob_func(2)), "Hello world!\n");
+			fprintf(stderr, "Hello world?\n");
 			exit(1);
 		};
 	} else if (rktest_death_test_line() == 0) {
@@ -109,7 +111,26 @@ TEST(death_tests, foo) {
 		int exit_code = 0;
 		run_command(command, &exit_code, stderr_buf, sizeof(stderr_buf));
 
-		printf("DEBUG: %s", stderr_buf);
-		printf("DEBUG: %d\n", exit_code);
+		bool is_assert = false;
+		if (exit_code == 0) {
+			if (rktest_filenames_enabled()) {
+				printf("%s(%d): ", __FILE__, __LINE__);
+			}
+			printf("error: Expected non-zero exit code, but got 0\n");
+			rktest_fail_current_test();
+			if (is_assert) {
+				return;
+			}
+		}
+
+		if (strcmp(stderr_buf, "Hello world!\n") != 0) {
+			if (rktest_filenames_enabled()) {
+				printf("%s(%d): ", __FILE__, __LINE__);
+			}
+			printf("error: Expected stderr output to be:\n");
+			printf("  %s\n", "Hello world!\n");
+			printf("But received:\n");
+			printf("  %s\n", stderr_buf);
+		}
 	}
 }
