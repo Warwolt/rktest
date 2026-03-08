@@ -135,6 +135,13 @@
 //   | FAIL()        | Generates a fatal failure, which returns from the current test.                  |
 //   | ADD_FAILURE() | Generates a nonfatal failure, which allows the current test to continue running. |
 //
+//   Death tests:
+//
+//   | Macro name                       | Assertion                                                                              |
+//   | -------------------------------- | -------------------------------------------------------------------------------------- |
+//   | EXPECT_DEATH(statement, message) | Expects `statement` to result in non-zero prorgam exit with `message` as stderr output |
+//
+//
 // OPTIONS
 //
 //   The unit test binary built with RK Test can take command line arguments:

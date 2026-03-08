@@ -1,5 +1,8 @@
 #include <rktest/rktest.h>
 
+// TODO: implement death test support on Linux / MacOS
+#if defined(WIN32)
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,3 +26,5 @@ TEST(death_tests, expect_death) {
 		exit(exit_code);
 	}, expected_stderr2);
 }
+
+#endif // defined(WIN32)
