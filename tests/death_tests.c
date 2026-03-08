@@ -12,7 +12,7 @@
 	}
 
 // TEST(death_tests, foo) {
-// 	ASSERT_DEATH({
+// 	EXPECT_DEATH({
 //         fprintf(stderr, "Error!\n");
 // 		exit(1);
 //     }, "Error!");
@@ -105,7 +105,7 @@ TEST(death_tests, foo) {
 		GetModuleFileName(NULL, test_exe, MAX_PATH);
 
 		char command[MAX_PATH];
-		snprintf(command, MAX_PATH, "%s --rktest_filter=\"%s\" --rktest_death_line=%d", test_exe, "death_tests.foo", line);
+		snprintf(command, MAX_PATH, "%s --rktest_filter=\"%s.%s\" --rktest_death_line=%d", test_exe, rktest_current_suite_name(), rktest_current_test_name(), line);
 
 		char stderr_buf[1024];
 		int exit_code = 0;
@@ -113,24 +113,30 @@ TEST(death_tests, foo) {
 
 		bool is_assert = false;
 		if (exit_code == 0) {
+			rktest_fail_current_test();
 			if (rktest_filenames_enabled()) {
 				printf("%s(%d): ", __FILE__, __LINE__);
 			}
-			printf("error: Expected non-zero exit code, but got 0\n");
-			rktest_fail_current_test();
+			printf("error: EXPECT_DEATH failed.\n");
+			printf("Expected non-zero exit code, but got 0\n");
 			if (is_assert) {
 				return;
 			}
 		}
 
 		if (strcmp(stderr_buf, "Hello world!\n") != 0) {
+			rktest_fail_current_test();
 			if (rktest_filenames_enabled()) {
 				printf("%s(%d): ", __FILE__, __LINE__);
 			}
-			printf("error: Expected stderr output to be:\n");
+			printf("error: EXPECT_DEATH failed.\n");
+			printf("Expected stderr output to be:\n");
 			printf("  %s\n", "Hello world!\n");
 			printf("But received:\n");
 			printf("  %s\n", stderr_buf);
+			if (is_assert) {
+				return;
+			}
 		}
 	}
 }

@@ -561,6 +561,8 @@ bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 bool rktest_colors_enabled(void);
 bool rktest_filenames_enabled(void);
 int rktest_death_test_line(void);
+const char* rktest_current_suite_name();
+const char* rktest_current_test_name();
 
 #define RKTEST_COLOR_GREEN (rktest_colors_enabled() ? "\033[32m" : "")
 #define RKTEST_COLOR_RED (rktest_colors_enabled() ? "\033[31m" : "")
@@ -851,6 +853,8 @@ static bool g_colors_enabled = false;
 static bool g_current_test_failed = false;
 static bool g_filenames_enabled = true;
 static int g_death_test_line = 0;
+static const char* g_current_suite_name = "";
+static const char* g_current_test_name = "";
 
 bool rktest_colors_enabled(void) {
 	return g_colors_enabled;
@@ -862,6 +866,14 @@ bool rktest_filenames_enabled(void) {
 
 int rktest_death_test_line(void) {
 	return g_death_test_line;
+}
+
+const char* rktest_current_suite_name() {
+	return g_current_suite_name;
+}
+
+const char* rktest_current_test_name() {
+	return g_current_test_name;
 }
 
 void rktest_fail_current_test(void) {
@@ -1151,6 +1163,10 @@ static rktest_environment_t setup_test_env(const rktest_config_t* config) {
 
 static bool run_test(const rktest_test_t* test, const rktest_config_t* config) {
 	rktest_log_info("[ RUN      ] ", "%s.%s \n", test->suite_name, test->test_name);
+
+	/* Set test info */
+	g_current_suite_name = test->suite_name;
+	g_current_test_name = test->test_name;
 
 	/* Run setup if exists */
 	if (test->setup) {
