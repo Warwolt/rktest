@@ -205,7 +205,7 @@ Death tests:
 
 | Macro name                       | Assertion                                                                              |
 | -------------------------------- | -------------------------------------------------------------------------------------- |
-| EXPECT_DEATH(statement, message) | Expects `statement` to result in non-zero prorgam exit with `message` as stderr output |
+| EXPECT_DEATH(statement, message) | Expects `statement` to result in non-zero program exit with `message` as stderr output |
 
 ## Filtering tests
 
