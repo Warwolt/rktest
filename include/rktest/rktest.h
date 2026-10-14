@@ -770,7 +770,7 @@ rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	clock_gettime(CLOCK_REALTIME, &timer->end);
 	rktest_millis_t ms = 0;
 	ms += (rktest_millis_t)((timer->end.tv_sec - timer->start.tv_sec) * 1000.0); // seconds
-	ms += (rktest_millis_t)((timer->end.tv_nsec - timer->start.tv_nsec) / 1000.0); // milliseconds
+	ms += (rktest_millis_t)((timer->end.tv_nsec - timer->start.tv_nsec) / 1000000.0); // milliseconds
 	return ms;
 }
 #endif
