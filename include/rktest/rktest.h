@@ -170,6 +170,15 @@
 #ifndef RKTEST_H
 #define RKTEST_H
 
+#ifdef __TINYC__     // https://repo.or.cz/tinycc.git
+#undef __attribute__ // apparently need to undef this on Linux
+#endif
+#if !(defined(_MSC_VER) || defined(__GNUC__) || (defined(__TINYC__)))
+#error Trying to compile RK Test with an unsupported compiler.
+#elif !(defined(__unix__) || defined(__APPLE__) || defined(_WIN32))
+#error Trying to compile RK Test on an unsupported platform.
+#endif
+
 /* Public API --------------------------------------------------------------- */
 int rktest_main(int argc, const char* argv[]);
 
@@ -339,7 +348,7 @@ int rktest_main(int argc, const char* argv[]);
 #define ASSERT_CASE_STRNE_INFO(lhs, rhs, ...) RKTEST_CHECK_STRNE(lhs, rhs, RKTEST_CHECK_ASSERT, RKTEST_CASE_INSENSETIVE, __VA_ARGS__)
 #define ASSERT_CHAR_EQ_INFO(lhs, rhs, ...) RKTEST_CHECK_CHAR_EQ(lhs, rhs, RKTEST_CHECK_ASSERT, __VA_ARGS__)
 
-#if defined(WIN32)
+#if defined(_WIN32)
 // TODO: implement death test support on Linux / MacOS
 #define EXPECT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_EXPECT)
 #define ASSERT_DEATH(expr, expected_stderr) RKTEST_CHECK_DEATH(expr, expected_stderr, RKTEST_CHECK_ASSERT)
@@ -354,18 +363,14 @@ int rktest_main(int argc, const char* argv[]);
 	__declspec(allocate("rktest$data"))
 #elif defined(__APPLE__)
 #define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("__DATA,rktest")))
-#elif defined(__unix__)
+#else
 #define ADD_TO_MEMORY_SECTION_BEGIN __attribute__((used, section("rktest")))
 #endif
 
 #if defined(_MSC_VER)
 #define ADD_TO_MEMORY_SECTION_END __pragma(data_seg(pop));
-#elif defined(__APPLE__)
-#define ADD_TO_MEMORY_SECTION_END
-#elif defined(__unix__)
-#define ADD_TO_MEMORY_SECTION_END
 #else
-#error Trying to compile RK Test on an unsupported platform.
+#define ADD_TO_MEMORY_SECTION_END
 #endif
 
 // Collects all the information from a TEST() macro
@@ -395,7 +400,7 @@ int rktest_strcasecmp(const char* lhs, const char* rhs);
 bool rktest_floats_within_4_ulp(float lhs, float rhs);
 bool rktest_doubles_within_4_ulp(double lhs, double rhs);
 
-#if defined(WIN32)
+#if defined(_WIN32)
 // TODO: implement death test support on Linux / MacOS
 bool rktest_run_death_test(const char* test_file, int test_line, const char* expected_stderr);
 #endif
@@ -636,7 +641,8 @@ const char* rktest_current_test_name(void);
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _MSC_VER
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #elif defined(__MACH__)
 #include <mach/mach_time.h>
@@ -705,7 +711,7 @@ static void* vec_growf(void* vec, size_t elem_size, size_t addlen, size_t min_ca
 /* ------------------------- Timer implementation -------------------------- */
 typedef int rktest_millis_t;
 
-#if defined(WIN32)
+#if defined(_WIN32)
 typedef struct {
 	double pc_freq;
 	__int64 start;
@@ -723,7 +729,7 @@ typedef struct {
 } rktest_timer_t;
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 rktest_timer_t rktest_timer_start(void) {
 	rktest_timer_t timer;
 
@@ -752,7 +758,7 @@ rktest_timer_t rktest_timer_start(void) {
 }
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 rktest_millis_t rktest_timer_stop(rktest_timer_t* timer) {
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);
@@ -858,7 +864,7 @@ __declspec(allocate("rktest$end")) extern const rktest_test_t* const test_data_e
 extern const rktest_test_t* const __start_rktest __asm("section$start$__DATA$rktest");
 extern const rktest_test_t* const __stop_rktest __asm("section$end$__DATA$rktest");
 __attribute__((used, section("__DATA,rktest"))) const rktest_test_t* const dummy = NULL;
-#elif defined(__unix__)
+#else
 extern const rktest_test_t* const __start_rktest;
 extern const rktest_test_t* const __stop_rktest;
 __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL;
@@ -867,7 +873,7 @@ __attribute__((used, section("rktest"))) const rktest_test_t* const dummy = NULL
 #if defined(_MSC_VER)
 #define TEST_DATA_BEGIN (&test_data_begin + 1)
 #define TEST_DATA_END (&test_data_end)
-#elif defined(__unix__) || defined(__APPLE__)
+#else
 #define TEST_DATA_BEGIN (&__start_rktest)
 #define TEST_DATA_END (&__stop_rktest)
 #endif
@@ -1325,7 +1331,7 @@ int rktest_main(int argc, const char* argv[]) {
 
 /* ---------------------- Death test implementation ------------------------ */
 // TODO: implement death test support on Linux / MacOS
-#if defined(WIN32)
+#if defined(_WIN32)
 static void run_command(const char* command, int* exit_code, char* stderr_buf, int stderr_buf_size) {
 	/* Setup pipes for stdout and stderr */
 	HANDLE stderr_read = NULL;
@@ -1367,7 +1373,7 @@ static void run_command(const char* command, int* exit_code, char* stderr_buf, i
 	);
 
 	if (!process_was_created) {
-		fprintf(stderr, "%s:%d CreateProcess failed: %d\n", __FILE__, __LINE__, GetLastError());
+		fprintf(stderr, "%s:%d CreateProcess failed: %ld\n", __FILE__, __LINE__, GetLastError());
 	}
 
 	/* Close write end of the pipe in the parent process */
@@ -1462,7 +1468,7 @@ bool rktest_run_death_test(const char* test_file, int test_line, const char* exp
 
 	return did_pass;
 }
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 
 #endif /* DEFINE_RKTEST_IMPLEMENTATION */
 
